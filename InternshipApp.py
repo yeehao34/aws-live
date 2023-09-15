@@ -27,6 +27,10 @@ jobTable = 'job'
 def home():
     return render_template('login.html')
 
+@app.route("/<page_name>")
+def render_page(page_name):
+    return render_template('%s.html' % page_name)
+
 
 
 if __name__ == '__main__':

@@ -5,19 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ITP Home 123</title>
 
-    <link rel="stylesheet" href="./dist/assets/css/main/app.css" />
+    <link rel="stylesheet" href="assets/css/main/app.css" />
     <link
       rel="shortcut icon"
-      href="./dist/assets/images/logo/favicon.svg"
+      href="assets/images/logo/favicon.svg"
       type="image/x-icon"
     />
     <link
       rel="shortcut icon"
-      href="./dist/assets/images/logo/favicon.png"
+      href="assets/images/logo/favicon.png"
       type="image/png"
     />
 
-    <link rel="stylesheet" href="./dist/assets/css/shared/iconly.css" />
+    <link rel="stylesheet" href="assets/css/shared/iconly.css" />
   </head>
 
   <body>
@@ -26,7 +26,7 @@
         <header class="mb-5">
           <div class="header-top">
             <div class="container">
-                <h3>FOCS ITP OnMyFinger aaasaa 123</h3>
+                <h3 class="heading3aaa">FOCS ITP OnMyFinger aaasaa 123</h3>
               <div class="header-top-right">
                 <div class="dropdown mx-3">
                   <a
@@ -37,7 +37,7 @@
                     aria-expanded="false"
                   >
                     <div class="avatar avatar-md2">
-                      <img src="{{ url_for('static', filename= 'images/faces/1.jpg') }}" alt="Avatar" />
+                      <img src="assets/images/faces/1.jpg" alt="Avatar" />
                     </div>
                     <div class="text">
                       <h6 class="user-dropdown-name">Log In / Sign Up</h6>
@@ -50,13 +50,13 @@
                     class="dropdown-menu dropdown-menu-end shadow-lg"
                     aria-labelledby="topbarUserDropdown"
                   >
-                    <li><a class="dropdown-item" href="./dist/studentLogin.html">Student</a></li>
+                    <li><a class="dropdown-item" href="/studentLogin">Student</a></li>
                     <li><a class="dropdown-item" href="#">Supervisor</a></li>
                     <li><a class="dropdown-item" href="#">Company</a></li>
                     <li><a class="dropdown-item" href="#">ITP Committee</a></li>
                     <li><hr class="dropdown-divider" /></li>
                     <li>
-                      <a class="dropdown-item" href="./dist/auth-login.html">Logout</a>
+                      <a class="dropdown-item" href="auth-login.html">Logout</a>
                     </li>
                   </ul>
                 </div>
@@ -72,7 +72,7 @@
             <div class="container">
               <ul>
                 <li class="menu-item">
-                  <a href="./dist/login.html" class="menu-link">
+                  <a href="login.html" class="menu-link">
                     <i class="bi bi-grid-fill"></i>
                     <span>Home</span>
                   </a>
@@ -103,7 +103,7 @@
                         <div class="carousel-inner">
                           <div class="carousel-item active">
                             <img
-                              src="./dist/assets/images/logo/tarumt.png"
+                              src="assets/images/logo/tarumt.png"
                               class="d-block w-100 px-5 py-5"
                               alt="Image Architecture"
                             />
@@ -137,7 +137,7 @@
                         <div class="card-content pb-4">
                           <div class="recent-message d-flex px-4 py-3">
                             <div class="avatar avatar-lg">
-                              <img src="./dist/assets/images/faces/1.jpg" />
+                              <img src="assets/images/faces/1.jpg" />
                             </div>
                             <div class="name ms-4">
                               <h5 class="mb-1">Student</h5>
@@ -148,7 +148,7 @@
                             <button
                               class="btn btn-block btn-xl btn-outline-primary font-bold mt-3"
                             >
-                              <a href="./dist/studentLogin.html">Sign In</a>
+                              <a href="/studentLogin">Sign In</a>
                             </button>
                           </div>
                         </div>
@@ -162,7 +162,7 @@
                         <div class="card-content pb-4">
                           <div class="recent-message d-flex px-4 py-3">
                             <div class="avatar avatar-lg">
-                              <img src="./dist/assets/images/faces/1.jpg" />
+                              <img src="assets/images/faces/1.jpg" />
                             </div>
                             <div class="name ms-4">
                               <h5 class="mb-1">Supervisor</h5>
@@ -189,7 +189,7 @@
                         <div class="card-content pb-4">
                           <div class="recent-message d-flex px-4 py-3">
                             <div class="avatar avatar-lg">
-                              <img src="./dist/assets/images/faces/1.jpg" />
+                              <img src="assets/images/faces/1.jpg" />
                             </div>
                             <div class="name ms-4">
                               <h5 class="mb-1">Company</h5>
@@ -214,7 +214,7 @@
                         <div class="card-content pb-4">
                           <div class="recent-message d-flex px-4 py-3">
                             <div class="avatar avatar-lg">
-                              <img src="./dist/assets/images/faces/1.jpg" />
+                              <img src="assets/images/faces/1.jpg" />
                             </div>
                             <div class="name ms-4">
                               <h5 class="mb-1">Committee</h5>
@@ -249,11 +249,14 @@
         </footer>
       </div>
     </div>
-    <script src="./dist/assets/js/bootstrap.js"></script>
-    <script src="./dist/assets/js/app.js"></script>
-    <script src="./dist/assets/js/pages/horizontal-layout.js"></script>
+    <script src="assets/js/bootstrap.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/pages/horizontal-layout.js"></script>
 
-    <script src="./dist/assets/extensions/apexcharts/apexcharts.min.js"></script>
-    <script src="./dist/assets/js/pages/dashboard.js"></script>
+    <script src="assets/extensions/apexcharts/apexcharts.min.js"></script>
+    <script src="assets/js/pages/dashboard.js"></script>
+    <script>
+      document.getElementsByClassName(".heading3aaa")[0].innerHTML = "ABCDEFGH";
+    </script>
   </body>
 </html>
