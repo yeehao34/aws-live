@@ -12,67 +12,19 @@
 
     <link rel="stylesheet" href="assets/extensions/choices.js/public/assets/styles/choices.css">
     <link rel="stylesheet" href="assets/css/shared/iconly.css" />
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="assets/extensions/filepond/filepond.css">
+    <link rel="stylesheet" href="assets/extensions/filepond-plugin-image-preview/filepond-plugin-image-preview.css">
+    <link rel="stylesheet" href="assets/extensions/toastify-js/src/toastify.css">
+    <link rel="stylesheet" href="assets/css/pages/filepond.css">
+
 </head>
 
 <body>
     <div id="app">
         <div id="main" class="layout-horizontal">
-            <header class="mb-5">
-                <div class="header-top">
-                    <div class="container">
-                        <h3>FOCS ITP OnMyFinger</h3>
-                        <div class="header-top-right">
-                            <div class="dropdown mx-3">
-                                <a href="#" id="topbarUserDropdown"
-                                    class="user-dropdown d-flex align-items-center dropend dropdown-toggle"
-                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                    <div class="avatar avatar-md2">
-                                        <img src="assets/images/faces/1.jpg" alt="Avatar" />
-                                    </div>
-                                    <div class="text">
-                                        <h6 class="user-dropdown-name">Log In / Sign Up</h6>
-                                        <p class="user-dropdown-status text-sm text-muted">
-                                            Please Sign in according to your role
-                                        </p>
-                                    </div>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end shadow-lg"
-                                    aria-labelledby="topbarUserDropdown">
-                                    <li>
-                                        <a class="dropdown-item" href="studentLogin.html">Student</a>
-                                    </li>
-                                    <li><a class="dropdown-item" href="#">Supervisor</a></li>
-                                    <li><a class="dropdown-item" href="#">Company</a></li>
-                                    <li><a class="dropdown-item" href="#">ITP Committee</a></li>
-                                    <li>
-                                        <hr class="dropdown-divider" />
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="auth-login.html">Logout</a>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <!-- Burger button responsive -->
-                            <a href="#" class="burger-btn d-block d-xl-none">
-                                <i class="bi bi-justify fs-3"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <nav class="main-navbar">
-                    <div class="container">
-                        <ul>
-                            <li class="menu-item">
-                                <a href="login.html" class="menu-link">
-                                    <i class="bi bi-grid-fill"></i>
-                                    <span>Home</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
-            </header>
 
             <div class="content-wrapper container">
                 <div class="page-title">
@@ -87,7 +39,7 @@
                             <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                                 <ol class="breadcrumb">
                                     <li class="breadcrumb-item">
-                                        <a href="login.html">Home</a>
+                                        <a href="/login">Home</a>
                                     </li>
                                     <li class="breadcrumb-item active" aria-current="page">
                                         Student Sign Up
@@ -102,13 +54,16 @@
                     <section id="multiple-column-form">
                         <div class="row match-height">
                             <div class="col-12">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h4 class="card-title">Academic Details</h4>
-                                    </div>
-                                    <div class="card-content">
-                                        <div class="card-body">
-                                            <form class="form" data-parsley-validate>
+                                <!-- <form class="form" data-parsley-validate> -->
+                                <form action="/studentLogin" class="form">
+                                    <div class="card">
+
+                                        <div class="card-header">
+                                            <h4 class="card-title">Academic Details</h4>
+                                        </div>
+                                        <div class="card-content">
+                                            <div class="card-body">
+
                                                 <div class="row">
                                                     <div class="col-md-6 mb-4">
                                                         <fieldset class="form-group mandatory">
@@ -143,136 +98,238 @@
                                                     </div>
                                                     <div class="col-md-6 col-12">
                                                         <div class="form-group mandatory">
-                                                            <label for="country-floating" class="form-label">Tutorial
+                                                            <label for="tutorialGroup" class="form-label">Tutorial
                                                                 Group</label>
                                                             <input type="number" step="1" id="tutorialGroup"
-                                                                class="form-control" name="country-floating"
+                                                                class="form-control" name="tutorialGroup"
                                                                 placeholder="eg: 1 - 5" data-parsley-required="true" />
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6 col-12">
                                                         <div class="form-group mandatory">
-                                                            <label for="company-column" class="form-label">Student
+                                                            <label for="studentId" class="form-label">Student
                                                                 ID</label>
                                                             <input type="text" id="studentId" class="form-control"
-                                                                name="company-column" placeholder="eg: 99WMR99999"
+                                                                name="studentId" placeholder="eg: 99WMR99999"
                                                                 data-parsley-required="true" />
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6 col-12">
                                                         <div class="form-group mandatory">
-                                                            <label for="email-id-column" class="form-label">Student
+                                                            <label for="studentEmail" class="form-label">Student
                                                                 Email</label>
                                                             <input type="email" id="studentEmail" class="form-control"
-                                                                name="email-id-column"
+                                                                name="studentEmail"
                                                                 placeholder="eg: xxx-xx99@student.tarc.edu.my"
                                                                 data-parsley-required="true" />
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6 col-12">
                                                         <div class="form-group mandatory">
-                                                            <label for="email-id-column" class="form-label">CGPA</label>
+                                                            <label for="cgpa" class="form-label">CGPA</label>
                                                             <input type="number" id="cgpa" class="form-control"
                                                                 placeholder="eg: 1.0 - 4.0"
                                                                 data-parsley-required="true" />
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="row">
-                                                    <div class="col-md-6 col-12">
-                                                        <!-- <div class="form-group mandatory">
-                                                                <select class="choices form-select" id="universitySupervisorName">
-                                                                </select>
-                                                        </div> -->
-                                                        <div class="form-group mandatory">
-                                                            <label for="email-id-column" class="form-label">University
-                                                                Supervisor</label>
-                                                            <input type="text" id="cgpa" class="form-control"
-                                                                placeholder="UC Supervisor Name"
-                                                                data-parsley-required="true" />
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6 col-12">
-                                                        <div class="form-group">
-                                                            <label for="email-id-column" class="form-label">University
-                                                                Supervisor Email</label>
-                                                            <input type="text" id="cgpa" class="form-control"
-                                                                placeholder="eg: xxx@tarc.edu.my" disabled />
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-12">
-                                                        <div class="form-group">
-                                                            <div class="form-check mandatory">
-                                                                <input type="checkbox" id="checkbox5"
-                                                                    class="form-check-input" checked
-                                                                    data-parsley-required="true"
-                                                                    data-parsley-error-message="You have to accept our terms and conditions to proceed." />
-                                                                <label for="checkbox5"
-                                                                    class="form-check-label form-label">I accept these
-                                                                    terms and conditions.</label>
-                                                            </div>
-                                                        </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h4 class="card-title">Supervisor</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-6 col-12">
+                                                    <div class="form-group mandatory">
+                                                        <label for="supervisor" class="form-label">University
+                                                            Supervisor</label>
+                                                        <select
+                                                            class="js-example-placeholder-single js-states form-select"
+                                                            data-parsley-required="true" id="supervisor">
+                                                            <option></option>
+                                                        </select>
                                                     </div>
                                                 </div>
-                                                <div class="row">
-                                                    <div class="col-12">
-                                                        <div class="form-group mandatory">
-                                                            <fieldset>
-                                                                <label class="form-label">
-                                                                    Favourite Colour
-                                                                </label>
-                                                                <div class="form-check">
-                                                                    <input class="form-check-input" type="radio"
-                                                                        name="flexRadioDefault" id="flexRadioDefault1"
-                                                                        data-parsley-required="true" />
-                                                                    <label class="form-check-label form-label"
-                                                                        for="flexRadioDefault1">
-                                                                        Red
-                                                                    </label>
-                                                                </div>
-                                                                <div class="form-check">
-                                                                    <input class="form-check-input" type="radio"
-                                                                        name="flexRadioDefault"
-                                                                        id="flexRadioDefault2" />
-                                                                    <label class="form-check-label form-label"
-                                                                        for="flexRadioDefault2">
-                                                                        Blue
-                                                                    </label>
-                                                                </div>
-                                                            </fieldset>
-                                                        </div>
+                                                <div class="col-md-6 col-12">
+                                                    <div class="form-group">
+                                                        <label for="supervisorEmail" class="form-label">University
+                                                            Supervisor Email</label>
+                                                        <input type="text" id="supervisorEmail" class="form-control"
+                                                            placeholder="eg: xxx@tarc.edu.my" disabled />
                                                     </div>
                                                 </div>
-                                                <div class="row">
-                                                    <div class="col-12 d-flex justify-content-end">
-                                                        <button type="submit" class="btn btn-primary me-1 mb-1">
-                                                            Submit
-                                                        </button>
-                                                        <button type="reset" class="btn btn-light-secondary me-1 mb-1">
-                                                            Reset
-                                                        </button>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h4 class="card-title">Personal Data</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-6 col-12">
+                                                    <div class="form-group mandatory">
+                                                        <label for="studentName" class="form-label">Name</label>
+                                                        <input type="text" id="studentName" class="form-control"
+                                                            name="studentName" placeholder="Name As In NRIC"
+                                                            data-parsley-required="true" />
                                                     </div>
                                                 </div>
-                                            </form>
+                                                <div class="col-md-6 col-12">
+                                                    <div class="form-group mandatory">
+                                                        <label for="nric" class="form-label">NRIC</label>
+                                                        <input type="text" id="nric" class="form-control" name="nric"
+                                                            placeholder="999999-99-9999" data-parsley-required="true" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mb-4">
+                                                    <fieldset class="form-group mandatory">
+                                                        <label for="gender" class="form-label">Gender</label>
+                                                        <select class="form-select" id="gender"
+                                                            data-parsley-required="true">
+                                                            <option value="" disabled selected hidden>Please Select One
+                                                            </option>
+                                                            <option value="M">Male</option>
+                                                            <option value="F">Female</option>
+                                                        </select>
+                                                    </fieldset>
+                                                </div>
+                                                <div class="col-md-6 mb-4">
+                                                    <fieldset class="form-group mandatory">
+                                                        <label for="transport" class="form-label">Own
+                                                            Transport</label>
+                                                        <select class="form-select" id="transport"
+                                                            data-parsley-required="true">
+                                                            <option value="" disabled selected hidden>Please Select One
+                                                            </option>
+                                                            <option value="Y">Yes</option>
+                                                            <option value="N">No</option>
+                                                        </select>
+                                                    </fieldset>
+                                                </div>
+                                                <div class="col-md-6 mb-4">
+                                                    <div class="form-group mb-3">
+                                                        <label for="healthRemark" class="form-label">Health
+                                                            Remarks</label>
+                                                        <textarea class="form-control" id="healthRemark" rows="3"
+                                                            placeholder="Please state the details if you have any physical defects or is your health in any way impaired."></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mb-4">
+                                                    <!-- File uploader with image preview -->
+                                                    <label for="profile" class="form-label">Profile Picture</label>
+                                                    <input id="profile" type="file" class="image-preview-filepond">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title">Contact Information</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 col-12">
+                                            <div class="form-group mandatory">
+                                                <label for="personalEmail" class="form-label">Personal
+                                                    Email</label>
+                                                <input type="email" id="personalEmail" class="form-control"
+                                                    name="personalEmail" placeholder="Any active Personal Email"
+                                                    data-parsley-required="true" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-12">
+                                            <div class="form-group mandatory">
+                                                <label for="mobile" class="form-label">Mobile
+                                                    Number</label>
+                                                <input type="text" id="mobile" class="form-control" name="mobile"
+                                                    placeholder="e.g: 012-3456789" data-parsley-required="true" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-4">
+                                            <div class="form-group mb-3 mandatory">
+                                                <label for="termAddress" class="form-label">Term
+                                                    Address</label>
+                                                <textarea class="form-control" id="termAddress" rows="3"
+                                                    placeholder="Current Term address"
+                                                    data-parsley-required="true"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-4">
+                                            <div class="form-group mb-3 mandatory">
+                                                <label for="permAddress" class="form-label">Permanent
+                                                    Address</label>
+                                                <textarea class="form-control" id="permAddress" rows="3"
+                                                    placeholder="Hometown address"
+                                                    data-parsley-required="true"></textarea>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </section>
-                </div>
-            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title">Declaration</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <p>
+                                                I UNDERSTAND THAT I MUST COMPLETE THE FULL DURATION OF THE
+                                                INDUSTRIAL TRAINING PROGRAMME PERIOD SATISFACTORILY IN ORDER TO
+                                                PASS THE BAIT305C/AMIT3205 COURSE. I AGREE TO ABIDE BY THE RULES
+                                                AND REGULATIONS OF THE COMPANY CONCERNED AND I WILL ALWAYS
+                                                UPHOLD THE GOOD NAME OF THE UNIVERSITY COLLEGE AT ALL TIMES
+                                                DURING THE WHOLE DURATION OF THE INDUSTRIAL TRAINING PROGRAMME.
+                                            </p>
+                                            <div class="form-group">
 
-            <footer>
-                <div class="container">
-                    <div class="footer clearfix mb-0 text-muted">
-                        <div class="float-start">
-                            <p>2023 &copy; TAR UMT FOCS ITP</p>
+                                                <div class="form-check mandatory">
+
+                                                    <input type="checkbox" id="declare" class="form-check-input" checked
+                                                        data-parsley-required="true"
+                                                        data-parsley-error-message="You have to accept our terms and conditions to proceed." />
+                                                    <label for="declare" class="form-check-label form-label">I
+                                                        Accept</label>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-primary me-1 mb-1">
+                                        Submit
+                                    </button>
+                                    <button type="reset" class="btn btn-light-secondary me-1 mb-1">
+                                        Reset
+                                    </button>
+                                </div>
+                            </div>
+                            </form>
                         </div>
+                </div>
+                </section>
+            </div>
+        </div>
+
+        <footer>
+            <div class="container">
+                <div class="footer clearfix mb-0 text-muted">
+                    <div class="float-start">
+                        <p>2023 &copy; TAR UMT FOCS ITP</p>
                     </div>
                 </div>
-            </footer>
-        </div>
+            </div>
+        </footer>
+    </div>
     </div>
     <script src="assets/js/bootstrap.js"></script>
     <script src="assets/js/app.js"></script>
@@ -280,6 +337,7 @@
 
     <script src="assets/extensions/apexcharts/apexcharts.min.js"></script>
     <script src="assets/js/pages/dashboard.js"></script>
+    <script src='assets/js/header.js'></script>
 
     <script src="assets/extensions/choices.js/public/assets/scripts/choices.js"></script>
     <script src="assets/js/pages/form-element-select.js"></script>
@@ -287,10 +345,27 @@
     <script src="assets/extensions/jquery/jquery.min.js"></script>
     <script src="assets/extensions/parsleyjs/parsley.min.js"></script>
     <script src="assets/js/pages/parsley.js"></script>
+    <script src="assets/extensions/filepond/filepond.js"></script>
+    <script src="assets/extensions/toastify-js/src/toastify.js"></script>
+    <script src="assets/js/pages/filepond.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
-        //declare function
-        //auto detect change in level value
+        $(document).ready(function () {
+            $(".js-example-placeholder-single").select2({
+                placeholder: "Enter University Supervisor Name",
+                allowClear: true,
+                data: //only professor name
+                    professorArray.map(function (item) {
+                        return {
+                            id: item[0],
+                            text: item[0]
+                        };
+                    })
+            });
+        });
+
         document.getElementById("level").addEventListener("change", updateProgrammeOptionfromLevel);
         updateProgrammeOptionfromLevel();
 
@@ -319,11 +394,22 @@
         //define array of pair data (professor name, email)
         var professorArray = [
             ["Dr. Tan Choo Kim", "tck@tarc.edu.my"],
-            ["Dr. See Kwee Teck", "tck@tarc.edu.my"],
-            ["Dr. Ding Yin Hong", "tck@tarc.edu.my"],
-            ["Dr. Tan Chi Wee", "tck@tarc.edu.my"],
-            ["Dr. Tew Yi Qi", "tck@tarc.edu.my"]
+            ["Dr. See Kwee Teck", "skt@tarc.edu.my"],
+            ["Dr. Ding Yin Hong", "dyh@tarc.edu.my"],
+            ["Dr. Tan Chi Wee", "tcw@tarc.edu.my"],
+            ["Dr. Tew Yi Qi", "tyq@tarc.edu.my"]
         ];
+
+        //auto update supervisor email when supervisor name is selected from dropdown
+        $(".js-example-placeholder-single").on("select2:select", function (e) {
+            var data = e.params.data;
+            var supervisorEmail = document.getElementById("supervisorEmail");
+            for (var i = 0; i < professorArray.length; i++) {
+                if (professorArray[i][0] == data.text) {
+                    supervisorEmail.value = professorArray[i][1];
+                }
+            }
+        });
 
     </script>
 </body>
