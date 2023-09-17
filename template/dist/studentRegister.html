@@ -218,9 +218,83 @@
                                                             placeholder="Please state the details if you have any physical defects or is your health in any way impaired."></textarea>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6 mb-4 form-group mandatory">
-                                                    <label for="profile" class="form-label">Profile Picture</label>
-                                                    <input type="file" name="profile" class="form-control"
+                                                <div class="col-md-6 mb-4">
+                                                    <div class="form-group mandatory">
+                                                        <label for="profile" class="form-label">Profile Picture</label>
+                                                        <input type="file" accept="image/*" id="profile" class="form-control" name="profile"
+                                                          data-parsley-required="true" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h4 class="card-title">Contact Information</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-6 col-12">
+                                                    <div class="form-group mandatory">
+                                                        <label for="personalEmail" class="form-label">Personal
+                                                            Email</label>
+                                                        <input type="email" id="personalEmail" class="form-control"
+                                                            name="personalEmail" placeholder="Any active Personal Email"
+                                                            data-parsley-required="true" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-12">
+                                                    <div class="form-group mandatory">
+                                                        <label for="mobile" class="form-label">Mobile
+                                                            Number</label>
+                                                        <input type="text" id="mobile" class="form-control"
+                                                            name="mobile" placeholder="e.g: 012-3456789"
+                                                            data-parsley-required="true" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mb-4">
+                                                    <div class="form-group mb-3 mandatory">
+                                                        <label for="termAddress" class="form-label">Term
+                                                            Address</label>
+                                                        <textarea class="form-control" id="termAddress" rows="3"
+                                                            placeholder="Current Term address"
+                                                            data-parsley-required="true"></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mb-4">
+                                                    <div class="form-group mb-3 mandatory">
+                                                        <label for="permAddress" class="form-label">Permanent
+                                                            Address</label>
+                                                        <textarea class="form-control" id="permAddress" rows="3"
+                                                            placeholder="Hometown address"
+                                                            data-parsley-required="true"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title">Declaration</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <p>
+                                                I UNDERSTAND THAT I MUST COMPLETE THE FULL DURATION OF THE
+                                                INDUSTRIAL TRAINING PROGRAMME PERIOD SATISFACTORILY IN ORDER TO
+                                                PASS THE BAIT305C/AMIT3205 COURSE. I AGREE TO ABIDE BY THE RULES
+                                                AND REGULATIONS OF THE COMPANY CONCERNED AND I WILL ALWAYS
+                                                UPHOLD THE GOOD NAME OF THE UNIVERSITY COLLEGE AT ALL TIMES
+                                                DURING THE WHOLE DURATION OF THE INDUSTRIAL TRAINING PROGRAMME.
+                                            </p>
+                                            <div class="form-group">
+
+                                                <div class="form-check mandatory">
+
+                                                    <input type="checkbox" id="declare" class="form-check-input" checked
                                                         data-parsley-required="true"
                                                         data-parsley-error-message="You are required to choose a profile picture to proceed." />
                                                 </div>
