@@ -155,10 +155,6 @@ def StudLogin():
     try:
         cursor.execute(retrieveStudentPersonal_sql, (studEmail, nric))
         studentPersonal = cursor.fetchone()
-        if studentPersonal is not None:
-            retrieveStudent_sql = "SELECT * FROM " + \
-                studentTable + " WHERE StudentEmail = %s"
-            cursor.execute(retrieveStudent_sql, (studEmail))
     except Exception as e:
         connection.rollback()  # Rollback the transaction if an exception occurs
     finally:
@@ -265,13 +261,15 @@ def updateStudProfile():
             profilePic = request.files['profile']
             if profilePic.filename != '':
                 # Upload image file in S3
-                uploadToS3(profilePic, "students/" + studEmail + "/profile.png")
+                uploadToS3(profilePic, "students/" +
+                           studEmail + "/profile.png")
                 profilePath = "students/" + studEmail + "/profile.png"
                 # Update profile pic path in Student Table
                 cursor.execute(updateStudProfile_sql, (profilePath, studEmail))
 
         cursor.execute(updateStud_sql, (cgpa, studEmail))
-        cursor.execute(updateStudPersonal_sql, (ownTransport,healthRemark, personalEmail, mobile, termAddr, studEmail))
+        cursor.execute(updateStudPersonal_sql, (ownTransport,
+                       healthRemark, personalEmail, mobile, termAddr, studEmail))
         connection.commit()
         flash("Your profile has been updated!", 'update-success')
         print("success")
@@ -288,25 +286,24 @@ def updateStudProfile():
 
 @app.route("/AddCompany", methods=['POST'])
 def AddComp():
+
     # Company Table
-    compName = request.form['compName']
-    username = request.form['username']
-    password = request.form['password']
+    compName = request.form['companyName']
+    username = request.form['cUsername']
+    password = request.form['cPassword']
     otClaim = request.form['otClaim']
-    compAddr = request.form['compAddr']
+    compAddr = request.form['address']
     ssmCert = request.files['ssmCert']
-    industry = request.form['industry']
-    compLogo = request.files['compLogo']
+    industry = request.form.getlist('industries')
     totalStaff = request.form['totalStaff']
     companyStatus = "Pending"
-    website = request.form['website']
+    website = request.form.get('website', '')
     # FK PersonInChargeId <-- CompanyPersonnel Table
     # CompanyPersonnel Table
-    # picId = request.form['picId']
-    name = request.form['name']
+    name = request.form['personName']
     designation = request.form['designation']
-    contactNo = request.form['contactNo']
-    email = request.form['email']
+    contactNo = request.form['contact']
+    email = request.form['pEmail']
 
     insertComp_sql = "INSERT INTO " + companyTable + \
         " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -314,44 +311,53 @@ def AddComp():
         companyPersonnelTable + " VALUES (%s, %s, %s, %s, %s)"
     connection = create_connection()
     cursor = connection.cursor()
-
+    delimiter = '|'
     try:
+        print("hii")
+        success = ""
         # Retrieve company id sequence number from table SEQ_MATRIX
         retrieveSeqNo_sql = "SELECT SEQ_NO FROM " + \
-            sequenceTable + " WHERE TBL_NAME = " + companyTable
+            sequenceTable + " WHERE TBL_NAME = '" + companyTable + "'"
         cursor.execute(retrieveSeqNo_sql)
         seqNo = cursor.fetchone()[0]
         compId = "CP" + fillLeftZero(6, seqNo)
         # Retrieve person in charge id sequence number from table SEQ_MATRIX
         retrieveSeqNo_sql = "SELECT SEQ_NO FROM " + sequenceTable + \
-            " WHERE TBL_NAME = " + companyPersonnelTable
+            " WHERE TBL_NAME = '" + companyPersonnelTable + "'"
         cursor.execute(retrieveSeqNo_sql)
         seqNo = cursor.fetchone()[0]
         picId = "PIC" + fillLeftZero(4, seqNo)
 
         # Update sequence number in SEQ_MATRIX
         updateCmpSeq_sql = "UPDATE " + sequenceTable + \
-            " SET SEQ_NO = SEQ_NO + 1 WHERE TBL_NAME = " + companyTable
+            " SET SEQ_NO = SEQ_NO + 1 WHERE TBL_NAME = '" + companyTable + "'"
         updatePicSeq_sql = "UPDATE " + sequenceTable + \
-            " SET SEQ_NO = SEQ_NO + 1 WHERE TBL_NAME = " + companyPersonnelTable
+            " SET SEQ_NO = SEQ_NO + 1 WHERE TBL_NAME = '" + companyPersonnelTable + "'"
         cursor.execute(updateCmpSeq_sql)
         cursor.execute(updatePicSeq_sql)
 
+        compLogoPath = ""
+        if 'logo' in request.files:
+            logo = request.files['logo']
+            if logo.filename != '':
+                print("logo not empty")
+                # Upload image file in S3
+                uploadToS3(logo, "companies/" + compId + "/logo.png")
+                compLogoPath = "companies/" + compId + "/logo.png"
         # Upload ssm cert pdf file in S3
         uploadToS3(ssmCert, "companies/" + compId + "/ssmCert.pdf")
         ssmCertPath = "companies/" + compId + "/ssmCert.pdf"
-        # Upload company logo image file in S3
-        uploadToS3(compLogo, "companies/" + compId + "/logo.png")
-        compLogoPath = "companies/" + compId + "/logo.png"
 
-        cursor.execute(insertComp_sql, (compId, compName, username, password, otClaim, compAddr,
-                       ssmCertPath, industry, compLogoPath, totalStaff, companyStatus, website, picId))
         cursor.execute(insertPic_sql, (picId, name,
                        designation, contactNo, email))
+        cursor.execute(insertComp_sql, (compId, compName, username, password, otClaim, compAddr,
+                       ssmCertPath, delimiter.join(industry), compLogoPath, totalStaff, companyStatus, website, picId))
+ 
 
         connection.commit()
         success = "Company registration successful. Please wait for admin approval. You will be notified via email once your company status is updated."
     except Exception as e:
+        print(e)
         connection.rollback()  # Rollback the transaction if an exception occurs
     finally:
         cursor.close()
@@ -359,6 +365,83 @@ def AddComp():
 
     return render_template("companyLogin.html", success=success)
 
+@app.route("/CompLogin")
+def CompLogin():
+    username = request.args.get('username')
+    password = request.args.get('password')
+    
+    retrieveCompany_sql = "SELECT * FROM " + companyTable + " WHERE Username = %s AND Password = %s"
+    connection = create_connection()
+    cursor = connection.cursor()
+    try:
+        cursor.execute(retrieveCompany_sql, (username, password))
+        company = cursor.fetchone()
+    except Exception as e:
+        connection.rollback()  # Rollback the transaction if an exception occurs
+    finally:
+        cursor.close()
+        connection.close()
+
+    if company is None:
+        return render_template('companyLogin.html', error="Invalid Username or Password")
+    else:
+        if company[2] == username and company[3] == password:
+            session["companyId"] = company[0]
+            return redirect("/companyHome")
+
+@app.route("/companyHome")
+def companyDashboard():
+    compId = session["companyId"]
+    retrieveCompany_sql = "SELECT * FROM " + companyTable + " WHERE CompanyId = %s"
+    retrievePIC_sql = "SELECT * FROM " + companyPersonnelTable + " WHERE PICId = %s"
+    connection = create_connection()
+    cursor = connection.cursor()
+    try:
+        cursor.execute(retrieveCompany_sql, (compId))
+        company = cursor.fetchone()
+        # cursor.execute(retrievePIC_sql, (company[12]))
+        # personInCharge = cursor.fetchone()
+        print(company)
+        company = {"companyName": company[1], "username": company[2], "logo": get_object_url(company[8]), "companyStatus": company[10]}
+    except Exception as e:
+        print(e)
+        connection.rollback()
+    finally:
+        cursor.close()
+        connection.close()
+
+    return render_template("companyHome.html", company=company)
+
+@app.route("/companyProfile")
+def companyProfile():
+    compId = session['companyId']
+    retrieveCompany_sql = "SELECT * FROM " + companyTable + " WHERE CompanyId = %s"
+    retrievePIC_sql = "SELECT * FROM " + companyPersonnelTable + " WHERE PersonInChargeId = %s"
+    connection = create_connection()
+    cursor = connection.cursor()
+    try:
+        cursor.execute(retrieveCompany_sql, (compId))
+        companyResult = cursor.fetchone()
+        cursor.execute(retrievePIC_sql, (companyResult[12]))
+        companyPersonnel = cursor.fetchone()
+        company = Company(companyResult[0], companyResult[1], companyResult[2], companyResult[3], companyResult[4], companyResult[5], companyResult[6], companyResult[7], companyResult[8], companyResult[9], companyResult[10], companyResult[11], companyResult[12])
+        pic = CompanyPersonnel(companyPersonnel[0], companyPersonnel[1], companyPersonnel[2], companyPersonnel[3], companyPersonnel[4])
+        company.logo = get_object_url(company.logo)
+        
+    except Exception as e:
+        print(e)
+        connection.rollback()
+    finally:
+        cursor.close()
+        connection.close()
+
+    success = get_flashed_messages(category_filter=['update-success'])
+    if success:
+        success = success[0]
+
+    return render_template("companyProfile.html", company=company, personInCharge=pic, success=success)
+    
+    
 
 def AddJob():
     # InternshipJob Table

@@ -14,7 +14,7 @@ How to setup in VSCode (Setup a virtual environment)
 Database Hostname/Endpoint: database-1.c1nlreg7eojl.us-east-1.rds.amazonaws.com
 
 # For Development only!!
-If want to test upload to S3, must ensure:
+If want to test upload to S3, must ensure you have:
 1) .env environment file to store your aws credential to have access to the S3 Bucket
 2) Learner Lab has started in AWS console
 ## Setting up 
@@ -28,9 +28,8 @@ If want to test upload to S3, must ensure:
     aws_secret_access_key=VO71BZS7glPFDFc9NnFbffXvKNrC5yTbTTxmTYOt
     aws_session_token=asdlasldjlkajdjadd+14qSgeftiLPASEzI9Ey+hQIFttufVxTFD2XcW8CWnMAtk18sFrn3sz1kjd4btFcrQbpQiEgITF8Y4MbUJjOVRJwf/xreA3q3bCK4RmMy7Z0IKtL9mHGfEjApx0b+is63KQB5+CS68bLX3rhQZP7yrZxBbah2Y4YCylolY11mPyRfDzv3Ec4ucC6MphpsX2vjGVb3qzuhzSVWsvBkKHA7vmFjdRYjt4lxp/UfiSddOFtGaWov08Xr27E7YqvR7vVjriHn8cExhiPykukOthoBnM6DU70BM8NYSiex4qoBjItYICMwZdvAjcjIX/7HN0x9InLdkNX+98cAfMqkG4qblmVKb/FndNaA8B0SMVd
     ```
-
-Note : This credential is to illustrate how the access keys looks like
-Copy and Paste this into the .env file
+_Note : This credential is to illustrate how the access keys looks like_
+4. Copy and Paste this into the .env file
 
 Internship OnMyfinger Reference
 http://i2hub.tarc.edu.my:8846/

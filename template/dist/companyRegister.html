@@ -54,7 +54,8 @@
                     <section id="multiple-column-form">
                         <div class="row match-height">
                             <div class="col-12">
-                                <form class="form" data-parsley-validate>
+                                <form class="form" data-parsley-validate method="POST" action="/AddCompany"
+                                    enctype="multipart/form-data">
                                     <!-- <form action="/companyLogin" class="form"> -->
                                     <div class="card">
 
@@ -78,7 +79,7 @@
                                                         <div class="form-group mandatory">
                                                             <label for="address" class="form-label">Address</label>
                                                             <textarea class="form-control" id="address" rows="3"
-                                                                placeholder="Company Office Address"
+                                                                placeholder="Company Office Address" name="address"
                                                                 data-parsley-required="true"></textarea>
                                                         </div>
                                                     </div>
@@ -86,7 +87,7 @@
                                                         <div class="form-group mandatory">
                                                             <label for="industry" class="form-label">Industry</label>
                                                             <select class="js-example-basic-multiple form-control"
-                                                                name="states[]" multiple="multiple"
+                                                                name="industries" multiple="multiple"
                                                                 data-parsley-required="true">
                                                             </select>
                                                         </div>
@@ -105,7 +106,7 @@
                                                         <fieldset class="form-group mandatory">
                                                             <label for="first-name-column" class="form-label">OT
                                                                 Claim</label>
-                                                            <select class="form-select" id="otClaim"
+                                                            <select class="form-select" id="otClaim" name="otClaim"
                                                                 data-parsley-required="true">
                                                                 <option value="Y">Yes</option>
                                                                 <option value="N">No</option>
@@ -115,8 +116,9 @@
                                                     <div class="col-md-6 col-12">
                                                         <div class="form-group mandatory">
                                                             <label for="studentEmail" class="form-label">SSM
-                                                                Certificate</label>
+                                                                Certificate (PDF)</label>
                                                             <input type="file" id="SSMCert" class="form-control"
+                                                                accept="application/pdf" name="ssmCert"
                                                                 data-parsley-required="true" />
                                                         </div>
                                                     </div>
@@ -125,7 +127,7 @@
                                                             <label for="studentEmail" class="form-label">Company Logo
                                                                 (If any)</label>
                                                             <input type="file" id="logo" class="form-control"
-                                                                accept="image/*" />
+                                                                name="logo" accept="image/*" />
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6 col-12">
@@ -133,7 +135,7 @@
                                                             <label for="cgpa" class="form-label">Official
                                                                 Website</label>
                                                             <input type="text" id="website" class="form-control"
-                                                                placeholder="eg: www.aws.com" />
+                                                                name="website" placeholder="eg: www.aws.com" />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -205,35 +207,27 @@
                                             </div>
                                         </div>
                                     </div>
-                            </div>
 
-                            <div class="row">
-                                <div class="col-12 d-flex justify-content-end">
-                                    <button type="submit" class="btn btn-primary me-1 mb-1">
-                                        Submit
-                                    </button>
-                                    <button type="reset" class="btn btn-light-secondary me-1 mb-1">
-                                        Reset
-                                    </button>
-                                </div>
+
+                                    <div class="row">
+                                        <div class="col-12 d-flex justify-content-end">
+                                            <button type="submit" class="btn btn-primary me-1 mb-1">
+                                                Submit
+                                            </button>
+                                            <button type="reset" class="btn btn-light-secondary me-1 mb-1">
+                                                Reset
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
-                            </form>
                         </div>
+                    </section>
                 </div>
-                </section>
             </div>
-        </div>
 
-        <footer>
-            <div class="container">
-                <div class="footer clearfix mb-0 text-muted">
-                    <div class="float-start">
-                        <p>2023 &copy; TAR UMT FOCS ITP</p>
-                    </div>
-                </div>
-            </div>
-        </footer>
-    </div>
+            {% include "footer.html" %}
+        </div>
     </div>
     <script src="assets/js/bootstrap.js"></script>
     <script src="assets/js/app.js"></script>
@@ -249,11 +243,10 @@
     <script src="assets/extensions/jquery/jquery.min.js"></script>
     <script src="assets/extensions/parsleyjs/parsley.min.js"></script>
     <script src="assets/js/pages/parsley.js"></script>
-    <script src="assets/extensions/filepond/filepond.js"></script>
-    <script src="assets/extensions/toastify-js/src/toastify.js"></script>
-    <script src="assets/js/pages/filepond.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+
 
     <script>
         $(document).ready(function () {
