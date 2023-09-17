@@ -14,15 +14,13 @@
     <link rel="stylesheet" href="assets/css/shared/iconly.css" />
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/extensions/sweetalert2/sweetalert2.min.css" />
 
-    <link rel="stylesheet" href="assets/extensions/filepond/filepond.css">
-    <link rel="stylesheet" href="assets/extensions/filepond-plugin-image-preview/filepond-plugin-image-preview.css">
-    <link rel="stylesheet" href="assets/extensions/toastify-js/src/toastify.css">
-    <link rel="stylesheet" href="assets/css/pages/filepond.css">
 
 </head>
 
 <body>
+
     <div id="app">
         <div id="main" class="layout-horizontal">
 
@@ -39,7 +37,7 @@
                             <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                                 <ol class="breadcrumb">
                                     <li class="breadcrumb-item">
-                                        <a href="/login">Home</a>
+                                        <a href="/">Home</a>
                                     </li>
                                     <li class="breadcrumb-item active" aria-current="page">
                                         Student Sign Up
@@ -54,9 +52,9 @@
                     <section id="multiple-column-form">
                         <div class="row match-height">
                             <div class="col-12">
-                                <!-- <form class="form" data-parsley-validate> -->
-                                <form action="/studentLogin" class="form">
-                                    <div class="card">
+                                <form class="form" id="registerForm" data-parsley-validate action="/AddStud"
+                                    method="POST" enctype="multipart/form-data">
+                                    <div class="card"> <!-- Academic Details -->
 
                                         <div class="card-header">
                                             <h4 class="card-title">Academic Details</h4>
@@ -69,10 +67,10 @@
                                                         <fieldset class="form-group mandatory">
                                                             <label for="first-name-column"
                                                                 class="form-label">Level</label>
-                                                            <select class="form-select" id="level"
+                                                            <select class="form-select" name="level" id="level"
                                                                 data-parsley-required="true">
-                                                                <option value="diploma">Diploma</option>
-                                                                <option value="bachelor">Bachelor</option>
+                                                                <option value="Diploma">Diploma</option>
+                                                                <option value="Bachelor">Bachelor</option>
                                                             </select>
                                                         </fieldset>
                                                     </div>
@@ -80,7 +78,7 @@
                                                         <fieldset class="form-group mandatory">
                                                             <label for="first-name-column"
                                                                 class="form-label">Programme</label>
-                                                            <select class="form-select" id="programme"
+                                                            <select class="form-select" name="programme" id="programme"
                                                                 data-parsley-required="true">
                                                             </select>
                                                         </fieldset>
@@ -89,10 +87,10 @@
                                                         <fieldset class="form-group mandatory">
                                                             <label for="first-name-column"
                                                                 class="form-label">Cohort</label>
-                                                            <select class="form-select" id="cohort"
+                                                            <select class="form-select" name="cohort"
                                                                 data-parsley-required="true">
-                                                                <option value="co1">Cohort 1</option>
-                                                                <option value="co2">Cohort 2</option>
+                                                                <option value="June 2023">June 2023</option>
+                                                                <option value="Sep 2023">Sep 2023</option>
                                                             </select>
                                                         </fieldset>
                                                     </div>
@@ -100,17 +98,17 @@
                                                         <div class="form-group mandatory">
                                                             <label for="tutorialGroup" class="form-label">Tutorial
                                                                 Group</label>
-                                                            <input type="number" step="1" id="tutorialGroup"
-                                                                class="form-control" name="tutorialGroup"
-                                                                placeholder="eg: 1 - 5" data-parsley-required="true" />
+                                                            <input type="number" step="1" name="tutorialGroup"
+                                                                class="form-control" placeholder="eg: 1 - 5"
+                                                                data-parsley-required="true" />
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6 col-12">
                                                         <div class="form-group mandatory">
                                                             <label for="studentId" class="form-label">Student
                                                                 ID</label>
-                                                            <input type="text" id="studentId" class="form-control"
-                                                                name="studentId" placeholder="eg: 99WMR99999"
+                                                            <input type="text" name="studentId" class="form-control"
+                                                                placeholder="eg: 99WMR99999"
                                                                 data-parsley-required="true" />
                                                         </div>
                                                     </div>
@@ -118,8 +116,7 @@
                                                         <div class="form-group mandatory">
                                                             <label for="studentEmail" class="form-label">Student
                                                                 Email</label>
-                                                            <input type="email" id="studentEmail" class="form-control"
-                                                                name="studentEmail"
+                                                            <input type="email" name="studentEmail" class="form-control"
                                                                 placeholder="eg: xxx-xx99@student.tarc.edu.my"
                                                                 data-parsley-required="true" />
                                                         </div>
@@ -127,7 +124,7 @@
                                                     <div class="col-md-6 col-12">
                                                         <div class="form-group mandatory">
                                                             <label for="cgpa" class="form-label">CGPA</label>
-                                                            <input type="number" id="cgpa" class="form-control"
+                                                            <input type="text" name="cgpa" class="form-control"
                                                                 placeholder="eg: 1.0 - 4.0"
                                                                 data-parsley-required="true" />
                                                         </div>
@@ -136,7 +133,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="card">
+                                    <div class="card"> <!-- Supervisor -->
                                         <div class="card-header">
                                             <h4 class="card-title">Supervisor</h4>
                                         </div>
@@ -148,7 +145,7 @@
                                                             Supervisor</label>
                                                         <select
                                                             class="js-example-placeholder-single js-states form-select"
-                                                            data-parsley-required="true" id="supervisor">
+                                                            data-parsley-required="true" name="supervisor">
                                                             <option></option>
                                                         </select>
                                                     </div>
@@ -159,13 +156,15 @@
                                                             Supervisor Email</label>
                                                         <input type="text" id="supervisorEmail" class="form-control"
                                                             placeholder="eg: xxx@tarc.edu.my" disabled />
+                                                        <input type="hidden" id="supervisorEmailValue"
+                                                            name="supervisorEmail" />
                                                     </div>
                                                 </div>
 
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="card">
+                                    <div class="card"> <!-- Personal Data -->
                                         <div class="card-header">
                                             <h4 class="card-title">Personal Data</h4>
                                         </div>
@@ -174,22 +173,22 @@
                                                 <div class="col-md-6 col-12">
                                                     <div class="form-group mandatory">
                                                         <label for="studentName" class="form-label">Name</label>
-                                                        <input type="text" id="studentName" class="form-control"
-                                                            name="studentName" placeholder="Name As In NRIC"
+                                                        <input type="text" name="studentName" class="form-control"
+                                                            placeholder="Name As In NRIC"
                                                             data-parsley-required="true" />
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6 col-12">
                                                     <div class="form-group mandatory">
                                                         <label for="nric" class="form-label">NRIC</label>
-                                                        <input type="text" id="nric" class="form-control" name="nric"
+                                                        <input type="text" name="nric" class="form-control"
                                                             placeholder="999999-99-9999" data-parsley-required="true" />
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6 mb-4">
                                                     <fieldset class="form-group mandatory">
                                                         <label for="gender" class="form-label">Gender</label>
-                                                        <select class="form-select" id="gender"
+                                                        <select class="form-select" name="gender"
                                                             data-parsley-required="true">
                                                             <option value="" disabled selected hidden>Please Select One
                                                             </option>
@@ -202,7 +201,7 @@
                                                     <fieldset class="form-group mandatory">
                                                         <label for="transport" class="form-label">Own
                                                             Transport</label>
-                                                        <select class="form-select" id="transport"
+                                                        <select class="form-select" name="transport"
                                                             data-parsley-required="true">
                                                             <option value="" disabled selected hidden>Please Select One
                                                             </option>
@@ -212,10 +211,10 @@
                                                     </fieldset>
                                                 </div>
                                                 <div class="col-md-6 mb-4">
-                                                    <div class="form-group mb-3">
+                                                    <div class="form-group mb-3"> 
                                                         <label for="healthRemark" class="form-label">Health
                                                             Remarks</label>
-                                                        <textarea class="form-control" id="healthRemark" rows="3"
+                                                        <textarea class="form-control" name="healthRemark" rows="3"
                                                             placeholder="Please state the details if you have any physical defects or is your health in any way impaired."></textarea>
                                                     </div>
                                                 </div>
@@ -297,43 +296,115 @@
 
                                                     <input type="checkbox" id="declare" class="form-check-input" checked
                                                         data-parsley-required="true"
-                                                        data-parsley-error-message="You have to accept our terms and conditions to proceed." />
-                                                    <label for="declare" class="form-check-label form-label">I
-                                                        Accept</label>
-
+                                                        data-parsley-error-message="You are required to choose a profile picture to proceed." />
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-12 d-flex justify-content-end">
-                                    <button type="submit" class="btn btn-primary me-1 mb-1">
-                                        Submit
-                                    </button>
-                                    <button type="reset" class="btn btn-light-secondary me-1 mb-1">
-                                        Reset
-                                    </button>
-                                </div>
-                            </div>
-                            </form>
-                        </div>
-                </div>
-                </section>
-            </div>
-        </div>
+                                    <div class="card"> <!-- Contact Information -->
+                                        <div class="card-header">
+                                            <h4 class="card-title">Contact Information</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-6 col-12">
+                                                    <div class="form-group mandatory">
+                                                        <label for="personalEmail" class="form-label">Personal
+                                                            Email</label>
+                                                        <input type="email" name="personalEmail" class="form-control"
+                                                            placeholder="Any active Personal Email"
+                                                            data-parsley-required="true" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 col-12">
+                                                    <div class="form-group mandatory">
+                                                        <label for="mobile" class="form-label">Mobile
+                                                            Number</label>
+                                                        <input type="text" name="mobile" class="form-control"
+                                                            placeholder="e.g: 012-3456789"
+                                                            data-parsley-required="true" />
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mb-4">
+                                                    <div class="form-group mb-3 mandatory">
+                                                        <label for="termAddress" class="form-label">Term
+                                                            Address</label>
+                                                        <textarea class="form-control" name="termAddress" rows="3"
+                                                            placeholder="Current Term address"
+                                                            data-parsley-required="true"></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mb-4">
+                                                    <div class="form-group mb-3 mandatory">
+                                                        <label for="permAddress" class="form-label">Permanent
+                                                            Address</label>
+                                                        <textarea class="form-control" name="permAddress" rows="3"
+                                                            placeholder="Hometown address"
+                                                            data-parsley-required="true"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card"> <!-- Declaration -->
+                                        <div class="card-header">
+                                            <h4 class="card-title">Declaration</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <p>
+                                                        I UNDERSTAND THAT I MUST COMPLETE THE FULL DURATION OF THE
+                                                        INDUSTRIAL TRAINING PROGRAMME PERIOD SATISFACTORILY IN ORDER TO
+                                                        PASS THE BAIT305C/AMIT3205 COURSE. I AGREE TO ABIDE BY THE RULES
+                                                        AND REGULATIONS OF THE COMPANY CONCERNED AND I WILL ALWAYS
+                                                        UPHOLD THE GOOD NAME OF THE UNIVERSITY COLLEGE AT ALL TIMES
+                                                        DURING THE WHOLE DURATION OF THE INDUSTRIAL TRAINING PROGRAMME.
+                                                    </p>
+                                                    <div class="form-group">
 
-        <footer>
-            <div class="container">
-                <div class="footer clearfix mb-0 text-muted">
-                    <div class="float-start">
-                        <p>2023 &copy; TAR UMT FOCS ITP</p>
+                                                        <div class="form-check mandatory">
+
+                                                            <!-- TODO: Have to fix the error message, is not showing the one preset -->
+                                                            <input type="checkbox" id="declare" class="form-check-input"
+                                                                data-parsley-required="true" name="declare"
+                                                                data-parsley-error-message="You have to accept our terms and conditions to proceed." />
+                                                            <label for="declare" class="form-check-label form-label">I
+                                                                Accept</label>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12 d-flex justify-content-end">
+                                            <button type="submit" class="btn btn-primary me-1 mb-1">
+                                                Submit
+                                            </button>
+                                            <button type="reset" class="btn btn-light-secondary me-1 mb-1">
+                                                Reset
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <footer>
+                <div class="container">
+                    <div class="footer clearfix mb-0 text-muted">
+                        <div class="float-start">
+                            <p>2023 &copy; TAR UMT FOCS ITP</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </footer>
-    </div>
+            </footer>
+        </div>
     </div>
     <script src="assets/js/bootstrap.js"></script>
     <script src="assets/js/app.js"></script>
@@ -349,19 +420,24 @@
     <script src="assets/extensions/jquery/jquery.min.js"></script>
     <script src="assets/extensions/parsleyjs/parsley.min.js"></script>
     <script src="assets/js/pages/parsley.js"></script>
-    <script src="assets/extensions/filepond/filepond.js"></script>
-    <script src="assets/extensions/toastify-js/src/toastify.js"></script>
-    <script src="assets/js/pages/filepond.js"></script>
+    <script src="assets/extensions/sweetalert2/sweetalert2.min.js"></script>
+
 
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>var uniSupervisorArray = [];</script>
 
+    {% for supervisor in uniSupervisorList %}
+    <script>uniSupervisorArray.push(["{{supervisor.name}}", "{{supervisor.email}}"]); </script>
+    {% endfor %}
     <script>
+
         $(document).ready(function () {
+
             $(".js-example-placeholder-single").select2({
                 placeholder: "Enter University Supervisor Name",
                 allowClear: true,
                 data: //only professor name
-                    professorArray.map(function (item) {
+                    uniSupervisorArray.map(function (item) {
                         return {
                             id: item[0],
                             text: item[0]
@@ -376,10 +452,12 @@
         //build the function to update programme from level value
         function updateProgrammeOptionfromLevel() {
             var level = document.getElementById("level").value;
-            if (level == "diploma") {
-                setProgrammeOption("diploma", ["Diploma in Computer Science", "Diploma in Information Technology", "Diploma in Information System"]);
-            } else if (level == "bachelor") {
-                setProgrammeOption("bachelor", ["Bachelor of Computer Science (Hons)", "Bachelor of Information Technology (Hons)", "Bachelor of Information System (Hons)"]);
+            if (level == "Diploma") {
+                setProgrammeOption("diploma",
+                    ["Diploma in Computer Science", "Diploma in Information Technology", "Diploma in Information System"]);
+            } else if (level == "Bachelor") {
+                setProgrammeOption("bachelor",
+                    ["Bachelor of Computer Science (Hons)", "Bachelor of Information Technology (Hons)", "Bachelor of Information System (Hons)"]);
             }
         }
 
@@ -395,27 +473,34 @@
             }
         }
 
-        //define array of pair data (professor name, email)
-        var professorArray = [
-            ["Dr. Tan Choo Kim", "tck@tarc.edu.my"],
-            ["Dr. See Kwee Teck", "skt@tarc.edu.my"],
-            ["Dr. Ding Yin Hong", "dyh@tarc.edu.my"],
-            ["Dr. Tan Chi Wee", "tcw@tarc.edu.my"],
-            ["Dr. Tew Yi Qi", "tyq@tarc.edu.my"]
-        ];
+
+
 
         //auto update supervisor email when supervisor name is selected from dropdown
         $(".js-example-placeholder-single").on("select2:select", function (e) {
             var data = e.params.data;
             var supervisorEmail = document.getElementById("supervisorEmail");
-            for (var i = 0; i < professorArray.length; i++) {
-                if (professorArray[i][0] == data.text) {
-                    supervisorEmail.value = professorArray[i][1];
+            for (var i = 0; i < uniSupervisorArray.length; i++) {
+                if (uniSupervisorArray[i][0] == data.text) {
+                    supervisorEmail.value = uniSupervisorArray[i][1];
+                    $("#supervisorEmailValue").val(uniSupervisorArray[i][1]);
                 }
             }
         });
 
+
     </script>
+
+    
+    {% if error %}
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Register Unsuccesful',
+            text: '{{error}}',
+        })
+    </script>
+    {% endif %}
 </body>
 
 </html>
