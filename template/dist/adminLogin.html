@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ITP Student Log In</title>
+  <title>ITP Committee Log In</title>
 
   <link rel="stylesheet" href="assets/css/main/app.css" />
   <link rel="shortcut icon" href="assets/images/logo/favicon.svg" type="image/x-icon" />
@@ -19,10 +19,9 @@
         <div class="page-title">
           <div class="row">
             <div class="col-12 col-md-6 order-md-1 order-last">
-              <h3>Company Login</h3>
+              <h3>Committee Login</h3>
               <p class="text-subtitle text-muted">
-                Enter your username and password to login or
-                <a href="/companyRegister">Sign Up</a>
+                Enter your Admin username and password to login
               </p>
             </div>
             <div class="col-12 col-md-6 order-md-2 order-first">
@@ -32,7 +31,7 @@
                     <a href="/login">Home</a>
                   </li>
                   <li class="breadcrumb-item active" aria-current="page">
-                    Company Log In
+                    Committee Log In
                   </li>
                 </ol>
               </nav>
@@ -51,17 +50,17 @@
 
                   <div class="card-body">
                     <div class="row">
-                      <form class="form" data-parsley-validate action="/companyHome">
+                      <form class="form" data-parsley-validate action="/adminHome">
                         <div class="row">
                           <div class="form-group mandatory">
                             <label for="helpInputTop">Username</label>
-                            <input type="text" class="form-control" id="username" data-parsley-required="true" />
+                            <input type="text" class="form-control" id="helpInputTop" data-parsley-required="true" />
                           </div>
                         </div>
                         <div class="row">
                           <div class="form-group mandatory">
                             <label for="helpInputTop">Password</label>
-                            <input type="password" class="form-control" id="password" data-parsley-required="true" />
+                            <input type="password" class="form-control" id="helpInputTop" data-parsley-required="true" />
                           </div>
                         </div>
                         <div class="row">

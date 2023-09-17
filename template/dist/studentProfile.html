@@ -10,7 +10,68 @@
     <link rel="stylesheet" href="assets/css/main/app-dark.css">
     <link rel="shortcut icon" href="assets/images/logo/favicon.svg" type="image/x-icon">
     <link rel="shortcut icon" href="assets/images/logo/favicon.png" type="image/png">
+    <link rel="stylesheet" href="assets/extensions/sweetalert2/sweetalert2.min.css">
 </head>
+
+<style>
+    .profile-pic {
+        color: transparent;
+        transition: all 0.3s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .profile-pic input {
+        display: none;
+    }
+
+    .profile-pic img {
+        position: absolute;
+        object-fit: cover;
+        width: 165px;
+        height: 165px;
+        box-shadow: 0 0 10px 0 rgba(255, 255, 255, 0.35);
+        border-radius: 100px;
+        z-index: 0;
+    }
+
+    .profile-pic .-label {
+        cursor: pointer;
+        height: 165px;
+        width: 165px;
+    }
+
+    .profile-pic:hover .-label {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 10000;
+        color: #fafafa;
+        transition: background-color 0.2s ease-in-out;
+        border-radius: 100px;
+        margin-bottom: 0;
+    }
+
+    .profile-pic span {
+        display: inline-flex;
+        padding: 0.2em;
+        height: 2em;
+    }
+
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    body a:hover {
+        text-decoration: none;
+    }
+</style>
 
 <body>
     <div id="app">
@@ -77,12 +138,12 @@
                             </a>
                         </li>
 
-                        <li class="sidebar-item  has-sub">
+                        <li class="sidebar-item has-sub active">
                             <a href="#" class='sidebar-link'>
                                 <i class="bi bi-person-lines-fill"></i>
                                 <span>Profile</span>
                             </a>
-                            <ul class="submenu ">
+                            <ul class="submenu active">
                                 <li class="submenu-item active">
                                     <a href="/studentProfile">My Profile</a>
                                 </li>
@@ -150,9 +211,10 @@
                 <div class="page-heading">
                     <div class="page-title">
                         <div class="row">
-                            <div class="col-12 col-md-6 order-md-1 order-last">
+                            <div class="col-12 order-md-1 order-last">
                                 <h3>My Profile</h3>
-                                <p class="text-subtitle text-muted">You can edit the field, but not all of them.</p>
+                                <p class="text-subtitle text-muted">You can edit the field, but not all of them. Contact
+                                    ITP Committee for any modificatin on non-editable field(s)</p>
                             </div>
                         </div>
                     </div>
@@ -160,11 +222,66 @@
                         <div class="page-content">
                             <div class="row">
                                 <div class="col-md-3 border-right">
-                                    <div class="d-flex flex-column align-items-center text-center p-3 py-5"><img
-                                            class="rounded-circle mt-5" width="150px"
-                                            src="https://st3.depositphotos.com/15648834/17930/v/600/depositphotos_179308454-stock-illustration-unknown-person-silhouette-glasses-profile.jpg">
-                                        <span class="font-weight-bold">Edogaru</span>
-                                        <span>edogaru@mail.com.my</span><span> </span>
+                                    <div class="d-flex flex-column p-3 py-5">
+                                        <div class="profile-pic">
+                                            <label class="-label" for="file">
+                                                <span class="glyphicon glyphicon-camera"></span>
+                                                <span>Change Image</span>
+                                            </label>
+                                            <input id="file" type="file" onchange="loadFile(event)" />
+                                            <img src="https://cdn.pixabay.com/photo/2017/08/06/21/01/louvre-2596278_960_720.jpg"
+                                                id="output" width="200" />
+                                        </div>
+
+                                        <div class="row mt-3">
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <label for="studentName" class="form-label">Name</label>
+                                                    <input type="text" id="studentName" class="form-control"
+                                                        name="studentName" />
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <label for="studentId" class="form-label">Student
+                                                        ID</label>
+                                                    <input type="text" id="studentId" class="form-control"
+                                                        name="studentId" />
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <fieldset class="form-group">
+                                                    <label for="first-name-column" class="form-label">Cohort</label>
+                                                    <input type="text" id="cohort" class="form-control" name="cohort" />
+                                                </fieldset>
+                                            </div>
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <label for="tutorialGroup" class="form-label">Tutorial
+                                                        Group</label>
+                                                    <input type="number" step="1" id="tutorialGroup"
+                                                        class="form-control" name="tutorialGroup" />
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <label for="nric" class="form-label">NRIC</label>
+                                                    <input type="text" id="nric" class="form-control" name="nric" />
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <fieldset class="form-group">
+                                                    <label for="gender" class="form-label">Gender</label>
+                                                    <select class="form-select" id="gender">
+                                                        <option value="" disabled selected hidden>Please Select One
+                                                        </option>
+                                                        <option value="F">Female</option>
+                                                        <option value="M">Male</option>
+                                                    </select>
+                                                </fieldset>
+                                            </div>
+
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-md-5 border-right">
@@ -173,61 +290,117 @@
                                             <h4 class="text-right">Profile Settings</h4>
                                         </div>
                                         <div class="row mt-2">
-                                            <div class="col-md-6"><label class="labels">Name</label><input type="text"
-                                                    class="form-control" placeholder="first name" value=""></div>
-                                            <div class="col-md-6"><label class="labels">Surname</label><input
-                                                    type="text" class="form-control" value="" placeholder="surname">
+                                            <div class="row">
+                                                <fieldset class="form-group">
+                                                    <label for="first-name-column" class="form-label">Programme</label>
+                                                    <input type="text" class="form-control" id="programme" />
+                                                </fieldset>
                                             </div>
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <label for="studentEmail" class="form-label">Student
+                                                        Email</label>
+                                                    <input type="email" id="studentEmail" class="form-control"
+                                                        name="studentEmail" />
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="form-group mandatory">
+                                                    <label for="cgpa" class="form-label">CGPA</label>
+                                                    <input type="number" id="cgpa" class="form-control"
+                                                        placeholder="eg: 1.0 - 4.0" data-parsley-required="true" />
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <label for="supervisor" class="form-label">University
+                                                        Supervisor</label>
+                                                    <input type="text" id="supervisor" class="form-control" disabled />
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="form-group">
+                                                    <label for="supervisorEmail" class="form-label">University
+                                                        Supervisor Email</label>
+                                                    <input type="text" id="supervisorEmail" class="form-control"
+                                                        placeholder="eg: xxx@tarc.edu.my" disabled />
+                                                </div>
+                                            </div>
+
+
+                                            <div class="row">
+                                                <fieldset class="form-group mandatory">
+                                                    <label for="transport" class="form-label">Own
+                                                        Transport</label>
+                                                    <select class="form-select" id="transport"
+                                                        data-parsley-required="true">
+                                                        <option value="" disabled selected hidden>Please Select One
+                                                        </option>
+                                                        <option value="Y">Yes</option>
+                                                        <option value="N">No</option>
+                                                    </select>
+                                                </fieldset>
+                                            </div>
+                                            <div class="row">
+                                                <div class="form-group mb-3">
+                                                    <label for="healthRemark" class="form-label">Health
+                                                        Remarks</label>
+                                                    <textarea class="form-control" id="healthRemark" rows="3"
+                                                        placeholder="Please state the details if you have any physical defects or is your health in any way impaired."></textarea>
+                                                </div>
+                                            </div>
+
                                         </div>
-                                        <div class="row mt-3">
-                                            <div class="col-md-12"><label class="labels">Mobile Number</label><input
-                                                    type="text" class="form-control" placeholder="enter phone number"
-                                                    value=""></div>
-                                            <div class="col-md-12"><label class="labels">Address Line 1</label><input
-                                                    type="text" class="form-control" placeholder="enter address line 1"
-                                                    value=""></div>
-                                            <div class="col-md-12"><label class="labels">Address Line 2</label><input
-                                                    type="text" class="form-control" placeholder="enter address line 2"
-                                                    value=""></div>
-                                            <div class="col-md-12"><label class="labels">Postcode</label><input
-                                                    type="text" class="form-control" placeholder="enter address line 2"
-                                                    value=""></div>
-                                            <div class="col-md-12"><label class="labels">State</label><input type="text"
-                                                    class="form-control" placeholder="enter address line 2" value="">
-                                            </div>
-                                            <div class="col-md-12"><label class="labels">Area</label><input type="text"
-                                                    class="form-control" placeholder="enter address line 2" value="">
-                                            </div>
-                                            <div class="col-md-12"><label class="labels">Email ID</label><input
-                                                    type="text" class="form-control" placeholder="enter email id"
-                                                    value=""></div>
-                                            <div class="col-md-12"><label class="labels">Education</label><input
-                                                    type="text" class="form-control" placeholder="education" value="">
-                                            </div>
-                                        </div>
-                                        <div class="row mt-3">
-                                            <div class="col-md-6"><label class="labels">Country</label><input
-                                                    type="text" class="form-control" placeholder="country" value="">
-                                            </div>
-                                            <div class="col-md-6"><label class="labels">State/Region</label><input
-                                                    type="text" class="form-control" value="" placeholder="state"></div>
-                                        </div>
-                                        <div class="mt-5 text-center"><button class="btn btn-primary profile-button"
-                                                type="button">Save Profile</button></div>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="p-3 py-5">
-                                        <div class="d-flex justify-content-between align-items-center experience">
-                                            <span>Edit Experience</span><span class="border px-3 p-1 add-experience"><i
-                                                    class="fa fa-plus"></i>&nbsp;Experience</span>
+                                        <div class="d-flex justify-content-end align-items-end experience">
+                                            <button type="submit" id="edit" class="btn btn-primary me-1 mb-1">
+                                                Edit Profile
+                                            </button>
+                                            <button type="submit" style="display: none;" id="save"
+                                                class="btn btn-primary me-1 mb-1">
+                                                Save
+                                            </button>
+                                            <button type="submit" style="display: none;" id="back"
+                                                class="btn btn-danger me-1 mb-1">
+                                                Back
+                                            </button>
                                         </div><br>
-                                        <div class="col-md-12"><label class="labels">Experience in
-                                                Designing</label><input type="text" class="form-control"
-                                                placeholder="experience" value=""></div> <br>
-                                        <div class="col-md-12"><label class="labels">Additional Details</label><input
-                                                type="text" class="form-control" placeholder="additional details"
-                                                value=""></div>
+                                        <div class="row">
+                                            <div class="form-group mandatory">
+                                                <label for="personalEmail" class="form-label">Personal
+                                                    Email</label>
+                                                <input type="email" id="personalEmail" class="form-control"
+                                                    name="personalEmail" placeholder="Any active Personal Email"
+                                                    data-parsley-required="true" />
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group mandatory">
+                                                <label for="mobile" class="form-label">Mobile
+                                                    Number</label>
+                                                <input type="text" id="mobile" class="form-control" name="mobile"
+                                                    placeholder="e.g: 012-3456789" data-parsley-required="true" />
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group mb-3 mandatory">
+                                                <label for="termAddress" class="form-label">Term
+                                                    Address</label>
+                                                <textarea class="form-control" id="termAddress" rows="3"
+                                                    placeholder="Current Term address"
+                                                    data-parsley-required="true"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="form-group mb-3">
+                                                <label for="permAddress" class="form-label">Permanent
+                                                    Address</label>
+                                                <textarea class="form-control" id="permAddress" rows="3"></textarea>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -247,6 +420,156 @@
     </div>
     <script src="assets/js/bootstrap.js"></script>
     <script src="assets/js/app.js"></script>
+
+    <script src="assets/extensions/sweetalert2/sweetalert2.min.js"></script>>
+    <script src="assets/js/pages/sweetalert2.js"></script>
+    <script>
+        var loadFile = function (event) {
+            var image = document.getElementById("output");
+            image.src = URL.createObjectURL(event.target.files[0]);
+        };
+
+        //init the data
+        var data = {
+            studentName: "John Ducky",
+            programme: "Diploma in Computer Science",
+            cohort: "Cohort 1",
+            tutorialGroup: "4",
+            studentId: "22WMR99999",
+            email: "student-wm20@student.tarc.edu.my",
+            cgpa: "4.0",
+            supervisor: "Tan Ah Kow",
+            supervisorEmail: "tak@tarc.edu.my",
+            ownTransport: "Y",
+            healthRemark: "",
+            personalEmail: "personal@gmail.com",
+            mobile: "012-3456789",
+            termAddress: "PT 1234, Jalan ABC, 12345, Kuala Lumpur",
+            permanentAddress: "PT 1234, Jalan ABC, 12345, Kuala Lumpur",
+            nric: "010012-12-2234",
+            gender: "F",
+            image:"https://cdn.pixabay.com/photo/2017/08/06/21/01/louvre-2596278_960_720.jpg",
+        };
+
+        //at the start, set the data to the field
+        document.getElementById("studentName").value = data.studentName;
+        document.getElementById("nric").value = data.nric;
+        //set the data to the field
+        document.getElementById("programme").value = data.programme;
+        document.getElementById("cohort").value = data.cohort;
+        document.getElementById("tutorialGroup").value = data.tutorialGroup;
+        document.getElementById("studentId").value = data.studentId;
+        document.getElementById("studentEmail").value = data.email;
+        document.getElementById("cgpa").value = data.cgpa;
+        document.getElementById("supervisor").value = data.supervisor;
+        document.getElementById("supervisorEmail").value = data.supervisorEmail;
+        //set option for transport if y = yes, n = no
+        if (data.ownTransport == "Y") {
+            document.getElementById("transport").selectedIndex = 1;
+        } else {
+            document.getElementById("transport").selectedIndex = 2;
+        }
+        //if data is empty, keep the placeholder
+        if (data.healthRemark == "") {
+            document.getElementById("healthRemark").placeholder = "No health remark";
+        } else {
+            document.getElementById("healthRemark").value = data.healthRemark;
+        }
+        document.getElementById("personalEmail").value = data.personalEmail;
+        document.getElementById("mobile").value = data.mobile;
+        document.getElementById("termAddress").value = data.termAddress;
+        document.getElementById("permAddress").value = data.permanentAddress;
+        //set option for gender if F = Female, M = Male
+        if (data.gender == "F") {
+            document.getElementById("gender").selectedIndex = 1;
+        } else {
+            document.getElementById("gender").selectedIndex = 2;
+        }
+        //set disable for every field
+        document.getElementById("studentName").disabled = true;
+        document.getElementById("nric").disabled = true;
+        document.getElementById("gender").disabled = true;
+        document.getElementById("programme").disabled = true;
+        document.getElementById("cohort").disabled = true;
+        document.getElementById("tutorialGroup").disabled = true;
+        document.getElementById("studentId").disabled = true;
+        document.getElementById("studentEmail").disabled = true;
+        document.getElementById("cgpa").disabled = true;
+        document.getElementById("supervisor").disabled = true;
+        document.getElementById("supervisorEmail").disabled = true;
+        document.getElementById("transport").disabled = true;
+        document.getElementById("healthRemark").disabled = true;
+        document.getElementById("personalEmail").disabled = true;
+        document.getElementById("mobile").disabled = true;
+        document.getElementById("termAddress").disabled = true;
+        document.getElementById("permAddress").disabled = true;
+        document.getElementById("file").disabled = true;
+
+        //click edit button, enable cgpa, own transport, health remarks, personal email, mobile, term address
+        document.getElementById("edit").addEventListener("click", function () {
+            document.getElementById("file").disabled = false;
+            document.getElementById("cgpa").disabled = false;
+            document.getElementById("transport").disabled = false;
+            document.getElementById("healthRemark").disabled = false;
+            document.getElementById("personalEmail").disabled = false;
+            document.getElementById("mobile").disabled = false;
+            document.getElementById("termAddress").disabled = false;
+        });
+        //change edit button to save button
+        document.getElementById("edit").addEventListener("click", function () {
+            document.getElementById("edit").style.display = "none";
+            document.getElementById("save").style.display = "block";
+            document.getElementById("back").style.display = "block";
+        });
+
+        //click back button, disable cgpa, own transport, health remarks, personal email, mobile, term address
+        document.getElementById("back").addEventListener("click", function () {
+            document.getElementById("file").disabled = true;
+            document.getElementById("cgpa").disabled = true;
+            document.getElementById("transport").disabled = true;
+            document.getElementById("healthRemark").disabled = true;
+            document.getElementById("personalEmail").disabled = true;
+            document.getElementById("mobile").disabled = true;
+            document.getElementById("termAddress").disabled = true;
+            //change save button to edit button
+            document.getElementById("back").style.display = "none";
+            document.getElementById("save").style.display = "none";
+            document.getElementById("edit").style.display = "block";
+        });
+        //click save button, disable cgpa, own transport, health remarks, personal email, mobile, term address, record the data
+        document.getElementById("save").addEventListener("click", function () {
+            //pop up sweet alert success
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Your profile has been updated!',
+                confirmButtonText: 'OK'
+            });
+            document.getElementById("file").disabled = true;
+            document.getElementById("cgpa").disabled = true;
+            document.getElementById("transport").disabled = true;
+            document.getElementById("healthRemark").disabled = true;
+            document.getElementById("personalEmail").disabled = true;
+            document.getElementById("mobile").disabled = true;
+            document.getElementById("termAddress").disabled = true;
+            //record the data
+            data.cgpa = document.getElementById("cgpa").value;
+            data.ownTransport = document.getElementById("transport").value;
+            data.healthRemark = document.getElementById("healthRemark").value;
+            data.personalEmail = document.getElementById("personalEmail").value;
+            data.mobile = document.getElementById("mobile").value;
+            data.termAddress = document.getElementById("termAddress").value;
+            data.image = document.getElementById("output").src;
+            console.log(data);
+            //change save button to edit button
+            document.getElementById("save").style.display = "none";
+            document.getElementById("edit").style.display = "block";
+            document.getElementById("back").style.display = "none";
+
+        });
+
+
+    </script>
 
 </body>
 

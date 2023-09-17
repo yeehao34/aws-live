@@ -54,8 +54,8 @@
                     <section id="multiple-column-form">
                         <div class="row match-height">
                             <div class="col-12">
-                                <!-- <form class="form" data-parsley-validate> -->
-                                <form action="/companyLogin" class="form">
+                                <form class="form" data-parsley-validate>
+                                    <!-- <form action="/companyLogin" class="form"> -->
                                     <div class="card">
 
                                         <div class="card-header">
@@ -74,7 +74,7 @@
                                                                 data-parsley-required="true" />
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-6 col-12">
+                                                    <div class="col-md-6 mb-4">
                                                         <div class="form-group mandatory">
                                                             <label for="address" class="form-label">Address</label>
                                                             <textarea class="form-control" id="address" rows="3"
@@ -82,13 +82,13 @@
                                                                 data-parsley-required="true"></textarea>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-6 col-12">
+                                                    <div class="col-md-6 mb-4">
                                                         <div class="form-group mandatory">
                                                             <label for="industry" class="form-label">Industry</label>
-                                                                <select class="js-example-basic-multiple" name="industries[]" multiple="multiple">
-                                                                    <option value="AL">Alabama</option>
-                                                                    <option value="WY">Wyoming</option>
-                                                                  </select>
+                                                            <select class="js-example-basic-multiple form-control"
+                                                                name="states[]" multiple="multiple"
+                                                                data-parsley-required="true">
+                                                            </select>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6 col-12">
@@ -112,24 +112,28 @@
                                                             </select>
                                                         </fieldset>
                                                     </div>
-
-
                                                     <div class="col-md-6 col-12">
                                                         <div class="form-group mandatory">
-                                                            <label for="studentEmail" class="form-label">Student
-                                                                Email</label>
-                                                            <input type="email" id="studentEmail" class="form-control"
-                                                                name="studentEmail"
-                                                                placeholder="eg: xxx-xx99@student.tarc.edu.my"
+                                                            <label for="studentEmail" class="form-label">SSM
+                                                                Certificate</label>
+                                                            <input type="file" id="SSMCert" class="form-control"
                                                                 data-parsley-required="true" />
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6 col-12">
-                                                        <div class="form-group mandatory">
-                                                            <label for="cgpa" class="form-label">CGPA</label>
-                                                            <input type="number" id="cgpa" class="form-control"
-                                                                placeholder="eg: 1.0 - 4.0"
-                                                                data-parsley-required="true" />
+                                                        <div class="form-group">
+                                                            <label for="studentEmail" class="form-label">Company Logo
+                                                                (If any)</label>
+                                                            <input type="file" id="logo" class="form-control"
+                                                                accept="image/*" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6 col-12">
+                                                        <div class="form-group">
+                                                            <label for="cgpa" class="form-label">Official
+                                                                Website</label>
+                                                            <input type="text" id="website" class="form-control"
+                                                                placeholder="eg: www.aws.com" />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -138,171 +142,71 @@
                                     </div>
                                     <div class="card">
                                         <div class="card-header">
-                                            <h4 class="card-title">Supervisor</h4>
+                                            <h4 class="card-title">Person In Charge</h4>
                                         </div>
                                         <div class="card-body">
                                             <div class="row">
                                                 <div class="col-md-6 col-12">
                                                     <div class="form-group mandatory">
-                                                        <label for="supervisor" class="form-label">University
-                                                            Supervisor</label>
-                                                        <select
-                                                            class="js-example-placeholder-single js-states form-select"
-                                                            data-parsley-required="true" id="supervisor">
-                                                            <option></option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6 col-12">
-                                                    <div class="form-group">
-                                                        <label for="supervisorEmail" class="form-label">University
-                                                            Supervisor Email</label>
-                                                        <input type="text" id="supervisorEmail" class="form-control"
-                                                            placeholder="eg: xxx@tarc.edu.my" disabled />
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <h4 class="card-title">Personal Data</h4>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-md-6 col-12">
-                                                    <div class="form-group mandatory">
-                                                        <label for="studentName" class="form-label">Name</label>
-                                                        <input type="text" id="studentName" class="form-control"
-                                                            name="studentName" placeholder="Name As In NRIC"
+                                                        <label for="personName" class="form-label">Name</label>
+                                                        <input type="text" id="personName" class="form-control"
+                                                            name="personName" placeholder="Name As In NRIC"
                                                             data-parsley-required="true" />
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6 col-12">
                                                     <div class="form-group mandatory">
-                                                        <label for="nric" class="form-label">NRIC</label>
-                                                        <input type="text" id="nric" class="form-control" name="nric"
-                                                            placeholder="999999-99-9999" data-parsley-required="true" />
+                                                        <label for="designation" class="form-label">Designation</label>
+                                                        <input type="text" id="designation" class="form-control"
+                                                            name="designation" placeholder="Your Designation title"
+                                                            data-parsley-required="true" />
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6 mb-4">
                                                     <fieldset class="form-group mandatory">
-                                                        <label for="gender" class="form-label">Gender</label>
-                                                        <select class="form-select" id="gender"
-                                                            data-parsley-required="true">
-                                                            <option value="" disabled selected hidden>Please Select One
-                                                            </option>
-                                                            <option value="M">Male</option>
-                                                            <option value="F">Female</option>
-                                                        </select>
+                                                        <label for="contact" class="form-label">Contact</label>
+                                                        <input type="text" id="contact" class="form-control"
+                                                            name="contact" placeholder="012-3456789"
+                                                            data-parsley-required="true" />
                                                     </fieldset>
                                                 </div>
                                                 <div class="col-md-6 mb-4">
                                                     <fieldset class="form-group mandatory">
-                                                        <label for="transport" class="form-label">Own
-                                                            Transport</label>
-                                                        <select class="form-select" id="transport"
-                                                            data-parsley-required="true">
-                                                            <option value="" disabled selected hidden>Please Select One
-                                                            </option>
-                                                            <option value="Y">Yes</option>
-                                                            <option value="N">No</option>
-                                                        </select>
+                                                        <label for="pEmail" class="form-label">Email</label>
+                                                        <input type="email" id="pEmail" class="form-control"
+                                                            name="pEmail" placeholder="person@gmail.com"
+                                                            data-parsley-required="true" />
                                                     </fieldset>
                                                 </div>
-                                                <div class="col-md-6 mb-4">
-                                                    <div class="form-group mb-3">
-                                                        <label for="healthRemark" class="form-label">Health
-                                                            Remarks</label>
-                                                        <textarea class="form-control" id="healthRemark" rows="3"
-                                                            placeholder="Please state the details if you have any physical defects or is your health in any way impaired."></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h4 class="card-title">Account Registration</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-6 col-12">
+                                                    <div class="form-group mandatory">
+                                                        <label for="cUsername" class="form-label">Username</label>
+                                                        <input type="text" id="cUsername" class="form-control"
+                                                            name="cUsername" data-parsley-required="true" />
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6 mb-4">
-                                                    <!-- File uploader with image preview -->
-                                                    <label for="profile" class="form-label">Profile Picture</label>
-                                                    <input id="profile" type="file" class="image-preview-filepond">
+                                                <div class="col-md-6 col-12">
+                                                    <div class="form-group mandatory">
+                                                        <label for="mobile" class="form-label">Password</label>
+                                                        <input type="password" id="cPassword" class="form-control"
+                                                            name="cPassword" data-parsley-required="true" />
+                                                    </div>
                                                 </div>
+
                                             </div>
                                         </div>
                                     </div>
                             </div>
-                            <div class="card">
-                                <div class="card-header">
-                                    <h4 class="card-title">Contact Information</h4>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6 col-12">
-                                            <div class="form-group mandatory">
-                                                <label for="personalEmail" class="form-label">Personal
-                                                    Email</label>
-                                                <input type="email" id="personalEmail" class="form-control"
-                                                    name="personalEmail" placeholder="Any active Personal Email"
-                                                    data-parsley-required="true" />
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 col-12">
-                                            <div class="form-group mandatory">
-                                                <label for="mobile" class="form-label">Mobile
-                                                    Number</label>
-                                                <input type="text" id="mobile" class="form-control" name="mobile"
-                                                    placeholder="e.g: 012-3456789" data-parsley-required="true" />
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 mb-4">
-                                            <div class="form-group mb-3 mandatory">
-                                                <label for="termAddress" class="form-label">Term
-                                                    Address</label>
-                                                <textarea class="form-control" id="termAddress" rows="3"
-                                                    placeholder="Current Term address"
-                                                    data-parsley-required="true"></textarea>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 mb-4">
-                                            <div class="form-group mb-3 mandatory">
-                                                <label for="permAddress" class="form-label">Permanent
-                                                    Address</label>
-                                                <textarea class="form-control" id="permAddress" rows="3"
-                                                    placeholder="Hometown address"
-                                                    data-parsley-required="true"></textarea>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card">
-                                <div class="card-header">
-                                    <h4 class="card-title">Declaration</h4>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <p>
-                                                I UNDERSTAND THAT I MUST COMPLETE THE FULL DURATION OF THE
-                                                INDUSTRIAL TRAINING PROGRAMME PERIOD SATISFACTORILY IN ORDER TO
-                                                PASS THE BAIT305C/AMIT3205 COURSE. I AGREE TO ABIDE BY THE RULES
-                                                AND REGULATIONS OF THE COMPANY CONCERNED AND I WILL ALWAYS
-                                                UPHOLD THE GOOD NAME OF THE UNIVERSITY COLLEGE AT ALL TIMES
-                                                DURING THE WHOLE DURATION OF THE INDUSTRIAL TRAINING PROGRAMME.
-                                            </p>
-                                            <div class="form-group">
 
-                                                <div class="form-check mandatory">
-
-                                                    <input type="checkbox" id="declare" class="form-check-input" checked
-                                                        data-parsley-required="true"
-                                                        data-parsley-error-message="You have to accept our terms and conditions to proceed." />
-                                                    <label for="declare" class="form-check-label form-label">I
-                                                        Accept</label>
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="row">
                                 <div class="col-12 d-flex justify-content-end">
                                     <button type="submit" class="btn btn-primary me-1 mb-1">
@@ -354,6 +258,35 @@
     <script>
         $(document).ready(function () {
             $('.js-example-basic-multiple').select2();
+        });
+
+        //define a list of industry
+        var industry = [
+            "Agriculture, Forestry, Fishing and Hunting",
+            "Mining, Quarrying, and Oil and Gas Extraction",
+            "Utilities",
+            "Construction",
+            "Manufacturing",
+            "Wholesale Trade",
+            "Retail Trade",
+            "Transportation and Warehousing",
+            "Information",
+            "Finance and Insurance",
+            "Real Estate and Rental and Leasing",
+            "Professional, Scientific, and Technical Services",
+            "Management of Companies and Enterprises",
+            "Administrative and Support and Waste Management and Remediation Services",
+            "Educational Services",
+            "Health Care and Social Assistance",
+            "Arts, Entertainment, and Recreation",
+            "Accommodation and Food Services",
+            "Other Services (except Public Administration)",
+            "Public Administration"
+        ];
+
+        //initialize industry to the select2
+        $(".js-example-basic-multiple").select2({
+            data: industry
         });
     </script>
 </body>
