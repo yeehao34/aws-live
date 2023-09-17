@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ITP Home 123</title>
+    <title>ITP Home</title>
 
     <link rel="stylesheet" href="assets/css/main/app.css" />
     <link
@@ -23,65 +23,6 @@
   <body>
     <div id="app">
       <div id="main" class="layout-horizontal">
-        <header class="mb-5">
-          <div class="header-top">
-            <div class="container">
-                <h3 class="heading3aaa">FOCS ITP OnMyFinger aaasaa 123</h3>
-              <div class="header-top-right">
-                <div class="dropdown mx-3">
-                  <a
-                    href="#"
-                    id="topbarUserDropdown"
-                    class="user-dropdown d-flex align-items-center dropend dropdown-toggle"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  >
-                    <div class="avatar avatar-md2">
-                      <img src="assets/images/faces/1.jpg" alt="Avatar" />
-                    </div>
-                    <div class="text">
-                      <h6 class="user-dropdown-name">Log In / Sign Up</h6>
-                      <p class="user-dropdown-status text-sm text-muted">
-                        Please Sign in according to your role
-                      </p>
-                    </div>
-                  </a>
-                  <ul
-                    class="dropdown-menu dropdown-menu-end shadow-lg"
-                    aria-labelledby="topbarUserDropdown"
-                  >
-                    <li><a class="dropdown-item" href="/studentLogin">Student</a></li>
-                    <li><a class="dropdown-item" href="#">Supervisor</a></li>
-                    <li><a class="dropdown-item" href="#">Company</a></li>
-                    <li><a class="dropdown-item" href="#">ITP Committee</a></li>
-                    <li><hr class="dropdown-divider" /></li>
-                    <li>
-                      <a class="dropdown-item" href="auth-login.html">Logout</a>
-                    </li>
-                  </ul>
-                </div>
-
-                <!-- Burger button responsive -->
-                <a href="#" class="burger-btn d-block d-xl-none">
-                  <i class="bi bi-justify fs-3"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-          <nav class="main-navbar">
-            <div class="container">
-              <ul>
-                <li class="menu-item">
-                  <a href="login.html" class="menu-link">
-                    <i class="bi bi-grid-fill"></i>
-                    <span>Home</span>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </nav>
-        </header>
-
         <div class="content-wrapper container">
           <div class="page-content">
             <section class="section">
@@ -173,7 +114,7 @@
                             <button
                               class="btn btn-block btn-xl btn-outline-primary font-bold mt-3"
                             >
-                              Sign In
+                            <a href="/supervisorLogin">Sign In</a>
                             </button>
                           </div>
                         </div>
@@ -200,7 +141,7 @@
                             <button
                               class="btn btn-block btn-xl btn-outline-primary font-bold mt-3"
                             >
-                              Sign In
+                            <a href="/companyLogin">Sign In</a>
                             </button>
                           </div>
                         </div>
@@ -225,7 +166,7 @@
                             <button
                               class="btn btn-block btn-xl btn-outline-primary font-bold mt-3"
                             >
-                              Sign In
+                            <a href="/adminLogin">Sign In</a>
                             </button>
                           </div>
                         </div>
@@ -255,6 +196,7 @@
 
     <script src="assets/extensions/apexcharts/apexcharts.min.js"></script>
     <script src="assets/js/pages/dashboard.js"></script>
+    <script src='assets/js/header.js'></script>
     <script>
       document.getElementsByClassName(".heading3aaa")[0].innerHTML = "ABCDEFGH";
     </script>

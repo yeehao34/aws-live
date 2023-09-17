@@ -19,10 +19,10 @@
         <div class="page-title">
           <div class="row">
             <div class="col-12 col-md-6 order-md-1 order-last">
-              <h3>Student Login</h3>
+              <h3>Company Login</h3>
               <p class="text-subtitle text-muted">
-                Enter your student email and ic number to login or
-                <a href="/studentRegister">Sign Up</a>
+                Enter your username and password to login or
+                <a href="/companyRegister">Sign Up</a>
               </p>
             </div>
             <div class="col-12 col-md-6 order-md-2 order-first">
@@ -32,7 +32,7 @@
                     <a href="/login">Home</a>
                   </li>
                   <li class="breadcrumb-item active" aria-current="page">
-                    Student Log In
+                    Company Log In
                   </li>
                 </ol>
               </nav>
@@ -51,19 +51,17 @@
 
                   <div class="card-body">
                     <div class="row">
-                      <form class="form" data-parsley-validate action="/studentHome">
+                      <form class="form" data-parsley-validate action="/companyHome">
                         <div class="row">
                           <div class="form-group mandatory">
-                            <label for="helpInputTop">Student Email</label>
-                            <small class="text-muted">eg.<i>xxx-xx99@student.tarc.edu.my</i></small>
-                            <input type="text" class="form-control" id="helpInputTop" data-parsley-required="true" />
+                            <label for="helpInputTop">Username</label>
+                            <input type="text" class="form-control" id="username" data-parsley-required="true" />
                           </div>
                         </div>
                         <div class="row">
                           <div class="form-group mandatory">
-                            <label for="helpInputTop">IC Number</label>
-                            <small class="text-muted">eg.<i>999999-99-9999</i></small>
-                            <input type="text" class="form-control" id="helpInputTop" data-parsley-required="true" />
+                            <label for="helpInputTop">Password</label>
+                            <input type="text" class="form-control" id="password" data-parsley-required="true" />
                           </div>
                         </div>
                         <div class="row">
