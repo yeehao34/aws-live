@@ -34,14 +34,17 @@ companyPersonnelTable = 'CompanyPersonnel'
 def home():
     return render_template('login.html')
 
+
 @app.route("/<page_name>")
 def render_page(page_name):
     return render_template('%s.html' % page_name)
+
 
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/")
+
 
 @app.route("/studentRegister")
 def studentRegister():
@@ -63,9 +66,10 @@ def studentRegister():
         connection.close()
 
     error = get_flashed_messages(category_filter=['student-error'])
-    if error: 
+    if error:
         error = error[0]
     return render_template('studentRegister.html', uniSupervisorList=uniSupervisorList, error=error)
+
 
 @app.route("/AddStud", methods=['POST'])
 def AddStud():
@@ -107,7 +111,8 @@ def AddStud():
         if (cursor.fetchone() is not None):
             print("Student already exists")
             flash("Student already exists", 'student-error')
-            return redirect("/studentRegister")  # Redirect to the studentRegister route
+            # Redirect to the studentRegister route
+            return redirect("/studentRegister")
 
         # Execute the query
         cursor.execute(retrieveSuperviser_sql, (supervisorEmail))
@@ -137,6 +142,7 @@ def AddStud():
 
     return render_template("studentLogin.html", success="You may login now")
 
+
 @app.route("/StudLogin", methods=['POST'])
 def StudLogin():
     studEmail = request.form['studentEmail']
@@ -153,7 +159,6 @@ def StudLogin():
             retrieveStudent_sql = "SELECT * FROM " + \
                 studentTable + " WHERE StudentEmail = %s"
             cursor.execute(retrieveStudent_sql, (studEmail))
-            student = cursor.fetchone()
     except Exception as e:
         connection.rollback()  # Rollback the transaction if an exception occurs
     finally:
@@ -165,10 +170,121 @@ def StudLogin():
     else:
         if studentPersonal[len(studentPersonal) - 1] == studEmail and studentPersonal[1] == nric:
             session["studEmail"] = studEmail
-            studentObj = Student(student[0], student[1], student[2], student[3], student[4], student[5], student[6], student[7],
-                                 studentPersonal[0], studentPersonal[1], studentPersonal[2], studentPersonal[3], studentPersonal[4], studentPersonal[5], studentPersonal[6], studentPersonal[7], studentPersonal[8], studentPersonal[9])
-            studentProfile = get_object_url(studentObj.profilePic)
-            return render_template("studentHome.html", student=studentObj, studentProfile=studentProfile)
+            return redirect("/studentHome")
+
+
+@app.route("/studentHome")
+def studentDashboard():
+    studEmail = session["studEmail"]
+    retrieveStudent_sql = "SELECT * FROM " + \
+        studentTable + " WHERE StudentEmail = %s"
+    retrieveStudentPersonal_sql = "SELECT * FROM " + \
+        studentPersonalTable + " WHERE StudentEmail = %s"
+    connection = create_connection()
+    cursor = connection.cursor()
+    try:
+        cursor.execute(retrieveStudent_sql, (studEmail))
+        student = cursor.fetchone()
+        cursor.execute(retrieveStudentPersonal_sql, (studEmail))
+        studentPersonal = cursor.fetchone()
+        student = {"name": studentPersonal[0], "studId": student[6],
+                   "profilePic": get_object_url(studentPersonal[9])}
+    except Exception as e:
+        connection.rollback()
+    finally:
+        cursor.close()
+        connection.close()
+
+    return render_template("studentHome.html", student=student)
+
+
+@app.route("/studentProfile")
+def studentProfile():
+    studEmail = session["studEmail"]
+    retrieveStudent_sql = "SELECT * FROM " + \
+        studentTable + " WHERE StudentEmail = %s"
+    retrieveStudentPersonal_sql = "SELECT * FROM " + \
+        studentPersonalTable + " WHERE StudentEmail = %s"
+    retrieveSupervisor_sql = "SELECT * FROM " + \
+        universitySupervisorTable + " WHERE StaffId = %s"
+    connection = create_connection()
+    cursor = connection.cursor()
+    try:
+        cursor.execute(retrieveStudent_sql, (studEmail))
+        student = cursor.fetchone()
+        cursor.execute(retrieveStudentPersonal_sql, (studEmail))
+        studentPersonal = cursor.fetchone()
+        studentObj = Student(student[0], student[1], student[2], student[3], student[4], student[5], student[6], student[7],
+                             studentPersonal[0], studentPersonal[1], studentPersonal[2], studentPersonal[3], studentPersonal[4], studentPersonal[5], studentPersonal[6], studentPersonal[7], studentPersonal[8], studentPersonal[9])
+        studentObj.profilePic = get_object_url(studentObj.profilePic)
+        cursor.execute(retrieveSupervisor_sql, (studentObj.supervisorId))
+        result = cursor.fetchone()
+        supervisor = UniversitySupervisor(
+            result[0], result[1], result[2], result[3], result[4])
+        studentSupervisor = {
+            "name": supervisor.name, "email": supervisor.email}
+    except Exception as e:
+        connection.rollback()
+    finally:
+        cursor.close()
+        connection.close()
+    student_dict = vars(studentObj)
+    for key, value in student_dict.items():
+        print(f"{key}: {value}")
+
+    success = get_flashed_messages(category_filter=['update-success'])
+    if success:
+        success = success[0]
+
+    return render_template("studentProfile.html", student=studentObj, supervisor=studentSupervisor, success=success)
+
+
+@app.route("/UpdateStudProfile", methods=['POST'])
+def updateStudProfile():
+    studEmail = session["studEmail"]
+    # profile, cgpa, own transport, health remarks, personal email, mobile, term address
+
+    cgpa = request.form['cgpa']
+    ownTransport = request.form['transport']
+    healthRemark = request.form.get('healthRemark', '')
+    personalEmail = request.form['personalEmail']
+    mobile = request.form['mobile']
+    termAddr = request.form.get('termAddr', '')
+
+    connection = create_connection()
+    cursor = connection.cursor()
+
+    try:
+        updateStud_sql = "UPDATE " + studentTable + \
+            " SET LatestCgpa = %s WHERE StudentEmail = %s"
+        updateStudProfile_sql = "UPDATE " + studentPersonalTable + \
+            " SET ProfilePic = %s WHERE StudentEmail = %s"
+        updateStudPersonal_sql = "UPDATE " + studentPersonalTable + \
+            " SET OwnTransport = %s, HealthRemark = %s, PersonalEmail = %s, ContactNo = %s, TermAddress = %s WHERE StudentEmail = %s"
+        if 'profile' in request.files:
+            profilePic = request.files['profile']
+            if profilePic.filename != '':
+                # Upload image file in S3
+                uploadToS3(profilePic, "students/" + studEmail + "/profile.png")
+                profilePath = "students/" + studEmail + "/profile.png"
+                # Update profile pic path in Student Table
+                cursor.execute(updateStudProfile_sql, (profilePath, studEmail))
+
+        cursor.execute(updateStud_sql, (cgpa, studEmail))
+        cursor.execute(updateStudPersonal_sql, (ownTransport,healthRemark, personalEmail, mobile, termAddr, studEmail))
+        connection.commit()
+        flash("Your profile has been updated!", 'update-success')
+        print("success")
+    except Exception as e:
+        print(e)
+        connection.rollback()  # Rollback the transaction if an exception occurs
+        print("got problem")
+    finally:
+        cursor.close()
+        connection.close()
+
+    return redirect("/studentProfile")
+
 
 @app.route("/AddCompany", methods=['POST'])
 def AddComp():
@@ -191,50 +307,59 @@ def AddComp():
     designation = request.form['designation']
     contactNo = request.form['contactNo']
     email = request.form['email']
-    
-    insertComp_sql = "INSERT INTO " + companyTable + " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-    insertPic_sql = "INSERT INTO " + companyPersonnelTable + " VALUES (%s, %s, %s, %s, %s)"
+
+    insertComp_sql = "INSERT INTO " + companyTable + \
+        " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    insertPic_sql = "INSERT INTO " + \
+        companyPersonnelTable + " VALUES (%s, %s, %s, %s, %s)"
     connection = create_connection()
     cursor = connection.cursor()
-    
+
     try:
         # Retrieve company id sequence number from table SEQ_MATRIX
-        retrieveSeqNo_sql = "SELECT SEQ_NO FROM " + sequenceTable + " WHERE TBL_NAME = " + companyTable
+        retrieveSeqNo_sql = "SELECT SEQ_NO FROM " + \
+            sequenceTable + " WHERE TBL_NAME = " + companyTable
         cursor.execute(retrieveSeqNo_sql)
         seqNo = cursor.fetchone()[0]
         compId = "CP" + fillLeftZero(6, seqNo)
         # Retrieve person in charge id sequence number from table SEQ_MATRIX
-        retrieveSeqNo_sql = "SELECT SEQ_NO FROM " + sequenceTable + " WHERE TBL_NAME = " + companyPersonnelTable
+        retrieveSeqNo_sql = "SELECT SEQ_NO FROM " + sequenceTable + \
+            " WHERE TBL_NAME = " + companyPersonnelTable
         cursor.execute(retrieveSeqNo_sql)
         seqNo = cursor.fetchone()[0]
         picId = "PIC" + fillLeftZero(4, seqNo)
-        
+
         # Update sequence number in SEQ_MATRIX
-        updateCmpSeq_sql = "UPDATE " + sequenceTable + " SET SEQ_NO = SEQ_NO + 1 WHERE TBL_NAME = " + companyTable
-        updatePicSeq_sql = "UPDATE " + sequenceTable + " SET SEQ_NO = SEQ_NO + 1 WHERE TBL_NAME = " + companyPersonnelTable
+        updateCmpSeq_sql = "UPDATE " + sequenceTable + \
+            " SET SEQ_NO = SEQ_NO + 1 WHERE TBL_NAME = " + companyTable
+        updatePicSeq_sql = "UPDATE " + sequenceTable + \
+            " SET SEQ_NO = SEQ_NO + 1 WHERE TBL_NAME = " + companyPersonnelTable
         cursor.execute(updateCmpSeq_sql)
         cursor.execute(updatePicSeq_sql)
-        
+
         # Upload ssm cert pdf file in S3
         uploadToS3(ssmCert, "companies/" + compId + "/ssmCert.pdf")
         ssmCertPath = "companies/" + compId + "/ssmCert.pdf"
         # Upload company logo image file in S3
         uploadToS3(compLogo, "companies/" + compId + "/logo.png")
         compLogoPath = "companies/" + compId + "/logo.png"
-        
-        cursor.execute(insertComp_sql, (compId, compName, username, password, otClaim, compAddr, ssmCertPath, industry, compLogoPath, totalStaff, companyStatus, website, picId))
-        cursor.execute(insertPic_sql, (picId, name, designation, contactNo, email))
-        
-        connection.commit()    
+
+        cursor.execute(insertComp_sql, (compId, compName, username, password, otClaim, compAddr,
+                       ssmCertPath, industry, compLogoPath, totalStaff, companyStatus, website, picId))
+        cursor.execute(insertPic_sql, (picId, name,
+                       designation, contactNo, email))
+
+        connection.commit()
         success = "Company registration successful. Please wait for admin approval. You will be notified via email once your company status is updated."
     except Exception as e:
         connection.rollback()  # Rollback the transaction if an exception occurs
     finally:
         cursor.close()
         connection.close()
-        
+
     return render_template("companyLogin.html", success=success)
-        
+
+
 def AddJob():
     # InternshipJob Table
     # jobId = request.form['jobId']
@@ -280,6 +405,7 @@ def AddCompRequest():
     connection = create_connection()
     cursor = connection.cursor()
 
+
 def submitReport():
     # Submission Table
     # submissionId = request.form['submissionId']
@@ -324,7 +450,6 @@ def AddInternship():
         internshipTable + " VALUES (%s, %s, %s, %s, %s, %s)"
     connection = create_connection()
     cursor = connection.cursor()
-
 
 
 if __name__ == '__main__':
