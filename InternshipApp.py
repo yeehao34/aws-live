@@ -3,8 +3,9 @@ from flask_session import Session
 from config import *
 from datetime import datetime
 from s3_service import uploadToS3, get_object_url
-from Models import Student, Company, UniversitySupervisor, Admin, InternshipJob, CompanyPersonnel
+from Models import Student, Company, UniversitySupervisor, Admin, InternshipJob, CompanyPersonnel, Internship, InternshipApplication, Task, CompanyRequest, Submission
 from db_connection import create_connection
+from utils import *
 
 app = Flask(__name__, template_folder='template/dist',
             static_folder="template/dist/assets")
@@ -14,6 +15,7 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 Session(app)
 
 output = {}
+sequenceTable = "SEQ_MATRIX"
 studentTable = 'Student'
 companyTable = 'Company'
 universitySupervisorTable = 'UniversitySupervisor'
@@ -31,7 +33,6 @@ companyPersonnelTable = 'CompanyPersonnel'
 @app.route("/")
 def home():
     return render_template('login.html')
-
 
 @app.route("/<page_name>")
 def render_page(page_name):
@@ -60,10 +61,11 @@ def studentRegister():
     finally:
         cursor.close()
         connection.close()
-    error = get_flashed_messages(category_filter=['student-error'])[0]
-    print(error)
-    return render_template('studentRegister.html', uniSupervisorList=uniSupervisorList, error=error)
 
+    error = get_flashed_messages(category_filter=['student-error'])
+    if error: 
+        error = error[0]
+    return render_template('studentRegister.html', uniSupervisorList=uniSupervisorList, error=error)
 
 @app.route("/AddStud", methods=['POST'])
 def AddStud():
@@ -99,9 +101,6 @@ def AddStud():
     connection = create_connection()
     cursor = connection.cursor()
 
-    if profilePic.filename == "":
-        return "Please choose a profile picture file"
-
     try:
 
         cursor.execute(retrieveStud_sql, (studEmail))
@@ -136,8 +135,7 @@ def AddStud():
         cursor.close()
         connection.close()
 
-    return redirect("/studentLogin")
-
+    return render_template("studentLogin.html", success="You may login now")
 
 @app.route("/StudLogin", methods=['POST'])
 def StudLogin():
@@ -172,10 +170,9 @@ def StudLogin():
             studentProfile = get_object_url(studentObj.profilePic)
             return render_template("studentHome.html", student=studentObj, studentProfile=studentProfile)
 
-
+@app.route("/AddCompany", methods=['POST'])
 def AddComp():
     # Company Table
-    # compId = request.form['compId']
     compName = request.form['compName']
     username = request.form['username']
     password = request.form['password']
@@ -194,17 +191,33 @@ def AddComp():
     designation = request.form['designation']
     contactNo = request.form['contactNo']
     email = request.form['email']
+    
 
     insertPersonnel_sql = "INSERT INTO " + \
         companyPersonnelTable + " VALUES (%s, %s, %s, %s, %s)"
     insertComp_sql = "INSERT INTO " + companyTable + \
         " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-    cursor = db_conn.cursor()
-
-    if ssmCert.filename == "":
-        return "Please upload SSM Certificate"
-
-
+    connection = create_connection()
+    cursor = connection.cursor()
+    
+    try:
+        # Retrieve company id sequence number from table SEQ_MATRIX
+        retrieveSeqNo_sql = "SELECT SEQ_NO FROM " + sequenceTable + " WHERE TBL_NAME = " + companyTable
+        cursor.execute(retrieveSeqNo_sql)
+        seqNo = cursor.fetchone()[0]
+        compId = "CP" + fillLeftZero(6, seqNo)
+        # Retrieve person in charge id sequence number from table SEQ_MATRIX
+        retrieveSeqNo_sql = "SELECT SEQ_NO FROM " + sequenceTable + " WHERE TBL_NAME = " + companyPersonnelTable
+        cursor.execute(retrieveSeqNo_sql)
+        seqNo = cursor.fetchone()[0]
+        
+        
+    except Exception as e:
+        connection.rollback()  # Rollback the transaction if an exception occurs
+    finally:
+        cursor.close()
+        connection.close()
+        
 def AddJob():
     # InternshipJob Table
     # jobId = request.form['jobId']
@@ -221,7 +234,8 @@ def AddJob():
 
     insertJob_sql = "INSERT INTO " + internshipJobTable + \
         " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-    cursor = db_conn.cursor()
+    connection = create_connection()
+    cursor = connection.cursor()
 
 
 def AddTask():
@@ -231,7 +245,8 @@ def AddTask():
     dueDate = request.form['dueDate']
 
     insertTask_sql = "INSERT INTO " + taskTable + " VALUES (%s, %s, %s)"
-    cursor = db_conn.cursor()
+    connection = create_connection()
+    cursor = connection.cursor()
 
 
 def AddCompRequest():
@@ -245,8 +260,8 @@ def AddCompRequest():
 
     insertCompRequest_sql = "INSERT INTO " + \
         companyRequestTable + " VALUES (%s, %s, %s, %s)"
-    cursor = db_conn.cursor()
-
+    connection = create_connection()
+    cursor = connection.cursor()
 
 def submitReport():
     # Submission Table
@@ -258,7 +273,8 @@ def submitReport():
 
     insertSubmission_sql = "INSERT INTO " + submissionTable + \
         " (SubmissionId, DateSubmitted, Report, TaskId, StudentEmail) VALUES (%s, %s, %s, %s, %s)"
-    cursor = db_conn.cursor()
+    connection = create_connection()
+    cursor = connection.cursor()
 
 
 def applyJob():
@@ -271,7 +287,8 @@ def applyJob():
 
     insertApplication_sql = "INSERT INTO " + internshipApplicationTable + \
         "(ApplicationId, ApplicationStatus, ApplyDate, JobId, StudentEmail) VALUES (%s, %s, %s, %s, %s)"
-    cursor = db_conn.cursor()
+    connection = create_connection()
+    cursor = connection.cursor()
 
 
 def AddInternship():
@@ -288,16 +305,9 @@ def AddInternship():
 
     insertInternship_sql = "INSERT INTO " + \
         internshipTable + " VALUES (%s, %s, %s, %s, %s, %s)"
-    cursor = db_conn.cursor()
+    connection = create_connection()
+    cursor = connection.cursor()
 
-    if compAcceptanceForm.filename == "":
-        return "Please upload Company Acceptance Form"
-
-    if parentAckForm.filename == "":
-        return "Please upload Parent Acknowledgement Form"
-
-    if indemnityLetter.filename == "":
-        return "Please upload Indemnity Letter"
 
 
 if __name__ == '__main__':
