@@ -36,14 +36,16 @@ class UniversitySupervisor:
         self.contact = contact
 
 class Company:
-    def __init__(self, companyId, companyName, username, password, otClaim, address, industry, totalStf, companyStatus, website, picId):
+    def __init__(self, companyId, companyName, username, password, otClaim, address, ssmCert, industry, logo, totalStf, companyStatus, website, picId):
         self.companyId = companyId
         self.companyName = companyName
         self.username = username
         self.password = password
         self.otClaim = otClaim
         self.address = address
+        self.ssmCert = ssmCert
         self.industry = industry
+        self.logo = logo
         self.totalStf = totalStf
         self.companyStatus = companyStatus
         self.website = website
@@ -71,3 +73,56 @@ class InternshipJob:
         self.accommodation = accommodation
         self.companyId = companyId
         
+class InternshipApplication:
+    def __init__(self, applicationId, applicationStatus, applyDate, reviewDate, remarks, jobId, studentEmail):
+        self.applicationId = applicationId
+        self.applicationStatus = applicationStatus
+        self.applyDate = applyDate
+        self.reviewDate = reviewDate
+        self.remarks = remarks
+        self.jobId = jobId
+        self.studentEmail = studentEmail
+
+class Task:
+    def __init__(self, taskId, taskName, dueDate):
+        self.taskId = taskId
+        self.taskName = taskName
+        self.dueDate = dueDate
+        
+class Submission:
+    # status is the approved/reject by university supervisor
+    # same goes to remarks
+    # report is the URL
+    def __init__(self, submissionId, status, dateSubmitted, report, remarks, taskId, studentEmail):
+        self.submissionId = submissionId
+        self.status = status
+        self.dateSubmitted = dateSubmitted
+        self.report = report
+        self.remarks = remarks
+        self.taskId = taskId
+        self.studentEmail = studentEmail
+
+class CompanyRequest:
+    def __init__(self, requestId, companyName, companyAddress, requestStatus, studentEmail, adminId):
+        self.requestId = requestId
+        self.companyName = companyName
+        self.companyAddress = companyAddress
+        self.requestStatus = requestStatus
+        self.studentEmail = studentEmail
+        self.adminId = adminId
+    
+# Internship - the student have already secured a placement    
+class Internship:
+    # companyAcceptanceForm, parentAckForm, indemnityLetter are the URL
+    def __init__(self, studentEmail, companyName, companyAddress, monthlyAllowance, companySupervisorName, companySupervisorEmail, companyAcceptanceForm, parentAckForm, indemnityLetter):
+        self.studentEmail = studentEmail
+        self.companyName = companyName
+        self.companyAddress = companyAddress
+        self.monthlyAllowance = monthlyAllowance
+        self.companySupervisorName = companySupervisorName
+        self.companySupervisorEmail = companySupervisorEmail
+        self.companyAcceptanceForm = companyAcceptanceForm
+        self.parentAckForm = parentAckForm
+        self.indemnityLetter = indemnityLetter
+
+
