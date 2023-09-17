@@ -11,6 +11,8 @@ How to setup in VSCode (Setup a virtual environment)
 4) In the command prompt type, python -m pip install flask boto3 pymysql python-dotenv 
 5) Then, python -m flask --app InternshipApp --debug run 
 
+Database Hostname/Endpoint: database-1.c1nlreg7eojl.us-east-1.rds.amazonaws.com
+
 
 Internship OnMyfinger Reference
 http://i2hub.tarc.edu.my:8846/

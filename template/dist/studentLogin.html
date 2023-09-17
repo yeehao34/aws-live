@@ -52,19 +52,21 @@
 
                   <div class="card-body">
                     <div class="row">
-                      <form class="form" data-parsley-validate action="/studentHome">
+                      <form class="form" data-parsley-validate action="/StudLogin" method="POST">
                         <div class="row">
                           <div class="form-group mandatory">
                             <label for="helpInputTop">Student Email</label>
                             <small class="text-muted">eg.<i>xxx-xx99@student.tarc.edu.my</i></small>
-                            <input type="text" class="form-control" id="helpInputTop" data-parsley-required="true" />
+                            <input type="text" class="form-control" id="helpInputTop" name="studentEmail"
+                              data-parsley-required="true" />
                           </div>
                         </div>
                         <div class="row">
                           <div class="form-group mandatory">
                             <label for="helpInputTop">IC Number</label>
                             <small class="text-muted">eg.<i>999999-99-9999</i></small>
-                            <input type="text" class="form-control" id="helpInputTop" data-parsley-required="true" />
+                            <input type="text" class="form-control" id="helpInputTop" name="nric"
+                              data-parsley-required="true" />
                           </div>
                         </div>
                         <div class="row">
