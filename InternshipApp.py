@@ -192,11 +192,8 @@ def AddComp():
     contactNo = request.form['contactNo']
     email = request.form['email']
     
-
-    insertPersonnel_sql = "INSERT INTO " + \
-        companyPersonnelTable + " VALUES (%s, %s, %s, %s, %s)"
-    insertComp_sql = "INSERT INTO " + companyTable + \
-        " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    insertComp_sql = "INSERT INTO " + companyTable + " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    insertPic_sql = "INSERT INTO " + companyPersonnelTable + " VALUES (%s, %s, %s, %s, %s)"
     connection = create_connection()
     cursor = connection.cursor()
     
@@ -210,13 +207,33 @@ def AddComp():
         retrieveSeqNo_sql = "SELECT SEQ_NO FROM " + sequenceTable + " WHERE TBL_NAME = " + companyPersonnelTable
         cursor.execute(retrieveSeqNo_sql)
         seqNo = cursor.fetchone()[0]
+        picId = "PIC" + fillLeftZero(4, seqNo)
         
+        # Update sequence number in SEQ_MATRIX
+        updateCmpSeq_sql = "UPDATE " + sequenceTable + " SET SEQ_NO = SEQ_NO + 1 WHERE TBL_NAME = " + companyTable
+        updatePicSeq_sql = "UPDATE " + sequenceTable + " SET SEQ_NO = SEQ_NO + 1 WHERE TBL_NAME = " + companyPersonnelTable
+        cursor.execute(updateCmpSeq_sql)
+        cursor.execute(updatePicSeq_sql)
         
+        # Upload ssm cert pdf file in S3
+        uploadToS3(ssmCert, "companies/" + compId + "/ssmCert.pdf")
+        ssmCertPath = "companies/" + compId + "/ssmCert.pdf"
+        # Upload company logo image file in S3
+        uploadToS3(compLogo, "companies/" + compId + "/logo.png")
+        compLogoPath = "companies/" + compId + "/logo.png"
+        
+        cursor.execute(insertComp_sql, (compId, compName, username, password, otClaim, compAddr, ssmCertPath, industry, compLogoPath, totalStaff, companyStatus, website, picId))
+        cursor.execute(insertPic_sql, (picId, name, designation, contactNo, email))
+        
+        connection.commit()    
+        success = "Company registration successful. Please wait for admin approval. You will be notified via email once your company status is updated."
     except Exception as e:
         connection.rollback()  # Rollback the transaction if an exception occurs
     finally:
         cursor.close()
         connection.close()
+        
+    return render_template("companyLogin.html", success=success)
         
 def AddJob():
     # InternshipJob Table
