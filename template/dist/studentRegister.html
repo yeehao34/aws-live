@@ -211,7 +211,7 @@
                                                     </fieldset>
                                                 </div>
                                                 <div class="col-md-6 mb-4">
-                                                    <div class="form-group mb-3"> 
+                                                    <div class="form-group mb-3">
                                                         <label for="healthRemark" class="form-label">Health
                                                             Remarks</label>
                                                         <textarea class="form-control" name="healthRemark" rows="3"
@@ -321,15 +321,8 @@
                 </div>
             </div>
 
-            <footer>
-                <div class="container">
-                    <div class="footer clearfix mb-0 text-muted">
-                        <div class="float-start">
-                            <p>2023 &copy; TAR UMT FOCS ITP</p>
-                        </div>
-                    </div>
-                </div>
-            </footer>
+            {% include "footer.html" %}
+
         </div>
     </div>
     <script src="assets/js/bootstrap.js"></script>
@@ -417,7 +410,7 @@
 
     </script>
 
-    
+
     {% if error %}
     <script>
         Swal.fire({
