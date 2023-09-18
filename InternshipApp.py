@@ -352,7 +352,6 @@ def AddComp():
                        designation, contactNo, email))
         cursor.execute(insertComp_sql, (compId, compName, username, password, otClaim, compAddr,
                        ssmCertPath, delimiter.join(industry), compLogoPath, totalStaff, companyStatus, website, picId))
- 
 
         connection.commit()
         success = "Company registration successful. Please wait for admin approval. You will be notified via email once your company status is updated."
@@ -365,12 +364,14 @@ def AddComp():
 
     return render_template("companyLogin.html", success=success)
 
+
 @app.route("/CompLogin")
 def CompLogin():
     username = request.args.get('username')
     password = request.args.get('password')
-    
-    retrieveCompany_sql = "SELECT * FROM " + companyTable + " WHERE Username = %s AND Password = %s"
+
+    retrieveCompany_sql = "SELECT * FROM " + companyTable + \
+        " WHERE Username = %s AND Password = %s"
     connection = create_connection()
     cursor = connection.cursor()
     try:
@@ -389,6 +390,7 @@ def CompLogin():
             session["companyId"] = company[0]
             return redirect("/companyHome")
 
+
 @app.route("/companyHome")
 def companyDashboard():
     compId = session["companyId"]
@@ -401,7 +403,8 @@ def companyDashboard():
         # cursor.execute(retrievePIC_sql, (company[12]))
         # personInCharge = cursor.fetchone()
         print(company)
-        company = {"companyName": company[1], "username": company[2], "logo": get_object_url(company[8]), "companyStatus": company[10]}
+        company = {"companyName": company[1], "username": company[2], "logo": get_object_url(
+            company[8]), "companyStatus": company[10]}
     except Exception as e:
         print(e)
         connection.rollback()
@@ -411,11 +414,13 @@ def companyDashboard():
 
     return render_template("companyHome.html", company=company)
 
+
 @app.route("/companyProfile")
 def companyProfile():
     compId = session['companyId']
     retrieveCompany_sql = "SELECT * FROM " + companyTable + " WHERE CompanyId = %s"
-    retrievePIC_sql = "SELECT * FROM " + companyPersonnelTable + " WHERE PersonInChargeId = %s"
+    retrievePIC_sql = "SELECT * FROM " + \
+        companyPersonnelTable + " WHERE PersonInChargeId = %s"
     connection = create_connection()
     cursor = connection.cursor()
     try:
@@ -423,10 +428,12 @@ def companyProfile():
         companyResult = cursor.fetchone()
         cursor.execute(retrievePIC_sql, (companyResult[12]))
         companyPersonnel = cursor.fetchone()
-        company = Company(companyResult[0], companyResult[1], companyResult[2], companyResult[3], companyResult[4], companyResult[5], companyResult[6], companyResult[7], companyResult[8], companyResult[9], companyResult[10], companyResult[11], companyResult[12])
-        pic = CompanyPersonnel(companyPersonnel[0], companyPersonnel[1], companyPersonnel[2], companyPersonnel[3], companyPersonnel[4])
+        company = Company(companyResult[0], companyResult[1], companyResult[2], companyResult[3], companyResult[4], companyResult[5],
+                          companyResult[6], companyResult[7], companyResult[8], companyResult[9], companyResult[10], companyResult[11], companyResult[12])
+        pic = CompanyPersonnel(companyPersonnel[0], companyPersonnel[1],
+                               companyPersonnel[2], companyPersonnel[3], companyPersonnel[4])
         company.logo = get_object_url(company.logo)
-        
+
     except Exception as e:
         print(e)
         connection.rollback()
@@ -439,7 +446,8 @@ def companyProfile():
         success = success[0]
 
     return render_template("companyProfile.html", company=company, personInCharge=pic, success=success)
-    
+
+
 @app.route("/UpdateCompProfile", methods=['POST'])
 def updateCompProfile():
     # Company Table
@@ -458,8 +466,10 @@ def updateCompProfile():
     contactNo = request.form['contact']
     email = request.form['pEmail']
 
-    updateCompany_sql = "UPDATE " + companyTable + " SET CompanyName = %s, OTClaim = %s, Address = %s, Industry = %s, TotalStaff = %s, Website = %s WHERE CompanyId = %s"
-    updateCompanyPersonnel_sql = "UPDATE " + companyPersonnelTable + " SET Name = %s, Designation = %s, ContactNo = %s, Email = %s WHERE PersonInChargeId = %s"
+    updateCompany_sql = "UPDATE " + companyTable + \
+        " SET CompanyName = %s, OTClaim = %s, Address = %s, Industry = %s, TotalStaff = %s, Website = %s WHERE CompanyId = %s"
+    updateCompanyPersonnel_sql = "UPDATE " + companyPersonnelTable + \
+        " SET Name = %s, Designation = %s, ContactNo = %s, Email = %s WHERE PersonInChargeId = %s"
     connection = create_connection()
     cursor = connection.cursor()
     delimiter = '|'
@@ -473,12 +483,14 @@ def updateCompProfile():
                 # Upload image file in S3
                 compLogoPath = "companies/" + compId + "/logo.png"
                 uploadToS3(logo, compLogoPath)
-                updateCompLogo_sql = "UPDATE " + companyTable + " SET Logo = %s WHERE CompanyId = %s"
+                updateCompLogo_sql = "UPDATE " + companyTable + \
+                    " SET Logo = %s WHERE CompanyId = %s"
                 cursor.execute(updateCompLogo_sql, (compLogoPath, compId))
-        cursor.execute(updateCompany_sql, (compName, otClaim, compAddr, delimiter.join(industry), totalStaff, website, compId))
-        cursor.execute(updateCompanyPersonnel_sql, (name, designation, contactNo, email, picId))
+        cursor.execute(updateCompany_sql, (compName, otClaim, compAddr,
+                       delimiter.join(industry), totalStaff, website, compId))
+        cursor.execute(updateCompanyPersonnel_sql,
+                       (name, designation, contactNo, email, picId))
 
-        
         flash("Your profile has been updated!", 'update-success')
         connection.commit()
     except Exception as e:
@@ -490,37 +502,48 @@ def updateCompProfile():
 
     return redirect("/companyProfile")
 
+
 @app.route("/jobPosting")
 def jobPosting():
     compId = session["companyId"]
-    
+
     companyResult = retrieveCompById(compId)
     jobsResult = retrieveCompJobById(compId)
-    
-    company = {"companyName": companyResult[1], "username": companyResult[2], "logo": get_object_url(companyResult[8]), "companyStatus": companyResult[10]}
+
+    company = {"companyName": companyResult[1], "username": companyResult[2], "logo": get_object_url(
+        companyResult[8]), "companyStatus": companyResult[10]}
     companyJobs = []
     for job in jobsResult:
-        job = InternshipJob(job[0], job[1], job[2], job[3], job[4], job[5], job[6], job[7], job[8], job[9], job[10])
+        job = InternshipJob(job[0], job[1], job[2], job[3], job[4],
+                            job[5], job[6], job[7], job[8], job[9], job[10])
         companyJobs.append(job)
 
-    return render_template("jobPosting.html", company=company, companyJobs=companyJobs)
+    success = get_flashed_messages(category_filter=['job-added'])
+    if success:
+        success = success[0]
+
+    return render_template("jobPosting.html", company=company, companyJobs=companyJobs, success=success)
+
 
 @app.route("/jobPostingDetailViewEdit")
 def jobPostingDetails():
     jobId = request.args.get('jobId')
     compId = session["companyId"]
-    
+
     companyResult = retrieveCompById(compId)
-    company = {"companyName": companyResult[1], "username": companyResult[2], "logo": get_object_url(companyResult[8]), "companyStatus": companyResult[10]}
+    company = {"companyName": companyResult[1], "username": companyResult[2], "logo": get_object_url(
+        companyResult[8]), "companyStatus": companyResult[10]}
     jobResult = retrieveJobById(jobId)
-    job = InternshipJob(jobResult[0], jobResult[1], jobResult[2], jobResult[3], jobResult[4], jobResult[5], jobResult[6], jobResult[7], jobResult[8], jobResult[9], jobResult[10])
-    
+    job = InternshipJob(jobResult[0], jobResult[1], jobResult[2], jobResult[3], jobResult[4],
+                        jobResult[5], jobResult[6], jobResult[7], jobResult[8], jobResult[9], jobResult[10])
+
     success = get_flashed_messages(category_filter=['update-success'])
     if success:
         success = success[0]
-        
+
     return render_template("jobPostingDetailViewEdit.html", company=company, job=job, success=success)
-    
+
+
 @app.route("/UpdateJobDetail", methods=['POST'])
 def updateJobDetail():
     jobId = request.form['jobId']
@@ -531,11 +554,12 @@ def updateJobDetail():
     workingHour = request.form['workingHour']
     openFor = request.form['openFor']
     accessory = request.form['accessory']
-    
+    accommodation = request.form['accommodation']
+
     # by default, set these 2 to "N"
     diploma = "N"
     degree = "N"
-    
+
     if openFor == "diploma":
         diploma = "Y"
     elif openFor == "degree":
@@ -543,13 +567,14 @@ def updateJobDetail():
     elif openFor == "diplomaAndDegree":
         diploma = "Y"
         degree = "Y"
-    
-    
-    updateJobDetail_sql = "UPDATE " + internshipJobTable + " SET JobTitle = %s, JobDescription = %s, Allowance = %s, WorkingDay = %s, WorkingHour = %s, Diploma = %s, Degree = %s, AccessoryProvide = %s WHERE JobId = %s"
+
+    updateJobDetail_sql = "UPDATE " + internshipJobTable + \
+        " SET JobTitle = %s, JobDescription = %s, Allowance = %s, WorkingDay = %s, WorkingHour = %s, Diploma = %s, Degree = %s, AccessoryProvide = %s, Accommodation = %s WHERE JobId = %s"
     try:
         connection = create_connection()
         cursor = connection.cursor()
-        cursor.execute(updateJobDetail_sql, (jobTitle, jobDesc, allowance, workingDay, workingHour, diploma, degree, accessory, jobId))
+        cursor.execute(updateJobDetail_sql, (jobTitle, jobDesc, allowance, workingDay,
+                       workingHour, diploma, degree, accessory, accommodation, jobId))
         connection.commit()
         flash("Job Post has been updated successfully", 'update-success')
     except Exception as e:
@@ -558,11 +583,22 @@ def updateJobDetail():
     finally:
         cursor.close()
         connection.close()
-    
+
     return redirect("/jobPostingDetailViewEdit?jobId=" + jobId)
 
 
+@app.route("/jobAdding")
+def jobPostingDetail():
+    compId = session["companyId"]
 
+    companyResult = retrieveCompById(compId)
+    company = {"companyName": companyResult[1], "username": companyResult[2], "logo": get_object_url(
+        companyResult[8]), "companyStatus": companyResult[10]}
+
+    return render_template("jobAdding.html", company=company)
+
+
+@app.route("/AddJob", methods=['POST'])
 def AddJob():
     # InternshipJob Table
     # jobId = request.form['jobId']
@@ -571,16 +607,49 @@ def AddJob():
     allowance = request.form['allowance']
     workingDay = request.form['workingDay']
     workingHour = request.form['workingHour']
-    diploma = request.form['diploma']
-    degree = request.form['degree']
-    accessoryProvide = request.form['accessoryProvide']
+    openFor = request.form['openFor']
+    accessory = request.form['accessory']
     accommodation = request.form['accommodation']
-    # FK companyId <-- Company Table
+    # by default, set these 2 to "N"
+    diploma = "N"
+    degree = "N"
 
-    insertJob_sql = "INSERT INTO " + internshipJobTable + \
-        " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-    connection = create_connection()
-    cursor = connection.cursor()
+    if openFor == "diploma":
+        diploma = "Y"
+    elif openFor == "degree":
+        degree = "Y"
+    elif openFor == "diplomaAndDegree":
+        diploma = "Y"
+        degree = "Y"
+    # FK companyId <-- Company Table
+    compId = session["companyId"]
+    try:
+        insertJob_sql = "INSERT INTO " + internshipJobTable + \
+            " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+
+        seqNo = retrieveSeqNoByTblName(internshipJobTable)
+        print(seqNo)
+        jobId = "J" + fillLeftZero(5, seqNo)
+        print(jobId)
+        connection = create_connection()
+        cursor = connection.cursor()
+        cursor.execute(insertJob_sql, (jobId, jobTitle, jobDesc, allowance, workingDay,
+                       workingHour, diploma, degree, accessory, accommodation, compId))
+        
+        # Update sequence number in SEQ_MATRIX
+        updateJobSeq_sql = "UPDATE " + sequenceTable + \
+            " SET SEQ_NO = SEQ_NO + 1 WHERE TBL_NAME = '" + internshipJobTable + "'"
+        cursor.execute(updateJobSeq_sql)
+        connection.commit()
+        flash("Job has been added successfully", 'job-added')
+    except Exception as e:
+        print(e)
+        connection.rollback()
+    finally:
+        cursor.close()
+        connection.close()
+
+    return redirect("/jobPosting")
 
 
 def AddTask():

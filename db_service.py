@@ -95,3 +95,12 @@ def retrieveStudByEmail(studEmail):
     cur.close()
     conn.close()
     return row
+
+def retrieveSeqNoByTblName(tblName):
+    conn = create_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT SEQ_NO FROM " + sequenceTable + " WHERE TBL_NAME = '" + tblName + "'")
+    seqNo = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    return seqNo

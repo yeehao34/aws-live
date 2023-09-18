@@ -73,21 +73,6 @@ class InternshipJob:
         self.accommodation = accommodation
         self.companyId = companyId
         
-    # def __json__(self):
-    #     # Define how the object should be serialized to JSON
-    #     return {
-    #         "jobId": self.jobId,
-    #         "jobTitle": self.jobTitle,
-    #         "jobDesc": self.jobDesc,
-    #         "allowance": self.allowance,
-    #         "workingDay": self.workingDay,
-    #         "workingHour": self.workingHour,
-    #         "diploma": self.diploma,
-    #         "degree": self.degree,
-    #         "accessoryProvide": self.accessoryProvide,
-    #         "accommodation": self.accommodation,
-    #         "companyId": self.companyId
-    #     }
         
 class InternshipApplication:
     def __init__(self, applicationId, applicationStatus, applyDate, reviewDate, remarks, jobId, studentEmail):

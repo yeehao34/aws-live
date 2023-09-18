@@ -14,6 +14,14 @@
     <link rel="stylesheet" href="https://github.com/downloads/lafeber/world-flags-sprite/flags32.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="assets/extensions/sweetalert2/sweetalert2.min.css">
+
+    <style>
+        .theme-dark .swal2-success-circular-line-right,
+        .theme-dark .swal2-success-circular-line-left,
+        .theme-dark .swal2-success-fix {
+            background-color: #1e1e2d !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -31,14 +39,14 @@
                             <div class="col-12 col-lg-9">
                                 <h3>Job Posting</h3>
                                 <p class="text-subtitle text-muted"> You may view your job post(s) here.</p>
-            
+
                             </div>
                             <div class="col-12 col-lg-3 d-flex justify-content-end align-items-end experience">
                                 <button type="button" id="addJob" class="btn btn-primary me-1 mb-1">
                                     Add Job Post
                                 </button>
                             </div>
-                            
+
                         </div>
                     </div>
                     <div id="main-content">
@@ -78,9 +86,9 @@
     <script>
 
 
-    // Parse the JSON string to a JavaScript array
-    var jobPost = [];
-    {% for job in companyJobs %}
+        // Parse the JSON string to a JavaScript array
+        var jobPost = [];
+        {% for job in companyJobs %}
         jobPost.push({
             jobId: "{{job.jobId}}",
             jobTitle: "{{job.jobTitle}}",
@@ -90,7 +98,7 @@
             diploma: "{{job.diploma}}",
             degree: "{{job.degree}}",
         });
-    {% endfor %}
+        {% endfor %}
 
 
         new DataTable('#table1', {
@@ -136,14 +144,24 @@
                     text: 'Your company status is not approved yet!'
                 })
                 return;
-            } 
-            window.location.href = "/jobPostingDetail";
+            }
+            window.location.href = "/jobAdding";
         });
 
 
 
 
     </script>
+
+    {% if success %}
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Job Added',
+            text: '{{success}}'
+        })
+    </script>
+    {% endif %}
 
 </body>
 
