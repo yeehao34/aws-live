@@ -143,7 +143,7 @@
                 </nav>
             </header>
             <div id="main-content">
-
+                {% include "company-alert.html" %}
                 <div class="page-heading">
                     <div class="page-title">
                         <div class="row">
@@ -155,6 +155,7 @@
                     </div>
                     <section class="section">
                         <div class="page-content">
+
                             <div class="row">
                                 <div class="col-md-3 border-right">
                                     <div class="d-flex flex-column p-3 py-5">
@@ -198,8 +199,8 @@
                                             <div class="row">
                                                 <div class="form-group mandatory">
                                                     <label for="industry" class="form-label">Industry</label>
-                                                    <select class="js-example-basic-multiple form-control"
-                                                       id="industry" name="industries[]" multiple="multiple"
+                                                    <select class="js-example-basic-multiple form-control" id="industry"
+                                                        name="industries[]" multiple="multiple"
                                                         data-parsley-required="true">
                                                     </select>
                                                 </div>
@@ -312,7 +313,7 @@
     <script src="assets/extensions/filepond/filepond.js"></script>
     <script src="assets/extensions/toastify-js/src/toastify.js"></script>
     <script src="assets/js/pages/filepond.js"></script>
-    <script src="assets/extensions/sweetalert2/sweetalert2.min.js"></script>>
+    <script src="assets/extensions/sweetalert2/sweetalert2.min.js"></script>
     <script src="assets/js/pages/sweetalert2.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -327,7 +328,7 @@
         var company = {
             "companyName": "ABC Sdn Bhd",
             "address": "No. 1, Jalan ABC, 12345, Kuala Lumpur",
-            "industry": ["Agriculture","Forestry", "Fishing and Hunting"],
+            "industry": ["Agriculture", "Forestry", "Fishing and Hunting"],
             "totalStaff": "150",
             "otClaim": "Y",
             "website": "www.aws.com",
@@ -335,8 +336,10 @@
             "designation": "HR Manager",
             "contact": "012-3456789",
             "pEmail": "person@gmail.com",
-            "logo": "https://cdn.pixabay.com/photo/2017/08/06/21/01/louvre-2596278_960_720.jpg"
+            "logo": "https://cdn.pixabay.com/photo/2017/08/06/21/01/louvre-2596278_960_720.jpg",
+            "status": "pending"
         };
+
 
         //initialize the company data to the field
         $(document).ready(function () {
@@ -375,6 +378,15 @@
         //when edit button is clicked, enable all the field
         $(document).ready(function () {
             $("#edit").click(function () {
+                //pop up sweet alert if the account is not approved
+                if (company.status != "approved") {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Account Not Approved',
+                        text: 'Your account is not approved yet. Please contact administrator for more information.',
+                    })
+                    return;
+                }
                 $("#companyName").prop("disabled", false);
                 $("#address").prop("disabled", false);
                 $("#totalStaff").prop("disabled", false);
@@ -390,6 +402,27 @@
                 $("#edit").hide();
                 $("#save").show();
                 $("#back").show();
+            });
+        });
+
+        //when back button is clicked, disable all the field
+        $(document).ready(function () {
+            $("#back").click(function () {
+                $("#companyName").prop("disabled", true);
+                $("#address").prop("disabled", true);
+                $("#totalStaff").prop("disabled", true);
+                $("#website").prop("disabled", true);
+                $("#personName").prop("disabled", true);
+                $("#designation").prop("disabled", true);
+                $("#contact").prop("disabled", true);
+                $("#pEmail").prop("disabled", true);
+                $("#otClaim").prop("disabled", true);
+                $("#industry").prop("disabled", true);
+                $("#industry").trigger('change');
+                $("#file").prop("disabled", true);
+                $("#edit").show();
+                $("#save").hide();
+                $("#back").hide();
             });
         });
 
