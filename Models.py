@@ -73,6 +73,22 @@ class InternshipJob:
         self.accommodation = accommodation
         self.companyId = companyId
         
+    # def __json__(self):
+    #     # Define how the object should be serialized to JSON
+    #     return {
+    #         "jobId": self.jobId,
+    #         "jobTitle": self.jobTitle,
+    #         "jobDesc": self.jobDesc,
+    #         "allowance": self.allowance,
+    #         "workingDay": self.workingDay,
+    #         "workingHour": self.workingHour,
+    #         "diploma": self.diploma,
+    #         "degree": self.degree,
+    #         "accessoryProvide": self.accessoryProvide,
+    #         "accommodation": self.accommodation,
+    #         "companyId": self.companyId
+    #     }
+        
 class InternshipApplication:
     def __init__(self, applicationId, applicationStatus, applyDate, reviewDate, remarks, jobId, studentEmail):
         self.applicationId = applicationId
@@ -84,23 +100,32 @@ class InternshipApplication:
         self.studentEmail = studentEmail
 
 class Task:
-    def __init__(self, taskId, taskName, dueDate):
+    def __init__(self, taskId, taskName, taskDesc, dueDate):
         self.taskId = taskId
         self.taskName = taskName
+        self.taskDesc = taskDesc
         self.dueDate = dueDate
         
+class Attachment: 
+    def __init__(self, attachmentId, attachmentName, attachmentURL, taskId):
+        self.attachmentId = attachmentId
+        self.attachmentName = attachmentName
+        self.attachmentURL = attachmentURL
+        self.taskId = taskId
+
 class Submission:
     # status is the approved/reject by university supervisor
     # same goes to remarks
     # report is the URL
-    def __init__(self, submissionId, status, dateSubmitted, report, remarks, taskId, studentEmail):
+    # Nullable: reportStatus, dateSubmitted, report, remarks
+    def __init__(self, submissionId, reportStatus, dateSubmitted, report, remarks, taskId, studentEmail):
         self.submissionId = submissionId
-        self.status = status
+        self.reportStatus = reportStatus
         self.dateSubmitted = dateSubmitted
         self.report = report
         self.remarks = remarks
-        self.taskId = taskId
         self.studentEmail = studentEmail
+        self.taskId = taskId
 
 class CompanyRequest:
     def __init__(self, requestId, companyName, companyAddress, requestStatus, studentEmail, adminId):
@@ -124,5 +149,6 @@ class Internship:
         self.companyAcceptanceForm = companyAcceptanceForm
         self.parentAckForm = parentAckForm
         self.indemnityLetter = indemnityLetter
+
 
 

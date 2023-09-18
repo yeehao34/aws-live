@@ -1,11 +1,11 @@
 from flask import Flask, render_template, request, redirect, session, flash, get_flashed_messages
 from flask_session import Session
-from config import *
 from datetime import datetime
 from s3_service import uploadToS3, get_object_url
-from Models import Student, Company, UniversitySupervisor, Admin, InternshipJob, CompanyPersonnel, Internship, InternshipApplication, Task, CompanyRequest, Submission
+from Models import *
 from db_connection import create_connection
 from utils import *
+from db_service import *
 
 app = Flask(__name__, template_folder='template/dist',
             static_folder="template/dist/assets")
@@ -393,7 +393,6 @@ def CompLogin():
 def companyDashboard():
     compId = session["companyId"]
     retrieveCompany_sql = "SELECT * FROM " + companyTable + " WHERE CompanyId = %s"
-    retrievePIC_sql = "SELECT * FROM " + companyPersonnelTable + " WHERE PICId = %s"
     connection = create_connection()
     cursor = connection.cursor()
     try:
@@ -490,6 +489,78 @@ def updateCompProfile():
         connection.close()
 
     return redirect("/companyProfile")
+
+@app.route("/jobPosting")
+def jobPosting():
+    compId = session["companyId"]
+    
+    companyResult = retrieveCompById(compId)
+    jobsResult = retrieveCompJobById(compId)
+    
+    company = {"companyName": companyResult[1], "username": companyResult[2], "logo": get_object_url(companyResult[8]), "companyStatus": companyResult[10]}
+    companyJobs = []
+    for job in jobsResult:
+        job = InternshipJob(job[0], job[1], job[2], job[3], job[4], job[5], job[6], job[7], job[8], job[9], job[10])
+        companyJobs.append(job)
+
+    return render_template("jobPosting.html", company=company, companyJobs=companyJobs)
+
+@app.route("/jobPostingDetailViewEdit")
+def jobPostingDetails():
+    jobId = request.args.get('jobId')
+    compId = session["companyId"]
+    
+    companyResult = retrieveCompById(compId)
+    company = {"companyName": companyResult[1], "username": companyResult[2], "logo": get_object_url(companyResult[8]), "companyStatus": companyResult[10]}
+    jobResult = retrieveJobById(jobId)
+    job = InternshipJob(jobResult[0], jobResult[1], jobResult[2], jobResult[3], jobResult[4], jobResult[5], jobResult[6], jobResult[7], jobResult[8], jobResult[9], jobResult[10])
+    
+    success = get_flashed_messages(category_filter=['update-success'])
+    if success:
+        success = success[0]
+        
+    return render_template("jobPostingDetailViewEdit.html", company=company, job=job, success=success)
+    
+@app.route("/UpdateJobDetail", methods=['POST'])
+def updateJobDetail():
+    jobId = request.form['jobId']
+    jobTitle = request.form['jobTitle']
+    jobDesc = request.form['jobDesc']
+    allowance = request.form['allowance']
+    workingDay = request.form['workingDay']
+    workingHour = request.form['workingHour']
+    openFor = request.form['openFor']
+    accessory = request.form['accessory']
+    
+    # by default, set these 2 to "N"
+    diploma = "N"
+    degree = "N"
+    
+    if openFor == "diploma":
+        diploma = "Y"
+    elif openFor == "degree":
+        degree = "Y"
+    elif openFor == "diplomaAndDegree":
+        diploma = "Y"
+        degree = "Y"
+    
+    
+    updateJobDetail_sql = "UPDATE " + internshipJobTable + " SET JobTitle = %s, JobDescription = %s, Allowance = %s, WorkingDay = %s, WorkingHour = %s, Diploma = %s, Degree = %s, AccessoryProvide = %s WHERE JobId = %s"
+    try:
+        connection = create_connection()
+        cursor = connection.cursor()
+        cursor.execute(updateJobDetail_sql, (jobTitle, jobDesc, allowance, workingDay, workingHour, diploma, degree, accessory, jobId))
+        connection.commit()
+        flash("Job Post has been updated successfully", 'update-success')
+    except Exception as e:
+        print(e)
+        connection.rollback()
+    finally:
+        cursor.close()
+        connection.close()
+    
+    return redirect("/jobPostingDetailViewEdit?jobId=" + jobId)
+
 
 
 def AddJob():

@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITP - Company Dashboard</title>
+    <title>ITP - Company Job</title>
 
     <link rel="stylesheet" href="assets/css/main/app.css">
     <link rel="stylesheet" href="assets/css/main/app-dark.css">
     <link rel="shortcut icon" href="assets/images/logo/favicon.svg" type="image/x-icon">
     <link rel="shortcut icon" href="assets/images/logo/favicon.png" type="image/png">
 
-    <link rel="stylesheet" href=" https://github.com/downloads/lafeber/world-flags-sprite/flags32.css">
+    <link rel="stylesheet" href="https://github.com/downloads/lafeber/world-flags-sprite/flags32.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="assets/extensions/sweetalert2/sweetalert2.min.css">
 </head>
@@ -76,86 +76,28 @@
     <script src="assets/js/pages/sweetalert2.js"></script>
 
     <script>
-        //define list of job post with id, title, allowance, working day, working hour, diploma, degree (if diploma = Y, open for diploma, if degree = Y, open for degree   )
-        var jobPost = [{
-            id: 1,
-            title: "IT Support",
-            allowance: 1000,
-            workingDay: "Monday - Friday",
-            workingHour: "9am - 5pm",
-            diploma: "Y",
-            degree: "Y"
-        },
-        {
-            id: 2,
-            title: "IT Support",
-            allowance: 1000,
-            workingDay: "Monday - Friday",
-            workingHour: "9am - 5pm",
-            diploma: "Y",
-            degree: "Y"
-        },
-        {
-            id: 3,
-            title: "IT Support",
-            allowance: 1000,
-            workingDay: "Monday - Friday",
-            workingHour: "9am - 5pm",
-            diploma: "Y",
-            degree: "N"
-        },
-        {
-            id: 4,
-            title: "IT Support",
-            allowance: 1000,
-            workingDay: "Monday - Friday",
-            workingHour: "9am - 5pm",
-            diploma: "Y",
-            degree: "N"
-        },
-        {
-            id: 5,
-            title: "IT Support",
-            allowance: 1000,
-            workingDay: "Monday - Friday",
-            workingHour: "9am - 5pm",
-            diploma: "Y",
-            degree: "N"
-        },
-        {
-            id: 6,
-            title: "IT Support",
-            allowance: 1000,
-            workingDay: "Monday - Friday",
-            workingHour: "9am - 5pm",
-            diploma: "Y",
-            degree: "N"
-        },
-        {
-            id: 7,
-            title: "IT Support",
-            allowance: 1000,
-            workingDay: "Monday - Friday",
-            workingHour: "9am - 5pm",
-            diploma: "Y",
-            degree: "N"
-        },
-        {
-            id: 8,
-            title: "IT Support",
-            allowance: 1000,
-            workingDay: "Monday - Friday",
-            workingHour: "9am - 5pm",
-            diploma: "Y",
-            degree: "N"
-        }
-        ];
+
+
+    // Parse the JSON string to a JavaScript array
+    var jobPost = [];
+    {% for job in companyJobs %}
+        jobPost.push({
+            jobId: "{{job.jobId}}",
+            jobTitle: "{{job.jobTitle}}",
+            allowance: "{{job.allowance}}",
+            workingDay: "{{job.workingDay}}",
+            workingHour: "{{job.workingHour}}",
+            diploma: "{{job.diploma}}",
+            degree: "{{job.degree}}",
+        });
+    {% endfor %}
+
 
         new DataTable('#table1', {
             data: jobPost,
             columns: [
-                { data: 'id' },
-                { data: 'title' },
+                { data: 'jobId' },
+                { data: 'jobTitle' },
                 { data: 'allowance' },
                 { data: 'workingDay' },
                 { data: 'workingHour' },
@@ -176,27 +118,26 @@
                 {
                     data:
                         function (row) {
-                            return "<a href='/JobPostingDetail?id=" + row.id + "' class='btn btn-primary'>View</a>";
+                            console.log(row.jobId)
+                            return "<a href='/jobPostingDetailViewEdit?jobId=" + row.jobId + "' class='btn btn-primary'>View</a>";
                         }
                 }
             ]
         });
 
-        //if company status is not approved
-        var companyStatus = "pending";
 
         //add job post
         $("#addJob").click(function () {
             //if company status is not approved, pop up sweet alert
-            if (companyStatus != "approved") {
+            if (`{{company.companyStatus}}` != "Approved") {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Oops...',
+                    title: 'Account Not Approved',
                     text: 'Your company status is not approved yet!'
                 })
                 return;
             } 
-            window.location.href = "/JobPostingDetail?mode=add";
+            window.location.href = "/jobPostingDetail";
         });
 
 
