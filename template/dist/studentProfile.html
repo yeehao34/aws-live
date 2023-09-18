@@ -18,8 +18,10 @@
             color: #c2c2d9 !important;
         }
 
-        .theme-dark .swal2-success-circular-line-right, .theme-dark .swal2-success-circular-line-left, .theme-dark .swal2-success-fix {
-            background-color: #1e1e2d!important;
+        .theme-dark .swal2-success-circular-line-right,
+        .theme-dark .swal2-success-circular-line-left,
+        .theme-dark .swal2-success-fix {
+            background-color: #1e1e2d !important;
         }
     </style>
 </head>
@@ -228,7 +230,8 @@
                                                 <div class="form-group mb-3 mandatory">
                                                     <label for="termAddress" class="form-label">Term
                                                         Address</label>
-                                                    <textarea class="form-control" id="termAddress" rows="3" name="termAddr"
+                                                    <textarea class="form-control" id="termAddress" rows="3"
+                                                        name="termAddr"
                                                         data-parsley-required="true">{{student.termAddr}}</textarea>
                                                 </div>
                                             </div>
@@ -304,6 +307,13 @@
 
         //click back button, disable cgpa, own transport, health remarks, personal email, mobile, term address
         document.getElementById("back").addEventListener("click", function () {
+            $("#output").attr("src", "{{student.profilePic}}")
+            $("#cgpa").val("{{student.latestCgpa}}")
+            $("#transport").val("{{student.ownTransport}}")
+            $("#healthRemark").val("{{student.healthRemark}}")
+            $("#personalEmail").val("{{student.personalEmail}}")
+            $("#mobile").val("{{student.contactNo}}")
+            $("#termAddress").val("{{student.termAddr}}")
             document.getElementById("file").disabled = true;
             document.getElementById("cgpa").disabled = true;
             document.getElementById("transport").disabled = true;
@@ -319,7 +329,7 @@
 
     </script>
 
- 
+
 
 </body>
 

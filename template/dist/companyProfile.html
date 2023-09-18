@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITP - Company Dashboard</title>
+    <title>ITP - Company Profile</title>
 
     <link rel="stylesheet" href="assets/css/main/app.css">
     <link rel="stylesheet" href="assets/css/main/app-dark.css">
@@ -80,7 +80,7 @@
                                                     <span class="glyphicon glyphicon-camera"></span>
                                                     <span>Change Image</span>
                                                 </label>
-                                                <input id="file" type="file" name="logo" onchange="loadFile(event)" />
+                                                <input id="file" type="file" name="logo" onchange="loadFile(event)" accept="image/*"/>
                                                 {% if company.logo.split('.')[-1] not in ['png', 'jpg', 'jpeg']  %}
                                                 <img src="assets/images/logo/favicon.svg"  id="output" width="200" />
                                                 {% else %}
@@ -308,6 +308,22 @@
         //when back button is clicked, disable all the field
         $(document).ready(function () {
             $("#back").click(function () {
+                //window.location.href = "/companyProfile"
+                $("#companyName").val("{{company.companyName}}");
+                $("#address").val("{{company.address}}");
+                $("#totalStaff").val("{{company.totalStf}}");
+                $("#website").val("{{company.website}}");
+                $("#personName").val("{{personInCharge.name}}");
+                $("#designation").val("{{personInCharge.designation}}");
+                $("#contact").val("{{personInCharge.contactNo}}");
+                $("#pEmail").val("{{personInCharge.email}}");
+                $("#otClaim").val("{{company.otClaim}}");
+                $("#industry").empty();
+                {% for industry in company.industry.split("|")%}
+                    $("#industry").append("<option value='" + `{{industry}}` + "' selected>" + `{{industry}}` + "</option>");
+                {% endfor %}
+                $("#industry").trigger('change');
+                $("#output").attr("src", "{{company.logo}}");
                 $("#companyName").prop("disabled", true);
                 $("#address").prop("disabled", true);
                 $("#totalStaff").prop("disabled", true);
