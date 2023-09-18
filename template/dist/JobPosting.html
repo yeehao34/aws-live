@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITP - Company Dashboard</title>
+
+    <link rel="stylesheet" href="assets/css/main/app.css">
+    <link rel="stylesheet" href="assets/css/main/app-dark.css">
+    <link rel="shortcut icon" href="assets/images/logo/favicon.svg" type="image/x-icon">
+    <link rel="shortcut icon" href="assets/images/logo/favicon.png" type="image/png">
+
+    <link rel="stylesheet" href=" https://github.com/downloads/lafeber/world-flags-sprite/flags32.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="assets/extensions/sweetalert2/sweetalert2.min.css">
+</head>
+
+<body>
+    <div id="app">
+        {# activePage is to determine which item to be active#}
+        {% set activePage = "job" %}
+        {% include "companySidebar.html" %}
+        <div id="main" class='layout-navbar'>
+            {% include "companyHeader.html" %}
+            <div id="main-content">
+                {% include "company-alert.html" %}
+                <div class="page-heading">
+                    <div class="page-title">
+                        <div class="row">
+                            <div class="col-12 col-lg-9">
+                                <h3>Job Posting</h3>
+                                <p class="text-subtitle text-muted"> You may view your job post(s) here.</p>
+            
+                            </div>
+                            <div class="col-12 col-lg-3 d-flex justify-content-end align-items-end experience">
+                                <button type="button" id="addJob" class="btn btn-primary me-1 mb-1">
+                                    Add Job Post
+                                </button>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    <div id="main-content">
+                        <div class="card">
+                            <div class="card-body">
+                                <table id="table1" class="display nowrap" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Job ID</th>
+                                            <th>Job Title</th>
+                                            <th>Allowance</th>
+                                            <th>Working Day</th>
+                                            <th>Working Hour</th>
+                                            <th>Open for</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% include "footer.html" %}
+            </div>
+        </div>
+    </div>
+    <script src="assets/js/bootstrap.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/extensions/jquery/jquery.min.js"></script>
+    <script src="//code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="//cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="assets/js/pages/simple-datatables.js"></script>
+    <script src="assets/extensions/sweetalert2/sweetalert2.min.js"></script>>
+    <script src="assets/js/pages/sweetalert2.js"></script>
+
+    <script>
+        //define list of job post with id, title, allowance, working day, working hour, diploma, degree (if diploma = Y, open for diploma, if degree = Y, open for degree   )
+        var jobPost = [{
+            id: 1,
+            title: "IT Support",
+            allowance: 1000,
+            workingDay: "Monday - Friday",
+            workingHour: "9am - 5pm",
+            diploma: "Y",
+            degree: "Y"
+        },
+        {
+            id: 2,
+            title: "IT Support",
+            allowance: 1000,
+            workingDay: "Monday - Friday",
+            workingHour: "9am - 5pm",
+            diploma: "Y",
+            degree: "Y"
+        },
+        {
+            id: 3,
+            title: "IT Support",
+            allowance: 1000,
+            workingDay: "Monday - Friday",
+            workingHour: "9am - 5pm",
+            diploma: "Y",
+            degree: "N"
+        },
+        {
+            id: 4,
+            title: "IT Support",
+            allowance: 1000,
+            workingDay: "Monday - Friday",
+            workingHour: "9am - 5pm",
+            diploma: "Y",
+            degree: "N"
+        },
+        {
+            id: 5,
+            title: "IT Support",
+            allowance: 1000,
+            workingDay: "Monday - Friday",
+            workingHour: "9am - 5pm",
+            diploma: "Y",
+            degree: "N"
+        },
+        {
+            id: 6,
+            title: "IT Support",
+            allowance: 1000,
+            workingDay: "Monday - Friday",
+            workingHour: "9am - 5pm",
+            diploma: "Y",
+            degree: "N"
+        },
+        {
+            id: 7,
+            title: "IT Support",
+            allowance: 1000,
+            workingDay: "Monday - Friday",
+            workingHour: "9am - 5pm",
+            diploma: "Y",
+            degree: "N"
+        },
+        {
+            id: 8,
+            title: "IT Support",
+            allowance: 1000,
+            workingDay: "Monday - Friday",
+            workingHour: "9am - 5pm",
+            diploma: "Y",
+            degree: "N"
+        }
+        ];
+
+        new DataTable('#table1', {
+            data: jobPost,
+            columns: [
+                { data: 'id' },
+                { data: 'title' },
+                { data: 'allowance' },
+                { data: 'workingDay' },
+                { data: 'workingHour' },
+                {
+                    data:
+                        function (row) {
+                            if (row.diploma == "Y" && row.degree == "Y") {
+                                return "Diploma & Degree";
+                            } else if (row.diploma == "Y" && row.degree == "N") {
+                                return "Diploma";
+                            } else if (row.diploma == "N" && row.degree == "Y") {
+                                return "Degree";
+                            } else {
+                                return "None";
+                            }
+                        }
+                },
+                {
+                    data:
+                        function (row) {
+                            return "<a href='/JobPostingDetail?id=" + row.id + "' class='btn btn-primary'>View</a>";
+                        }
+                }
+            ]
+        });
+
+        //if company status is not approved
+        var companyStatus = "pending";
+
+        //add job post
+        $("#addJob").click(function () {
+            //if company status is not approved, pop up sweet alert
+            if (companyStatus != "approved") {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Your company status is not approved yet!'
+                })
+                return;
+            } 
+            window.location.href = "/JobPostingDetail?mode=add";
+        });
+
+
+
+
+    </script>
+
+</body>
+
+</html>
