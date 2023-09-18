@@ -441,7 +441,56 @@ def companyProfile():
 
     return render_template("companyProfile.html", company=company, personInCharge=pic, success=success)
     
-    
+@app.route("/UpdateCompProfile", methods=['POST'])
+def updateCompProfile():
+    # Company Table
+    compId = session['companyId']
+    compName = request.form['companyName']
+    otClaim = request.form['otClaim']
+    compAddr = request.form['address']
+    industry = request.form.getlist('industries')
+    totalStaff = request.form['totalStaff']
+    website = request.form.get('website', '')
+    # FK PersonInChargeId <-- CompanyPersonnel Table
+    # CompanyPersonnel Table
+    picId = request.form['personInChargeId']
+    name = request.form['personName']
+    designation = request.form['designation']
+    contactNo = request.form['contact']
+    email = request.form['pEmail']
+
+    updateCompany_sql = "UPDATE " + companyTable + " SET CompanyName = %s, OTClaim = %s, Address = %s, Industry = %s, TotalStaff = %s, Website = %s WHERE CompanyId = %s"
+    updateCompanyPersonnel_sql = "UPDATE " + companyPersonnelTable + " SET Name = %s, Designation = %s, ContactNo = %s, Email = %s WHERE PersonInChargeId = %s"
+    connection = create_connection()
+    cursor = connection.cursor()
+    delimiter = '|'
+    try:
+        print("hii")
+        compLogoPath = ""
+        if 'logo' in request.files:
+            logo = request.files['logo']
+            if logo.filename != '':
+                print("logo not empty")
+                # Upload image file in S3
+                compLogoPath = "companies/" + compId + "/logo.png"
+                uploadToS3(logo, compLogoPath)
+                updateCompLogo_sql = "UPDATE " + companyTable + " SET Logo = %s WHERE CompanyId = %s"
+                cursor.execute(updateCompLogo_sql, (compLogoPath, compId))
+        cursor.execute(updateCompany_sql, (compName, otClaim, compAddr, delimiter.join(industry), totalStaff, website, compId))
+        cursor.execute(updateCompanyPersonnel_sql, (name, designation, contactNo, email, picId))
+
+        
+        flash("Your profile has been updated!", 'update-success')
+        connection.commit()
+    except Exception as e:
+        print(e)
+        connection.rollback()  # Rollback the transaction if an exception occurs
+    finally:
+        cursor.close()
+        connection.close()
+
+    return redirect("/companyProfile")
+
 
 def AddJob():
     # InternshipJob Table

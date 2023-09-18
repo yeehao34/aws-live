@@ -18,7 +18,7 @@
 
 
     <style>
-        .form-select {
+        .theme-dark .form-select {
             color: #c2c2d9 !important;
         }
 
@@ -38,6 +38,14 @@
 
         .theme-dark .select2-selection__choice__display{
             color: #474554! important;
+        }
+
+        .theme-dark .select2-results .select2-results__options {
+            background-color: #40404d;
+        }
+
+        .theme-dark .select2-results .select2-results__options .select2-results__option--selected {
+            background-color: #364b98;
         }
     </style>
 </head>
@@ -72,7 +80,7 @@
                                                     <span class="glyphicon glyphicon-camera"></span>
                                                     <span>Change Image</span>
                                                 </label>
-                                                <input id="file" type="file" onchange="loadFile(event)" />
+                                                <input id="file" type="file" name="logo" onchange="loadFile(event)" />
                                                 {% if company.logo.split('.')[-1] not in ['png', 'jpg', 'jpeg']  %}
                                                 <img src="assets/images/logo/favicon.svg"  id="output" width="200" />
                                                 {% else %}
@@ -88,7 +96,7 @@
                                                         <label for="companyName" class="form-label">Company
                                                             Name</label>
                                                         <input type="text" id="companyName" class="form-control"
-                                                            name="companyName" placeholder="eg: ABC Sdn Bhd"
+                                                            name="companyName" placeholder="eg: ABC Sdn Bhd" value="{{company.companyName}}"
                                                             data-parsley-required="true" />
                                                     </div>
                                                 </div>
@@ -96,8 +104,8 @@
                                                     <div class="form-group mandatory">
                                                         <label for="address" class="form-label">Address</label>
                                                         <textarea class="form-control" id="address" rows="3"
-                                                            placeholder="Company Office Address"
-                                                            data-parsley-required="true"></textarea>
+                                                            placeholder="Company Office Address" name="address"
+                                                            data-parsley-required="true">{{company.address}}</textarea>
                                                     </div>
                                                 </div>
                                             </div>
@@ -113,7 +121,7 @@
                                                     <div class="form-group mandatory">
                                                         <label for="industry" class="form-label">Industry</label>
                                                         <select class="js-example-basic-multiple form-control"
-                                                            id="industry" name="industries[]" multiple="multiple"
+                                                            id="industry" name="industries" multiple="multiple"
                                                             data-parsley-required="true">
                                                         </select>
                                                     </div>
@@ -123,7 +131,7 @@
                                                         <label for="tutorialGroup" class="form-label">Total
                                                             Staff</label>
                                                         <input type="number" step="1" id="totalStaff"
-                                                            class="form-control" name="totalStaff"
+                                                            class="form-control" name="totalStaff" value="{{company.totalStf}}"
                                                             placeholder="eg: 10 - 150" data-parsley-required="true" />
                                                     </div>
                                                 </div>
@@ -131,7 +139,7 @@
                                                     <fieldset class="form-group mandatory">
                                                         <label for="first-name-column" class="form-label">OT
                                                             Claim</label>
-                                                        <select class="form-select" id="otClaim"
+                                                        <select class="form-select" id="otClaim" name="otClaim"
                                                             data-parsley-required="true">
                                                             <option value="Y">Yes</option>
                                                             <option value="N">No</option>
@@ -142,7 +150,7 @@
                                                     <div class="form-group">
                                                         <label for="cgpa" class="form-label">Official
                                                             Website</label>
-                                                        <input type="text" id="website" class="form-control"
+                                                        <input type="text" id="website" name="website" class="form-control" value="{{company.website}}"
                                                             placeholder="eg: www.aws.com" />
                                                     </div>
                                                 </div>
@@ -169,17 +177,18 @@
                                                 <h4>Person In Charge</h4>
                                             </div>
                                             <div class="row">
+                                                <input type="hidden" name="personInChargeId" value="{{personInCharge.picId}}">
                                                 <div class="form-group mandatory">
                                                     <label for="personName" class="form-label">Name</label>
                                                     <input type="text" id="personName" class="form-control"
-                                                        name="personName" placeholder="Name As In NRIC"
+                                                        name="personName" placeholder="Name As In NRIC" value="{{personInCharge.name}}"
                                                         data-parsley-required="true" />
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="form-group mandatory">
                                                     <label for="designation" class="form-label">Designation</label>
-                                                    <input type="text" id="designation" class="form-control"
+                                                    <input type="text" id="designation" class="form-control" value="{{personInCharge.designation}}"
                                                         name="designation" placeholder="Your Designation title"
                                                         data-parsley-required="true" />
                                                 </div>
@@ -187,14 +196,14 @@
                                             <div class="row">
                                                 <fieldset class="form-group mandatory">
                                                     <label for="contact" class="form-label">Contact</label>
-                                                    <input type="text" id="contact" class="form-control" name="contact"
+                                                    <input type="text" id="contact" class="form-control" name="contact" value="{{personInCharge.contactNo}}"
                                                         placeholder="012-3456789" data-parsley-required="true" />
                                                 </fieldset>
                                             </div>
                                             <div class="row">
                                                 <fieldset class="form-group mandatory">
                                                     <label for="pEmail" class="form-label">Email</label>
-                                                    <input type="email" id="pEmail" class="form-control" name="pEmail"
+                                                    <input type="email" id="pEmail" class="form-control" name="pEmail" value="{{personInCharge.email}}"
                                                         placeholder="person@gmail.com" data-parsley-required="true" />
                                                 </fieldset>
                                             </div>
@@ -226,44 +235,29 @@
 
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+    {% for industry in company.industry.split("|")%}
+    <script>
+        $("#industry").append("<option value='" + `{{industry}}` + "' selected>" + `{{industry}}` + "</option>");
+    </script>
+    {% endfor %}
+
+    {% if success %}
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Profile Updated',
+            text: '{{success}}',
+        })
+    </script>
+    {% endif %}
+
     <script>
         var loadFile = function (event) {
             var image = document.getElementById("output");
             image.src = URL.createObjectURL(event.target.files[0]);
         };
 
-        //define a company data with all the field
-        var company = {
-            "companyName": "ABC Sdn Bhd",
-            "address": "No. 1, Jalan ABC, 12345, Kuala Lumpur",
-            "industry": ["Agriculture","Forestry", "Fishing and Hunting"],
-            "totalStaff": "150",
-            "otClaim": "Y",
-            "website": "www.aws.com",
-            "personName": "John Ducky",
-            "designation": "HR Manager",
-            "contact": "012-3456789",
-            "pEmail": "person@gmail.com",
-            "logo": "https://cdn.pixabay.com/photo/2017/08/06/21/01/louvre-2596278_960_720.jpg"
-        };
-
-        //initialize the company data to the field
-        $(document).ready(function () {
-            $("#companyName").val(company.companyName);
-            $("#address").val(company.address);
-            $("#totalStaff").val(company.totalStaff);
-            $("#website").val(company.website);
-            $("#personName").val(company.personName);
-            $("#designation").val(company.designation);
-            $("#contact").val(company.contact);
-            $("#pEmail").val(company.pEmail);
-            $("#otClaim").val(company.otClaim);
-            //add selected option to industry based on the company data
-            for (var i = 0; i < company.industry.length; i++) {
-                $("#industry").append("<option value='" + company.industry[i] + "' selected>" + company.industry[i] + "</option>");
-            }
-            $("#output").attr("src", company.logo);
-        });
+        $("#otClaim").val("{{company.otClaim}}")
 
         //disable all the field
         $(document).ready(function () {
@@ -285,7 +279,7 @@
         $(document).ready(function () {
             $("#edit").click(function () {
                 //pop up sweet alert if the account is not approved
-                if (company.status != "approved") {
+                if (`{{company.companyStatus}}`!= "Approved") {
                     Swal.fire({
                         icon: 'error',
                         title: 'Account Not Approved',
@@ -329,47 +323,6 @@
                 $("#edit").show();
                 $("#save").hide();
                 $("#back").hide();
-            });
-        });
-
-        //when save button is clicked, disable all the field
-        $(document).ready(function () {
-            $("#save").click(function () {
-                //pop up sweet alert
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Profile Updated',
-                    text: 'Your profile has been updated successfully',
-                })
-                $("#companyName").prop("disabled", true);
-                $("#address").prop("disabled", true);
-                $("#totalStaff").prop("disabled", true);
-                $("#website").prop("disabled", true);
-                $("#personName").prop("disabled", true);
-                $("#designation").prop("disabled", true);
-                $("#contact").prop("disabled", true);
-                $("#pEmail").prop("disabled", true);
-                $("#otClaim").prop("disabled", true);
-                $("#industry").prop("disabled", true);
-                $("#industry").trigger('change');
-                $("#file").prop("disabled", true);
-                $("#edit").show();
-                $("#save").hide();
-                $("#back").hide();
-                //save the data to the variable
-                company.companyName = $("#companyName").val();
-                company.address = $("#address").val();
-                company.totalStaff = $("#totalStaff").val();
-                company.website = $("#website").val();
-                company.personName = $("#personName").val();
-                company.designation = $("#designation").val();
-                company.contact = $("#contact").val();
-                company.pEmail = $("#pEmail").val();
-                company.otClaim = $("#otClaim").val();
-                company.industry = $("#industry").val();
-                company.industry = $("#industry").val();
-                company.industry = $("#industry").val();
-                company.logo = $("#output").attr("src");
             });
         });
 
