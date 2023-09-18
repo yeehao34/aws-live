@@ -11,10 +11,13 @@ How to setup in VSCode (Setup a virtual environment)
 4) In the command prompt type, python -m pip install flask boto3 pymysql python-dotenv Flask-Session
 5) Then, python InternshipApp.py
 
-Database Hostname/Endpoint: database-1.c1nlreg7eojl.us-east-1.rds.amazonaws.com
+# Database 
+Hostname/Endpoint: database-1.c1nlreg7eojl.us-east-1.rds.amazonaws.com
+Username: aws_user
+Password: Bait3273
 
 # For Development only!!
-If want to test upload to S3, must ensure you have:
+To get/upload object in/to s3, ensure that:
 1) .env environment file to store your aws credential to have access to the S3 Bucket
 2) Learner Lab has started in AWS console
 ## Setting up 

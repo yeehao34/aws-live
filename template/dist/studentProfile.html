@@ -28,6 +28,8 @@
     <div id="app">
         {# activePage is to determine which item to be active#}
         {% set activePage = "profile" %}
+        {# subActivePage is to determine which sub item to be active#}
+        {% set subActivePage = "myProfile" %}
         {% include "studentSidebar.html" %}
         <div id="main" class='layout-navbar'>
             {% include "studentHeader.html" %}

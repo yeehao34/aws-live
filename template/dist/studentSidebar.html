@@ -66,11 +66,11 @@
                         <i class="bi bi-person-lines-fill"></i>
                         <span>Profile</span>
                     </a>
-                    <ul class="submenu active">
-                        <li class="submenu-item active">
+                    <ul class="submenu {% if activePage == 'profile' %}active{% endif %}">
+                        <li class="submenu-item {% if subActivePage == 'myProfile' %}active{% endif %}">
                             <a href="/studentProfile">My Profile</a>
                         </li>
-                        <li class="submenu-item ">
+                        <li class="submenu-item {% if subActivePage == 'appliedJob' %}active{% endif %}">
                             <a href="/studentJob">Applied Job</a>
                         </li>
                     </ul>
