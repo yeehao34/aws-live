@@ -29,31 +29,27 @@ internshipApplicationTable = 'InternshipApplication'
 internshipJobTable = 'InternshipJob'
 companyPersonnelTable = 'CompanyPersonnel'
 
-
 @app.route("/")
 def home():
     return render_template('login.html')
 
-
 @app.route("/<page_name>")
 def render_page(page_name):
     return render_template('%s.html' % page_name)
-
 
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/")
 
-
 @app.route("/studentRegister")
 def studentRegister():
-    retrieveSupervisor_sql = "SELECT * FROM " + universitySupervisorTable
+    
     connection = create_connection()
     cursor = connection.cursor()
     try:
-        cursor.execute(retrieveSupervisor_sql)
-        uniSupervisorResults = cursor.fetchall()
+        
+        uniSupervisorResults = retrieveAllUniSup()
         uniSupervisorList = []
         for supervisor in uniSupervisorResults:
             uniSupervisorList.append(UniversitySupervisor(
@@ -69,7 +65,6 @@ def studentRegister():
     if error:
         error = error[0]
     return render_template('studentRegister.html', uniSupervisorList=uniSupervisorList, error=error)
-
 
 @app.route("/AddStud", methods=['POST'])
 def AddStud():
@@ -99,24 +94,20 @@ def AddStud():
         " VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
     insertStudPersonal_sql = "INSERT INTO " + studentPersonalTable + \
         " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-    retrieveSuperviser_sql = "SELECT * FROM " + \
-        universitySupervisorTable + " WHERE Email = %s"
-    retrieveStud_sql = "SELECT * FROM " + studentTable + " WHERE StudentEmail = %s"
+
     connection = create_connection()
     cursor = connection.cursor()
 
     try:
 
-        cursor.execute(retrieveStud_sql, (studEmail))
-        if (cursor.fetchone() is not None):
+        if (retrieveStudByEmail(studEmail) is not None):
             print("Student already exists")
             flash("Student already exists", 'student-error')
             # Redirect to the studentRegister route
             return redirect("/studentRegister")
 
         # Execute the query
-        cursor.execute(retrieveSuperviser_sql, (supervisorEmail))
-        uniSupervisor = cursor.fetchone()
+        uniSupervisor = retrieveUniSupervisorByEmail(supervisorEmail)
         supervisorId = uniSupervisor[0]
 
         # Upload image file in S3
@@ -142,88 +133,55 @@ def AddStud():
 
     return render_template("studentLogin.html", success="You may login now")
 
-
 @app.route("/StudLogin", methods=['POST'])
 def StudLogin():
     studEmail = request.form['studentEmail']
     nric = request.form['nric']
 
-    retrieveStudentPersonal_sql = "SELECT * FROM " + \
-        studentPersonalTable + " WHERE StudentEmail = %s AND NRIC = %s"
-    connection = create_connection()
-    cursor = connection.cursor()
-    try:
-        cursor.execute(retrieveStudentPersonal_sql, (studEmail, nric))
-        studentPersonal = cursor.fetchone()
-    except Exception as e:
-        connection.rollback()  # Rollback the transaction if an exception occurs
-    finally:
-        cursor.close()
-        connection.close()
-
-    if studentPersonal is None:
-        return render_template('studentLogin.html', error="Invalid Email or NRIC")
-    else:
-        if studentPersonal[len(studentPersonal) - 1] == studEmail and studentPersonal[1] == nric:
+    allStudentDetails = retrieveAllStudDetail()
+    
+    for stud in allStudentDetails:
+        if stud[-1] == studEmail and stud[1] == nric:
             session["studEmail"] = studEmail
             return redirect("/studentHome")
-
+    
+    return render_template('studentLogin.html', error="Invalid Email or NRIC")
 
 @app.route("/studentHome")
 def studentDashboard():
     studEmail = session["studEmail"]
-    retrieveStudent_sql = "SELECT * FROM " + \
-        studentTable + " WHERE StudentEmail = %s"
-    retrieveStudentPersonal_sql = "SELECT * FROM " + \
-        studentPersonalTable + " WHERE StudentEmail = %s"
-    connection = create_connection()
-    cursor = connection.cursor()
-    try:
-        cursor.execute(retrieveStudent_sql, (studEmail))
-        student = cursor.fetchone()
-        cursor.execute(retrieveStudentPersonal_sql, (studEmail))
-        studentPersonal = cursor.fetchone()
-        student = {"name": studentPersonal[0], "studId": student[6],
-                   "profilePic": get_object_url(studentPersonal[9])}
-    except Exception as e:
-        connection.rollback()
-    finally:
-        cursor.close()
-        connection.close()
-
+    
+    student = retrieveStudByEmail(studEmail)
+    studentPersonal = retrieveStudDetailByEmail(studEmail)
+    student = {"name": studentPersonal[0], "studId": student[6],
+                "profilePic": get_object_url(studentPersonal[9])}
+   
     return render_template("studentHome.html", student=student)
 
+@app.route("/studentTask")
+def studentTask():
+    studEmail = session["studEmail"]
+    
+    student = retrieveStudByEmail(studEmail)
+    studentPersonal = retrieveStudDetailByEmail(studEmail)
+    student = {"name": studentPersonal[0], "studId": student[6],
+                "profilePic": get_object_url(studentPersonal[9])}
+    
+    return render_template("studentTask.html", student=student)
 
 @app.route("/studentProfile")
 def studentProfile():
     studEmail = session["studEmail"]
-    retrieveStudent_sql = "SELECT * FROM " + \
-        studentTable + " WHERE StudentEmail = %s"
-    retrieveStudentPersonal_sql = "SELECT * FROM " + \
-        studentPersonalTable + " WHERE StudentEmail = %s"
-    retrieveSupervisor_sql = "SELECT * FROM " + \
-        universitySupervisorTable + " WHERE StaffId = %s"
-    connection = create_connection()
-    cursor = connection.cursor()
-    try:
-        cursor.execute(retrieveStudent_sql, (studEmail))
-        student = cursor.fetchone()
-        cursor.execute(retrieveStudentPersonal_sql, (studEmail))
-        studentPersonal = cursor.fetchone()
-        studentObj = Student(student[0], student[1], student[2], student[3], student[4], student[5], student[6], student[7],
-                             studentPersonal[0], studentPersonal[1], studentPersonal[2], studentPersonal[3], studentPersonal[4], studentPersonal[5], studentPersonal[6], studentPersonal[7], studentPersonal[8], studentPersonal[9])
-        studentObj.profilePic = get_object_url(studentObj.profilePic)
-        cursor.execute(retrieveSupervisor_sql, (studentObj.supervisorId))
-        result = cursor.fetchone()
-        supervisor = UniversitySupervisor(
-            result[0], result[1], result[2], result[3], result[4])
-        studentSupervisor = {
-            "name": supervisor.name, "email": supervisor.email}
-    except Exception as e:
-        connection.rollback()
-    finally:
-        cursor.close()
-        connection.close()
+    
+    
+    student = retrieveStudByEmail(studEmail)
+    studentPersonal = retrieveStudDetailByEmail(studEmail)
+    studentObj = Student(student[0], student[1], student[2], student[3], student[4], student[5], student[6], student[7],
+                                studentPersonal[0], studentPersonal[1], studentPersonal[2], studentPersonal[3], studentPersonal[4], studentPersonal[5], studentPersonal[6], studentPersonal[7], studentPersonal[8], studentPersonal[9])
+
+    studentObj.profilePic = get_object_url(studentObj.profilePic)
+    supervisor = retrieveUniSupervisorById(studentObj.supervisorId)
+    supervisor = UniversitySupervisor(supervisor[0], supervisor[1], supervisor[2], supervisor[3], supervisor[4])
     student_dict = vars(studentObj)
     for key, value in student_dict.items():
         print(f"{key}: {value}")
@@ -232,8 +190,7 @@ def studentProfile():
     if success:
         success = success[0]
 
-    return render_template("studentProfile.html", student=studentObj, supervisor=studentSupervisor, success=success)
-
+    return render_template("studentProfile.html", student=studentObj, supervisor=supervisor, success=success)
 
 @app.route("/UpdateStudProfile", methods=['POST'])
 def updateStudProfile():
@@ -282,7 +239,6 @@ def updateStudProfile():
         connection.close()
 
     return redirect("/studentProfile")
-
 
 @app.route("/AddCompany", methods=['POST'])
 def AddComp():
@@ -364,89 +320,47 @@ def AddComp():
 
     return render_template("companyLogin.html", success=success)
 
-
-@app.route("/CompLogin")
+@app.route("/CompLogin", methods=['POST'])
 def CompLogin():
-    username = request.args.get('username')
-    password = request.args.get('password')
+    username = request.form['username']
+    password = request.form['password']
 
-    retrieveCompany_sql = "SELECT * FROM " + companyTable + \
-        " WHERE Username = %s AND Password = %s"
-    connection = create_connection()
-    cursor = connection.cursor()
-    try:
-        cursor.execute(retrieveCompany_sql, (username, password))
-        company = cursor.fetchone()
-    except Exception as e:
-        connection.rollback()  # Rollback the transaction if an exception occurs
-    finally:
-        cursor.close()
-        connection.close()
-
-    if company is None:
-        return render_template('companyLogin.html', error="Invalid Username or Password")
-    else:
+    allCompanies = retrieveAllComp()
+    
+    for company in allCompanies:
         if company[2] == username and company[3] == password:
             session["companyId"] = company[0]
             return redirect("/companyHome")
-
+    
+    return render_template('companyLogin.html', error="Invalid Username or Password")
 
 @app.route("/companyHome")
 def companyDashboard():
     compId = session["companyId"]
-    retrieveCompany_sql = "SELECT * FROM " + companyTable + " WHERE CompanyId = %s"
-    connection = create_connection()
-    cursor = connection.cursor()
-    try:
-        cursor.execute(retrieveCompany_sql, (compId))
-        company = cursor.fetchone()
-        # cursor.execute(retrievePIC_sql, (company[12]))
-        # personInCharge = cursor.fetchone()
-        print(company)
-        company = {"companyName": company[1], "username": company[2], "logo": get_object_url(
-            company[8]), "companyStatus": company[10]}
-    except Exception as e:
-        print(e)
-        connection.rollback()
-    finally:
-        cursor.close()
-        connection.close()
-
+    companyResult = retrieveCompById(compId)
+ 
+    company = {"companyName": companyResult[1], "username": companyResult[2], "logo": get_object_url(
+            companyResult[8]), "companyStatus": companyResult[10]}
+   
     return render_template("companyHome.html", company=company)
-
 
 @app.route("/companyProfile")
 def companyProfile():
     compId = session['companyId']
-    retrieveCompany_sql = "SELECT * FROM " + companyTable + " WHERE CompanyId = %s"
-    retrievePIC_sql = "SELECT * FROM " + \
-        companyPersonnelTable + " WHERE PersonInChargeId = %s"
-    connection = create_connection()
-    cursor = connection.cursor()
-    try:
-        cursor.execute(retrieveCompany_sql, (compId))
-        companyResult = cursor.fetchone()
-        cursor.execute(retrievePIC_sql, (companyResult[12]))
-        companyPersonnel = cursor.fetchone()
-        company = Company(companyResult[0], companyResult[1], companyResult[2], companyResult[3], companyResult[4], companyResult[5],
-                          companyResult[6], companyResult[7], companyResult[8], companyResult[9], companyResult[10], companyResult[11], companyResult[12])
-        pic = CompanyPersonnel(companyPersonnel[0], companyPersonnel[1],
-                               companyPersonnel[2], companyPersonnel[3], companyPersonnel[4])
-        company.logo = get_object_url(company.logo)
-
-    except Exception as e:
-        print(e)
-        connection.rollback()
-    finally:
-        cursor.close()
-        connection.close()
+    companyResult = retrieveCompById(compId)
+    picResult = retrievePICById(companyResult[12])
+    
+    company = Company(companyResult[0], companyResult[1], companyResult[2], companyResult[3], companyResult[4], companyResult[5],
+                      companyResult[6], companyResult[7], companyResult[8], companyResult[9], companyResult[10], companyResult[11], companyResult[12])
+    pic = CompanyPersonnel(picResult[0], picResult[1],
+                           picResult[2], picResult[3], picResult[4])
+    company.logo = get_object_url(company.logo)
 
     success = get_flashed_messages(category_filter=['update-success'])
     if success:
         success = success[0]
 
     return render_template("companyProfile.html", company=company, personInCharge=pic, success=success)
-
 
 @app.route("/UpdateCompProfile", methods=['POST'])
 def updateCompProfile():
@@ -502,7 +416,6 @@ def updateCompProfile():
 
     return redirect("/companyProfile")
 
-
 @app.route("/jobPosting")
 def jobPosting():
     compId = session["companyId"]
@@ -524,7 +437,6 @@ def jobPosting():
 
     return render_template("jobPosting.html", company=company, companyJobs=companyJobs, success=success)
 
-
 @app.route("/jobPostingDetailViewEdit")
 def jobPostingDetails():
     jobId = request.args.get('jobId')
@@ -542,7 +454,6 @@ def jobPostingDetails():
         success = success[0]
 
     return render_template("jobPostingDetailViewEdit.html", company=company, job=job, success=success)
-
 
 @app.route("/UpdateJobDetail", methods=['POST'])
 def updateJobDetail():
@@ -586,7 +497,6 @@ def updateJobDetail():
 
     return redirect("/jobPostingDetailViewEdit?jobId=" + jobId)
 
-
 @app.route("/jobAdding")
 def jobPostingDetail():
     compId = session["companyId"]
@@ -596,7 +506,6 @@ def jobPostingDetail():
         companyResult[8]), "companyStatus": companyResult[10]}
 
     return render_template("jobAdding.html", company=company)
-
 
 @app.route("/AddJob", methods=['POST'])
 def AddJob():
@@ -651,7 +560,66 @@ def AddJob():
 
     return redirect("/jobPosting")
 
+@app.route("/SupervisorLogin", methods=['POST'])
+def SupervisorLogin():
+    email = request.form['email']
+    password = request.form['password']
+    
+    allSupervisor = retrieveAllUniSup()
+    for sup in allSupervisor:
+        if sup[1] == email and sup[2] == password:
+            session["supervisorId"] = sup[0]
+            return redirect("/supervisorHome")
+        
+    return render_template('supervisorLogin.html', error="Invalid Email or Password")
 
+@app.route("/supervisorHome")
+def supervisorDashboard():
+    supervisorId = session['supervisorId']
+    supervisor = retrieveUniSupervisorById(supervisorId)
+    supervisor = UniversitySupervisor(supervisor[0], supervisor[1], supervisor[2], supervisor[3], supervisor[4])
+    
+    return render_template("supervisorHome.html", supervisor=supervisor)
+
+@app.route("/supervisorProfile")
+def supervisorProfile():
+    supervisorId = session['supervisorId']
+    supervisor = retrieveUniSupervisorById(supervisorId)
+    
+    supervisor = UniversitySupervisor(supervisor[0], supervisor[1], supervisor[2], supervisor[3], supervisor[4])
+    
+    success = get_flashed_messages(category_filter=['update-success'])
+    if success:
+        success = success[0]
+    return render_template("supervisorProfile.html", supervisor=supervisor, success=success)
+    
+@app.route("/UpdateSupervisorProfile", methods=['POST'])
+def UpdateSupervisorProfile():
+    supervisorId = session['supervisorId']
+    password = request.form['newPassword']
+    name = request.form['name']
+    contact = request.form['contact']
+    
+    if password == "":
+        password = request.form['oldPassword']
+    
+    try: 
+        updateSupervisor_sql = "UPDATE " + universitySupervisorTable + " SET Password = %s, Name = %s, ContactNo = %s WHERE StaffId = %s"
+        connection = create_connection()
+        cursor = connection.cursor()
+        cursor.execute(updateSupervisor_sql, (password, name, contact, supervisorId))
+        connection.commit()        
+    except Exception as e:
+        print(e)
+        connection.rollback()
+    finally:
+        cursor.close()
+        connection.close()
+    
+    flash("Your profile has been updated!", 'update-success')
+    
+    return redirect("/supervisorProfile")
+    
 def AddTask():
     # Task Table
     # taskId = request.form['taskId']

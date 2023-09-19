@@ -23,6 +23,15 @@ def retrieveAllStud():
     conn.close()
     return rows
 
+def retrieveAllStudDetail():
+    conn = create_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM " + studentPersonalTable)
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return rows
+
 def retrieveAllComp():
     conn = create_connection()
     cur = conn.cursor()
@@ -88,12 +97,31 @@ def retrieveJobById(jobId):
     return row
 
 def retrieveStudByEmail(studEmail):
-    conn = create_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM " + studentTable + " WHERE email = %s", (studEmail,))
-    row = cur.fetchone()
-    cur.close()
-    conn.close()
+    row = None
+    try:
+        conn = create_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM " + studentTable + " WHERE StudentEmail = %s", (studEmail,))
+        row = cur.fetchone()
+    except Exception as e:
+        print(e)
+    finally:
+        cur.close()
+        conn.close()
+    return row
+
+def retrieveStudDetailByEmail(studEmail):
+    row = None
+    try:
+        conn = create_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM " + studentPersonalTable + " WHERE StudentEmail = %s", (studEmail,))
+        row = cur.fetchone()
+    except Exception as e:
+        print(e)
+    finally:
+        cur.close()
+        conn.close()
     return row
 
 def retrieveSeqNoByTblName(tblName):
@@ -104,3 +132,45 @@ def retrieveSeqNoByTblName(tblName):
     cur.close()
     conn.close()
     return seqNo
+
+def retrieveUniSupervisorByEmail(email):
+    row = None
+    try:
+        conn = create_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM " + universitySupervisorTable + " WHERE Email = %s", (email,))
+        row = cur.fetchone()
+    except Exception as e:
+        print(e)
+    finally:
+        cur.close()
+        conn.close()
+    return row
+
+def retrieveUniSupervisorById(id):
+    row = None
+    try:
+        conn = create_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM " + universitySupervisorTable + " WHERE StaffId = %s", (id,))
+        row = cur.fetchone()
+    except Exception as e:
+        print(e)
+    finally:
+        cur.close()
+        conn.close()
+    return row
+
+def retrievePICById(picId):
+    row = None
+    try:
+        conn = create_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM " + companyPersonnelTable + " WHERE PersonInChargeId = %s", (picId,))
+        row = cur.fetchone()
+    except Exception as e:
+        print(e)
+    finally:
+        cur.close()
+        conn.close()
+    return row
