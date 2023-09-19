@@ -38,65 +38,7 @@
                         </div>
                         <div class="page-content">
                             <ul id="pendingTaskList" style="list-style-type:none;">
-                                <!-- <li>
-                                    <div class="card" data-bs-toggle="collapse" href="#task1" role="button"
-                                        aria-expanded="false" aria-controls="task1">
-                                        <div class="card-content">
-                                            <div class="card-body">
-                                                <div class="row">
-                                                    <div class="col-12 col-lg-1">
-                                                        <div class="avatar bg-primary me-3">
-                                                            <span class="avatar-content"><i
-                                                                    class="bi bi-envelope"></i></span>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-12 col-lg-8">
-                                                        <h5>Internship Documentation</h5>
-                                                    </div>
-                                                    <div class="col-12 col-lg-3">
-                                                        Due 24, Sep 11:59 PM
-                                                    </div>
-                                                </div>
-                                                <div class="collapse" id="task1">
-                                                    <hr>
-                                                    <p id="taskDescription">
-                                                        Some placeholder content for the collapse component. This panel
-                                                        is
-                                                        hidden by
-                                                        default but revealed when the user activates the relevant
-                                                        trigger.
-                                                    </p>
-                                                    <p class="list-group" id="attachment">
-                                                    <h6>Attachment</h6>
-                                                    <a class="list-group-item" href="/template/dist/auth-login.html"
-                                                        download>
-                                                        <p>Company Acceptance Form Template.docx</p>
-                                                    </a>
-                                                    <a class="list-group-item" href="/template/dist/auth-login.html"
-                                                        download>
-                                                        <p>Parent Acknowledgement Form Template.docx</p>
-                                                    </a>
-                                                    <a class="list-group-item" href="/template/dist/auth-login.html"
-                                                        download>
-                                                        <p>Letter of Indemnity Template.docx</p>
-                                                    </a>
-                                                    </p>
-                                                    <hr>
-                                                    <div class="row">
-                                                        <div class="col-12 d-flex justify-content-end">
-                                                            <button type="viewTask" class="btn btn-primary me-1 mb-1">
-                                                                View Instruction
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li> -->
                             </ul>
-
-
                         </div>
                     </section>
                     <section class="section">
@@ -204,7 +146,7 @@
         //create html for completed task list
         function createCompletedTaskList() {
             var taskList = "";
-            for (var i = 0; i <completedTask.length; i++) {
+            for (var i = 0; i < completedTask.length; i++) {
                 taskList += "<li><div class='card' data-bs-toggle='collapse' href='#task" + completedTask[i].taskId +
                     "' role='button' aria-expanded='false' aria-controls='task" + completedTask[i].taskId +
                     "'><div class='card-content'><div class='card-body'><div class='row'><div class='col-12 col-lg-1'><div class='avatar bg-secondary me-3'><span class='avatar-content'><i class='bi bi-envelope'></i></span></div></div><div class='col-12 col-lg-8'><h5>" +
@@ -226,6 +168,12 @@
 
         //click view button, get the task id, direct to view task page with task id as parameter
         $('#pendingTaskList').on('click', '#viewTask', function () {
+            var taskId = $(this).closest('li').find('.card').attr('href').replace('#task', '');
+            window.location.href = "/viewTask?taskId=" + taskId;
+        });
+
+        //click view button, get the task id, direct to view task page with task id as parameter
+        $('#completedTaskList').on('click', '#viewTask', function () {
             var taskId = $(this).closest('li').find('.card').attr('href').replace('#task', '');
             window.location.href = "/viewTask?taskId=" + taskId;
         });
