@@ -62,8 +62,8 @@
                                         <div class="card-body">
                                             <form>
                                                 Select files to upload:
-                                                <input class="form-control" name="filesToUpload[]" id="filesToUpload"
-                                                    type="file" multiple="" />
+                                                <input class="form-control" name="fileToUpload" id="fileToUpload"
+                                                    type="file" />
 
                                                 <div class="row mt-3">
                                                     <ul style="list-style-type:none;" id="fileList">
@@ -107,16 +107,10 @@
             taskTitle: "Internship Documentation",
             taskDescription: "Some placeholder content for the collapse component. This panel is hidden by default but revealed when the user activates the relevant trigger.",
             taskDueDate: "24, Sep 11:59 PM",
-            taskAttachment: [{
+            taskAttachment: {
                 attachmentName: "Company Acceptance Form Template.docx",
                 attachmentUrl: "/template/dist/auth-login.html"
-            }, {
-                attachmentName: "Parent Acknowledgement Form Template.docx",
-                attachmentUrl: "/template/dist/auth-login.html"
-            }, {
-                attachmentName: "Letter of Indemnity Template.docx",
-                attachmentUrl: "/template/dist/auth-login.html"
-            }],
+            },
             submissionStatus: "Submitted"
         };
 
@@ -124,16 +118,14 @@
         document.getElementById("taskTitle").innerHTML = taskViewing.taskTitle;
         document.getElementById("taskDue").innerHTML = "Due " + taskViewing.taskDueDate;
         document.getElementById("taskDescription").innerHTML = taskViewing.taskDescription;
-        //loop through the attachment array and display it on taskAttachment
-        for (var i = 0; i < taskViewing.taskAttachment.length; ++i) {
-            document.getElementById("taskAttachment").innerHTML += '<a href="' + taskViewing.taskAttachment[i].attachmentUrl + '" download="' + taskViewing.taskAttachment[i].attachmentName + '"><p id="att1">' + taskViewing.taskAttachment[i].attachmentName + '</p></a>';
-        }
+        document.getElementById("taskAttachment").innerHTML += '<a href="' + taskViewing.taskAttachment.attachmentUrl + '" download="' + taskViewing.taskAttachment.attachmentName + '"><p>' + taskViewing.taskAttachment.attachmentName + '</p></a>';
+        
 
         //get the input and UL list
-        var input = document.getElementById('filesToUpload');
+        var input = document.getElementById('fileToUpload');
         var list = document.getElementById('fileList');
 
-        //loop through the files and display it on fileList
+        //loop through the files and display it on fileList (Only One file can be selected now)
         input.addEventListener('change', function () {
             list.innerHTML = '';
             for (var i = 0; i < input.files.length; ++i) {
