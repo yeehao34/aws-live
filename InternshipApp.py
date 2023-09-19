@@ -619,7 +619,73 @@ def UpdateSupervisorProfile():
     flash("Your profile has been updated!", 'update-success')
     
     return redirect("/supervisorProfile")
+
+@app.route("/AdminLogin", methods=['POST'])
+def AdminLogin():
+    username = request.form['username']
+    password = request.form['password']
     
+    allAdmin = retrieveAllAdmin()
+    
+    for admin in allAdmin:
+        if admin[1] == username and admin[2] == password:
+            session["adminId"] = admin[0]
+            return redirect("/adminHome")
+        
+    return render_template('adminLogin.html', error="Invalid Username or Password")
+
+@app.route("/adminHome")
+def adminDashboard():
+    adminId = session['adminId']
+    allAdmin = retrieveAllAdmin()
+    for admin in allAdmin:
+        if admin[0] == adminId:
+            admin = Admin(admin[0], admin[1], admin[2], admin[3], admin[4])
+            break
+    
+    return render_template("adminHome.html", admin=admin)
+
+@app.route("/adminProfile")
+def adminProfile():
+    adminId = session['adminId']
+    allAdmin = retrieveAllAdmin()
+    for admin in allAdmin:
+        if admin[0] == adminId:
+            admin = Admin(admin[0], admin[1], admin[2], admin[3], admin[4])
+            break
+    
+    success = get_flashed_messages(category_filter=['update-success'])
+    if success:
+        success = success[0]
+    return render_template("adminProfile.html", admin=admin, success=success)
+
+@app.route("/UpdateAdminProfile", methods=['POST'])
+def UpdateAdminProfile():
+    adminId = session['adminId']
+    password = request.form['newPassword']
+    name = request.form['name']
+    email = request.form['email']
+    
+    if password == "":
+        password = request.form['oldPassword']
+    
+    try: 
+        updateAdmin_sql = "UPDATE " + adminTable + " SET Password = %s, Name = %s, Email = %s WHERE AdminId = %s"
+        connection = create_connection()
+        cursor = connection.cursor()
+        cursor.execute(updateAdmin_sql, (password, name, email, adminId))
+        connection.commit()        
+    except Exception as e:
+        print(e)
+        connection.rollback()
+    finally:
+        cursor.close()
+        connection.close()
+    
+    flash("Your profile has been updated!", 'update-success')
+    
+    return redirect("/adminProfile")
+
 def AddTask():
     # Task Table
     # taskId = request.form['taskId']

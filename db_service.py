@@ -50,6 +50,15 @@ def retrieveAllUniSup():
     conn.close()
     return rows
 
+def retrieveAllAdmin():
+    conn = create_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM " + adminTable)
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return rows
+
 def retrieveAllJob():
     conn = create_connection()
     cur = conn.cursor()

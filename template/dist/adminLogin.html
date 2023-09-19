@@ -50,17 +50,17 @@
 
                   <div class="card-body">
                     <div class="row">
-                      <form class="form" data-parsley-validate action="/adminHome">
+                      <form class="form" data-parsley-validate action="/AdminLogin" method="POST">
                         <div class="row">
                           <div class="form-group mandatory">
                             <label for="helpInputTop">Username</label>
-                            <input type="text" class="form-control" id="helpInputTop" data-parsley-required="true" />
+                            <input type="text" class="form-control" id="helpInputTop" data-parsley-required="true" name="username"/>
                           </div>
                         </div>
                         <div class="row">
                           <div class="form-group mandatory">
                             <label for="helpInputTop">Password</label>
-                            <input type="password" class="form-control" id="helpInputTop" data-parsley-required="true" />
+                            <input type="password" class="form-control" id="helpInputTop" data-parsley-required="true" name="password"/>
                           </div>
                         </div>
                         <div class="row">
@@ -76,15 +76,7 @@
         </div>
       </div>
 
-      <footer>
-        <div class="container">
-          <div class="footer clearfix mb-0 text-muted">
-            <div class="float-start">
-              <p>2023 &copy; TAR UMT FOCS ITP</p>
-            </div>
-          </div>
-        </div>
-      </footer>
+      {% include "footer.html" %}
     </div>
   </div>
   <script src="assets/js/bootstrap.js"></script>
@@ -98,6 +90,18 @@
   <script src="assets/extensions/jquery/jquery.min.js"></script>
   <script src="assets/extensions/parsleyjs/parsley.min.js"></script>
   <script src="assets/js/pages/parsley.js"></script>
+  <script src="assets/extensions/sweetalert2/sweetalert2.all.min.js"></script>
+
+
+  {% if error %}
+  <script>
+    Swal.fire({
+      icon: 'error',
+      title: 'Login Unsuccesful',
+      text: '{{error}}',
+    })
+  </script>
+  {% endif %}
 </body>
 
 </html>
