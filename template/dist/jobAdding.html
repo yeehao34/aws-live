@@ -34,9 +34,9 @@
 
                                 </div>
                                 <div class="col-12 col-lg-3 d-flex justify-content-end align-items-end experience">
-                                    <button type="button" id="back" class="btn btn-secondary me-1 mb-1">
+                                    <a type="button" href="/jobPosting" id="back" class="btn btn-secondary me-1 mb-1">
                                         Back
-                                    </button>
+                                    </a>
                                     <button type="submit" id="save" class="btn btn-primary me-1 mb-1">
                                         Add Job
                                     </button>
@@ -164,53 +164,6 @@
     <script src="assets/js/pages/simple-datatables.js"></script>
     <script src="assets/extensions/parsleyjs/parsley.min.js"></script>
     <script src="assets/js/pages/parsley.js"></script>
-
-    <script>
-        ////click save button
-        //$("#addJob").click(function () {
-        //    //check if all field is filled
-        //    if ($("#jobPostForm").parsley().validate()) {
-        //        //get all value from form
-        //        var jobTitle = $("#jobTitle").val();
-        //        var jobDesc = $("#jobDesc").val();
-        //        var allowance = $("#allowance").val();
-        //        var accessory = $("#accessory").val();
-        //        var workDay = $("#workDay").val();
-        //        var workHour = $("#workHour").val();
-        //        var accom = $("#accom").val();
-        //        var open = $("input[name='open']:checked").val();
-        //
-        //        //create new job post object
-        //        var newJobPost = {
-        //            jobTitle: jobTitle,
-        //            jobDesc: jobDesc,
-        //            allowance: allowance,
-        //            accessory: accessory,
-        //            workDay: workDay,
-        //            workHour: workHour,
-        //            accom: accom,
-        //            open: open
-        //        };
-        //
-        //        //get all job post from local storage
-        //        var jobPost = JSON.parse(localStorage.getItem("jobPost"));
-        //
-        //        //if there is no job post in local storage, create new array
-        //        if (jobPost == null) {
-        //            jobPost = [];
-        //        }
-        //
-        //        //push new job post into array
-        //        jobPost.push(newJobPost);
-        //
-        //        //save array into local storage
-        //        localStorage.setItem("jobPost", JSON.stringify(jobPost));
-        //
-        //        //redirect to job post list page
-        //        window.location.href = "/jobPostList";
-        //    }
-        //});
-    </script>
 
 </body>
 
