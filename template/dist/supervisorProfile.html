@@ -23,10 +23,8 @@
 
 <body>
     <div id="app">
-        <div id="sidebar" class="active">
-            {% set activePage = "profile" %}
-            {% include "supervisorSidebar.html" %}
-        </div>
+        {% set activePage = "profile" %}
+        {% include "supervisorSidebar.html" %}
         <div id="main" class='layout-navbar'>
             {% include "supervisorHeader.html" %}
             <div id="main-content">

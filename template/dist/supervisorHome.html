@@ -14,11 +14,12 @@
 
 <body>
     <div id="app">
+        {% set activePage = "dashboard" %}
+        {% include "supervisorSidebar.html" %}
         <div id="main" class='layout-navbar'>
-           {% set activePage = "dashboard" %}
-           {% include "supervisorSidebar.html" %}
+            {% include "supervisorHeader.html" %}
+
             <div id="main-content">
-                {% include "supervisorHeader.html" %}
                 <div class="page-heading">
                     <div class="page-title">
                         <div class="row">
@@ -33,7 +34,7 @@
                     </div>
                 </div>
 
-              {% include "footer.html" %}
+                {% include "footer.html" %}
             </div>
         </div>
     </div>
