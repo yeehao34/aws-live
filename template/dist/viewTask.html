@@ -17,10 +17,10 @@
 
     <div id="app">
         {# activePage is to determine which item to be active#}
-        {# set activePage = "dashboard" #}
-        {# include "studentSidebar.html" #}
+        {% set activePage = "dashboard" %}
+        {% include "studentSidebar.html" %}
         <div id="main" class='layout-navbar'>
-            {# include "studentHeader.html" #}
+            {% include "studentHeader.html" %}
             <div id="main-content">
 
                 <div class="page-heading">
