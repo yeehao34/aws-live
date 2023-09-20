@@ -265,17 +265,18 @@ def SubmitTask():
         path = "students/" + session["studEmail"] + \
             "/" + taskName + "/" + report.filename
         uploadToS3(report, path)
-        cursor.execute(updateSubmission_sql, (path, dateSubmitted, submissionId))
+        cursor.execute(updateSubmission_sql,
+                       (path, dateSubmitted, submissionId))
         connection.commit()
-        
-        flash("Your report has been submitted successfully", 'submit-success')        
+
+        flash("Your report has been submitted successfully", 'submit-success')
     except Exception as e:
         print(e)
         connection.rollback()
     finally:
         cursor.close()
         connection.close()
-        
+
     return redirect("/viewTask?submissionId=" + submissionId + "&submissionStatus=submitted")
 
 
@@ -783,7 +784,30 @@ def adminDashboard():
             admin = Admin(admin[0], admin[1], admin[2], admin[3], admin[4])
             break
 
-    return render_template("adminHome.html", admin=admin)
+    allCompany = retrieveAllComp()
+    allCompanyReq = retrieveAllCompReq()
+    allTasks = retrieveAllTask()
+
+    pendingCompany = []
+    pendingCompanyReq = []
+
+    for company in allCompany:
+        if company[10] == "Pending":
+            pendingCompany.append(company)
+
+    for companyReq in allCompanyReq:
+        if companyReq[3] == "Pending":
+            pendingCompanyReq.append(companyReq)
+
+    allCompanyCount = len(allCompany)
+    allCompanyReqCount = len(allCompanyReq)
+    allPendingCompCount = len(pendingCompany)
+    allPendingCompReqCount = len(pendingCompanyReq)
+    allTasksCount = len(allTasks)
+
+    return render_template("adminHome.html", admin=admin, allCompanyCount=allCompanyCount, 
+                           allCompanyReqCount=allCompanyReqCount, allPendingCompCount=allPendingCompCount, 
+                           allPendingCompReqCount=allPendingCompReqCount, allTasksCount=allTasksCount)
 
 
 @app.route("/adminProfile")

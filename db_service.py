@@ -78,6 +78,15 @@ def retrieveAllTask():
     conn.close()
     return rows
 
+def retrieveAllCompReq():
+    conn = create_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM " + companyRequestTable)
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return rows
+
 def retrieveTaskById(taskId):
     row = None
     try:
