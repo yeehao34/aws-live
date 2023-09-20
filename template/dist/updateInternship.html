@@ -12,6 +12,22 @@
     <link rel="shortcut icon" href="assets/images/logo/favicon.png" type="image/png">
     <link rel="stylesheet" href="assets/extensions/choices.js/public/assets/styles/choices.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+
+    <style>
+        .theme-dark .select2-container--default .select2-selection--single,
+        .theme-dark .select2-dropdown {
+            background-color: #40404d !important;
+        }
+
+        .theme-dark .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #999 !important;
+        }
+
+        .theme-dark .select2-results .select2-results__options {
+            background-color: #435ebe;
+        }
+    </style>
 </head>
 
 <body>
@@ -22,7 +38,7 @@
         {% set subActivePage = "updateIntern" %}
         {% include "studentSidebar.html" %}
         <div id="main" class='layout-navbar'>
-            {# include "studentHeader.html" #}
+            {% include "studentHeader.html" %}
             <div id="main-content">
                 <div class="page-heading">
                     <div class="page-title">
@@ -37,8 +53,8 @@
                     <section class="section">
                         <div class="page-content">
                             <div class="row">
-                                <form class="form" id="internshipRegistrationForm" data-parsley-validate action=""
-                                    method="POST" enctype="multipart/form-data">
+                                <form class="form" id="internshipRegistrationForm" data-parsley-validate
+                                    action="/AddInternship" method="POST" enctype="multipart/form-data">
                                     <div class="card">
                                         <div class="card-header">
                                             <h4>Company Information</h4>
@@ -49,19 +65,20 @@
                                             <div class="row">
                                                 <div class="col-md-6 col-12">
                                                     <div class="form-group mandatory">
-                                                        <label for="comName" class="form-label">Company Name</label>
+                                                        <label for="compName" class="form-label">Company Name</label>
                                                         <select
                                                             class="js-example-placeholder-single js-states form-select"
-                                                            data-parsley-required="true" name="comName">
+                                                            data-parsley-required="true" name="compName">
                                                             <option></option>
                                                         </select>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6 col-12">
                                                     <div class="form-group mandatory">
-                                                        <label for="comAddr" class="form-label">Company Address</label>
-                                                        <textarea class="form-control" name="comAddr" rows="3"
+                                                        <label for="compAddr" class="form-label">Company Address</label>
+                                                        <textarea class="form-control" name="compAddr" rows="3"
                                                             disabled></textarea>
+                                                            <input type="hidden" name="companyAddr" />
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6 col-12">
@@ -86,7 +103,7 @@
                                                 <div class="col-md-6 col-12">
                                                     <div class="form-group mandatory">
                                                         <label for="comSuName" class="form-label">Name</label>
-                                                        <input type="text" name="comSuName" class="form-control"
+                                                        <input type="text" name="compSupName" class="form-control"
                                                             placeholder="Company Supervisor Name"
                                                             data-parsley-required="true" />
                                                     </div>
@@ -128,7 +145,7 @@
                                                         </div>
                                                     </div>
 
-                                                    <input type="file" id="comAcceptance" class="form-control"
+                                                    <input type="file" id="comAcceptance" class="form-control" accept="application/pdf"
                                                         name="comAcceptance" data-parsley-required="true" />
                                                 </div>
 
@@ -146,7 +163,7 @@
                                                                     Template</a></span>
                                                         </div>
                                                     </div>
-                                                    <input type="file" id="parentForm" class="form-control"
+                                                    <input type="file" id="parentForm" class="form-control" accept="application/pdf"
                                                         name="parentForm" data-parsley-required="true" />
                                                 </div>
                                             </div>
@@ -163,7 +180,7 @@
                                                                     Template</a></span>
                                                         </div>
                                                     </div>
-                                                    <input type="file" id="letter" class="form-control" name="letter"
+                                                    <input type="file" id="letter" class="form-control" name="letter" accept="application/pdf"
                                                         data-parsley-required="true" />
                                                 </div>
                                             </div>
@@ -200,34 +217,20 @@
     <script src="assets/js/pages/form-element-select.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+
     <script>
 
-        //define a list of company with company name, company address
-        var company = [{
-            comName: "ABC Company",
-            comAddr: "No. 1, Jalan ABC, 12345, Kuala Lumpur"
-        },
-        {
-            comName: "DEF Company",
-            comAddr: "No. 2, Jalan DEF, 12345, Kuala Lumpur"
-        },
-        {
-            comName: "GHI Company",
-            comAddr: "No. 3, Jalan GHI, 12345, Kuala Lumpur"
-        },
-        {
-            comName: "JKL Company",
-            comAddr: "No. 4, Jalan JKL, 12345, Kuala Lumpur"
-        }];
 
+        var companies = JSON.parse('{{companies|tojson}}');
+        console.log(companies)
         //initialize select2
         $(document).ready(function () {
             $('.js-example-placeholder-single').select2({
                 placeholder: 'Select a Company',
-                data: company.map(function (item) {
+                data: companies.map(function (item) {
                     return {
-                        id: item.comName,
-                        text: item.comName
+                        id: item.compName,
+                        text: item.compName
                     }
                 })
             });
@@ -236,9 +239,10 @@
         //auto update company address based on company name
         $(document).ready(function () {
             $(".js-example-placeholder-single").change(function () {
-                var comName = $(this).val();
-                var comAddr = company.find(x => x.comName === comName).comAddr;
-                $("textarea[name='comAddr']").val(comAddr);
+                var compName = $(this).val();
+                var compAddr = companies.find(x => x.compName === compName).compAddr;
+                $("textarea[name='compAddr']").val(compAddr);
+                $("input[name='companyAddr']").val(compAddr);
             });
         });
 

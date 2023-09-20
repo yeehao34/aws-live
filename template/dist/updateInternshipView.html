@@ -12,6 +12,8 @@
     <link rel="shortcut icon" href="assets/images/logo/favicon.png" type="image/png">
     <link rel="stylesheet" href="assets/extensions/choices.js/public/assets/styles/choices.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/extensions/sweetalert2/sweetalert2.min.css">
+
 </head>
 
 <body>
@@ -155,7 +157,8 @@
                                                     name="parentForm" disabled />
                                             </div>
                                             <div class="col col-lg-5">
-                                                You have submitted: <span><a id="secondForm" href="" download></a></span>
+                                                You have submitted: <span><a id="secondForm" href=""
+                                                        download></a></span>
                                             </div>
                                         </div>
                                         <div class="row mt-3">
@@ -199,38 +202,38 @@
     <script src="assets/extensions/choices.js/public/assets/scripts/choices.js"></script>
     <script src="assets/js/pages/form-element-select.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="assets/extensions/sweetalert2/sweetalert2.min.js"></script>
+    <script src="assets/js/pages/sweetalert2.js"></script>
 
     <script>
 
-        //define an internship object with company name, company address, internship allowance, company supervisor name, company supervisor email, company acceptance form, parent acknowledgement form, letter of indemnity
-        var internship = {
-            comName: "Coder53 Sdn Bhd",
-            comAddr: "Jalan Tak Gembira, 44800 Kuala Lumpur",
-            allowance: "300",
-            comSuName: "Chan Kin Meng",
-            email: "kinmeng@coder53.com",
-            comAcceptance: "Form1",
-            parentForm: "Form2",
-            letter: "Form3"
-        };
-
         //set the value of the internship object to the input field
-        document.getElementsByName("comName")[0].value = internship.comName;
-        document.getElementsByName("comAddr")[0].value = internship.comAddr;
-        document.getElementsByName("allowance")[0].value = internship.allowance;
-        document.getElementsByName("comSuName")[0].value = internship.comSuName;
-        document.getElementsByName("email")[0].value = internship.email;
-        document.getElementById("firstForm").innerHTML = internship.comAcceptance;
-        document.getElementById("secondForm").innerHTML = internship.parentForm;
-        document.getElementById("thirdForm").innerHTML = internship.letter;
+        document.getElementsByName("comName")[0].value = `{{studentInternship.companyName}}`;
+        document.getElementsByName("comAddr")[0].value = `{{studentInternship.companyAddress}}`;
+        document.getElementsByName("allowance")[0].value = `{{studentInternship.monthlyAllowance}}`;
+        document.getElementsByName("comSuName")[0].value = `{{studentInternship.companySupervisorName}}`;
+        document.getElementsByName("email")[0].value = `{{studentInternship.companySupervisorEmail}}`;
+        document.getElementById("firstForm").innerHTML = `{{studentInternship.companyAcceptanceForm.split("/")[-1]}}`;
+        document.getElementById("secondForm").innerHTML = `{{studentInternship.parentAckForm.split("/")[-1]}}`;
+        document.getElementById("thirdForm").innerHTML = `{{studentInternship.indemnityLetter.split("/")[-1]}}`;
 
         //set file url to the download link
-        document.getElementById("firstForm").href = "assets/images/CompanyAcceptanceForm.pdf";
-        document.getElementById("secondForm").href = "assets/images/ParentAcknowledgementForm.pdf";
-        document.getElementById("thirdForm").href = "assets/images/LetterOfIndemnity.pdf";
+        document.getElementById("firstForm").href = `{{studentInternship.companyAcceptanceForm}}`;
+        document.getElementById("secondForm").href = `{{studentInternship.parentAckForm}}`;
+        document.getElementById("thirdForm").href = `{{studentInternship.indemnityLetter}}`;
 
 
     </script>
+
+    {% if success %}
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Submitted',
+            text: '{{success}}',
+        })
+    </script>
+    {% endif %}
 
 </body>
 

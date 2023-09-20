@@ -6,7 +6,7 @@ from Models import *
 from db_connection import create_connection
 from utils import *
 from db_service import *
-import os
+import json
 
 app = Flask(__name__, template_folder='template/dist',
             static_folder="template/dist/assets")
@@ -278,6 +278,99 @@ def SubmitTask():
         connection.close()
 
     return redirect("/viewTask?submissionId=" + submissionId + "&submissionStatus=submitted")
+
+
+@app.route("/updateInternship")
+def updateInternship():
+    studEmail = session["studEmail"]
+
+    # If student has already submitted internship details, redirect the student to updateInternshipView html
+    studentInternship = retrieveInternshipByEmail(studEmail)
+    if studentInternship != None:
+        success = get_flashed_messages(
+            category_filter=['intern-submit-success'])
+        if success:
+            success = success[0]
+        studentInternship = Internship(studentInternship[0], studentInternship[1], studentInternship[2], studentInternship[3],
+                                       studentInternship[4], studentInternship[5], studentInternship[6], studentInternship[7], studentInternship[8])
+        studentInternship.companyAcceptanceForm = get_object_url(
+            studentInternship.companyAcceptanceForm)
+        studentInternship.parentAckForm = get_object_url(
+            studentInternship.parentAckForm)
+        studentInternship.indemnityLetter = get_object_url(
+            studentInternship.indemnityLetter)
+        return render_template("updateInternshipView.html", studentInternship=studentInternship, success=success)
+
+    # If student has not submitted
+    student = retrieveStudByEmail(studEmail)
+    studentPersonal = retrieveStudDetailByEmail(studEmail)
+    student = {"name": studentPersonal[0], "studId": student[6],
+               "profilePic": get_object_url(studentPersonal[9])}
+
+    # Retrieve all approved companies and approved company requests
+    companies = [{"compName": comp[1], "compAddr": comp[5]}
+                 for comp in retrieveAllComp() if comp[10] == "Approved"]
+    approvedReqCompanies = [{"compName": comp[1], "compAddr": comp[2]}
+                            for comp in retrieveAllCompReq() if comp[3] == "Approved"]
+    # Append approved company requests to approved companies
+    companies.extend(approvedReqCompanies)
+
+    return render_template("updateInternship.html", student=student, companies=companies)
+
+
+@app.route("/AddInternship", methods=['POST'])
+def AddInternship():
+    studEmail = session["studEmail"]
+    companyName = request.form['compName']
+    companyAddress = request.form['companyAddr']
+    allowance = request.form['allowance']
+    compSupervisorName = request.form['compSupName']
+    compSupervisorEmail = request.form['email']
+    compAcceptance = request.files['comAcceptance']
+    parentAck = request.files['parentForm']
+    indemnityLetter = request.files['letter']
+
+    try:
+        connection = create_connection()
+        cursor = connection.cursor()
+
+        insertInternship_sql = "INSERT INTO " + internshipTable + \
+            " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        internshipDocPath = "students/" + studEmail + "/internship/"
+        compAcceptancePath = internshipDocPath + "CompanyAcceptance.pdf"
+        parentAckPath = internshipDocPath + "ParentAcknowledgement.pdf"
+        indemnityLetterPath = internshipDocPath + "IndemnityLetter.pdf"
+        uploadToS3(compAcceptance, compAcceptancePath)
+        uploadToS3(parentAck, parentAckPath)
+        uploadToS3(indemnityLetter, indemnityLetterPath)
+
+        cursor.execute(insertInternship_sql, (studEmail, companyName, companyAddress, allowance,
+                       compSupervisorName, compSupervisorEmail, compAcceptancePath, parentAckPath, indemnityLetterPath))
+
+        connection.commit()
+
+        flash("Your internship details have been submitted successfully",
+              'intern-submit-success')
+    except Exception as e:
+        print(e)
+        connection.rollback()
+    finally:
+        cursor.close()
+        connection.close()
+
+    return redirect("/updateInternship")
+
+
+@app.route("/requestCompany")
+def requestCompany():
+    studEmail = session["studEmail"]
+
+    student = retrieveStudByEmail(studEmail)
+    studentPersonal = retrieveStudDetailByEmail(studEmail)
+    student = {"name": studentPersonal[0], "studId": student[6],
+               "profilePic": get_object_url(studentPersonal[9])}
+
+    return render_template("requestCompany.html", student=student)
 
 
 @app.route("/studentProfile")
@@ -805,8 +898,8 @@ def adminDashboard():
     allPendingCompReqCount = len(pendingCompanyReq)
     allTasksCount = len(allTasks)
 
-    return render_template("adminHome.html", admin=admin, allCompanyCount=allCompanyCount, 
-                           allCompanyReqCount=allCompanyReqCount, allPendingCompCount=allPendingCompCount, 
+    return render_template("adminHome.html", admin=admin, allCompanyCount=allCompanyCount,
+                           allCompanyReqCount=allCompanyReqCount, allPendingCompCount=allPendingCompCount,
                            allPendingCompReqCount=allPendingCompReqCount, allTasksCount=allTasksCount)
 
 
@@ -980,24 +1073,6 @@ def applyJob():
 
     insertApplication_sql = "INSERT INTO " + internshipApplicationTable + \
         "(ApplicationId, ApplicationStatus, ApplyDate, JobId, StudentEmail) VALUES (%s, %s, %s, %s, %s)"
-    connection = create_connection()
-    cursor = connection.cursor()
-
-
-def AddInternship():
-    # Internship Table
-    # studEmail
-    companyName = request.form['companyName']
-    companyAddr = request.form['companyAddr']
-    allowance = request.form['allowance']
-    compSupervisorName = request.form['compSupervisorName']
-    compSupervisorEmail = request.form['compSupervisorEmail']
-    compAcceptanceForm = request.files['compAcceptanceForm']
-    parentAckForm = request.files['parentAckForm']
-    indemnityLetter = request.files['indemnityLetter']
-
-    insertInternship_sql = "INSERT INTO " + \
-        internshipTable + " VALUES (%s, %s, %s, %s, %s, %s)"
     connection = create_connection()
     cursor = connection.cursor()
 

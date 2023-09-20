@@ -35,13 +35,14 @@
                         <div class="page-content">
                             <div class="row">
                                 <div class="col-12 col-lg-8">
+                                    {% if internship == None %}
                                     <div class="card">
                                         <div class="card-header">
                                             <h4 class="card-title">You Have a Pending Submission: Internship
                                                 Documentation
                                                 <span class="badge bg-warning">Important</span>
                                             </h4>
-                                            <p class="card-subtitle">Due Jan 24, 11:59 PM</p>
+                                            <p class="card-subtitle">Due Oct 24, 11:59 PM</p>
                                         </div>
                                         <div class="card-body">
                                             IMPORTANT: Please submit the following report(s) before the deadline. Late
@@ -61,6 +62,31 @@
                                             </div>
                                         </div>
                                     </div>
+                                    {% else %}
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h4 class="card-title">Congratulations! You have secured your internship 
+                                                <span class="badge bg-sucess">Secured</span>
+                                            </h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <p>Company Name: {{internship.companyName}}</p>
+                                            <p>Company Address: {{internship.companyAddress}}</p>
+
+                                            <div class="row">
+                                                <div class="list-group col-6">
+                                                    <span class="list-group-item">Company Supervisor: {{internship.companySupervisorName}}</span>
+                                                    <span class="list-group-item text-muted">{{internship.companySupervisorEmail}}</span>
+                                                </div>
+                                            </div>
+                                            <!-- <div class="row d-flex float-end">
+                                                <a href="#" class="btn icon icon-left btn-info"><i
+                                                        data-feather="info"></i>
+                                                    Info</a>
+                                            </div> -->
+                                        </div>
+                                    </div>
+                                    {% endif %}
                                 </div>
                                 <div class="col-lg-4">
                                     <div class="card">
