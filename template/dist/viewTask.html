@@ -11,6 +11,13 @@
     <link rel="shortcut icon" href="assets/images/logo/favicon.svg" type="image/x-icon">
     <link rel="shortcut icon" href="assets/images/logo/favicon.png" type="image/png">
     <link rel="stylesheet" href="assets/extensions/sweetalert2/sweetalert2.min.css">
+    <style>
+        .theme-dark .swal2-success-circular-line-right,
+        .theme-dark .swal2-success-circular-line-left,
+        .theme-dark .swal2-success-fix {
+            background-color: #1e1e2d !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -38,7 +45,20 @@
                                 <div class="col-12 col-lg-8">
                                     <div id="taskDisplay" class="card">
                                         <div class="card-header">
-                                            <h4 class="card-title" id="taskTitle"></h4>
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <h4 class="card-title" id="taskTitle"></h4>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                    <div class="row">
+                                                        <div class="col-12 d-flex justify-content-end">
+                                                            <span
+                                                                class="badge {% if submitStatus== 'Pending'%}bg-primary{% elif submitStatus=='Submitted' %}bg-success{% else %}bg-danger{% endif %}"
+                                                                style="font-size:large">{{submitStatus}}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <p class="card-subtitle" id="taskDue"></p>
                                             <hr>
                                         </div>
@@ -60,10 +80,14 @@
                                             <hr>
                                         </div>
                                         <div class="card-body">
-                                            <form>
+                                            <form id="myForm" name="myForm" methods="POST" action="/SubmitTask"
+                                                enctype="multipart/form-data">
                                                 Select files to upload:
-                                                <input class="form-control" name="fileToUpload" id="fileToUpload"
-                                                    type="file" />
+                                                <input type="hidden" name="submissionId"
+                                                    value="{{submission.submissionId}}" />
+                                                <input type="hidden" name="taskName" value="{{taskViewing.taskName}}" />
+                                                <input class="form-control" name="report" id="fileToUpload"
+                                                    accept="application/pdf" type="file" />
 
                                                 <div class="row mt-3">
                                                     <ul style="list-style-type:none;" id="fileList">
@@ -72,7 +96,7 @@
                                                 </div>
 
                                                 <div class="row">
-                                                    <button type="submit" id="submit"
+                                                    <button type="button" id="submitBtn" name="submitBtn"
                                                         class="btn btn-primary btn-block btn-lg shadow-lg mt-3">Submit</button>
                                                 </div>
                                             </form>
@@ -101,26 +125,13 @@
     <script src="assets/js/pages/sweetalert2.js"></script>
 
     <script>
-
-        var taskViewing = {
-            taskId: 1,
-            taskTitle: "Internship Documentation",
-            taskDescription: "Some placeholder content for the collapse component. This panel is hidden by default but revealed when the user activates the relevant trigger.",
-            taskDueDate: "24, Sep 11:59 PM",
-            taskAttachment: {
-                attachmentName: "Company Acceptance Form Template.docx",
-                attachmentUrl: "/template/dist/auth-login.html"
-            },
-            submissionStatus: "Submitted"
-        };
-
         //display taskViewing into corresponding html element
-        document.getElementById("taskTitle").innerHTML = taskViewing.taskTitle;
-        document.getElementById("taskDue").innerHTML = "Due " + taskViewing.taskDueDate;
-        document.getElementById("taskDescription").innerHTML = taskViewing.taskDescription;
-        document.getElementById("taskAttachment").innerHTML += '<a href="' + taskViewing.taskAttachment.attachmentUrl + '" download="' + taskViewing.taskAttachment.attachmentName + '"><p>' + taskViewing.taskAttachment.attachmentName + '</p></a>';
-        
+        document.getElementById("taskTitle").innerHTML = `{{taskViewing.taskName}}`;
+        document.getElementById("taskDue").innerHTML = "Due " + `{{taskViewing.dueDate}}`;
+        document.getElementById("taskDescription").innerHTML = `{{taskViewing.taskDesc}}`;
+        document.getElementById("taskAttachment").innerHTML += '<a href="' + `{{taskViewing.attachmentURL}}` + '" download="' + `{{taskViewing.attachmentName}}` + '"><p>' + `{{taskViewing.attachmentName}}` + '</p></a>';
 
+        console.log(`{{submission.submissionId}}`)
         //get the input and UL list
         var input = document.getElementById('fileToUpload');
         var list = document.getElementById('fileList');
@@ -137,16 +148,15 @@
         });
 
         //validate file upload, if no file selected, alert user, else ask for confirmation
-        document.getElementById("submit").addEventListener("click", function (event) {
+        document.getElementById("submitBtn").addEventListener("click", function (event) {
+            event.preventDefault();
             if (!input.files.length) {
-                event.preventDefault();
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
-                    text: 'Please select at least one file to upload!',
+                    text: 'Please select one file to upload!',
                 })
             } else {
-                event.preventDefault();
                 Swal.fire({
                     title: 'Are you sure?',
                     text: "You will not be able to revert this!",
@@ -157,11 +167,10 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        Swal.fire(
-                            'Submitted!',
-                            'Your work has been submitted.',
-                            'success'
-                        )
+                        // Submit the form
+                        document.forms.myForm.method = "POST";
+                        document.forms.myForm.action = "SubmitTask";
+                        document.forms.myForm.submit();
                     } else if (
                         result.dismiss === Swal.DismissReason.cancel
                     ) {
@@ -174,9 +183,17 @@
                 })
             }
         });
-
-
     </script>
+
+    {% if success %}
+    <script>
+        Swal.fire(
+            'Submitted!',
+            '{{success}}',
+            'success'
+        )
+    </script>
+    {% endif %}
 
 </body>
 

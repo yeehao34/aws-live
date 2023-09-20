@@ -13,6 +13,7 @@ internshipTable = 'Internship'
 internshipApplicationTable = 'InternshipApplication'
 internshipJobTable = 'InternshipJob'
 companyPersonnelTable = 'CompanyPersonnel'
+attachmentTable = 'Attachment'
 
 def retrieveAllStud():
     conn = create_connection()
@@ -67,6 +68,29 @@ def retrieveAllJob():
     cur.close()
     conn.close()
     return rows
+
+def retrieveAllTask():
+    conn = create_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM " + taskTable)
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return rows
+
+def retrieveTaskById(taskId):
+    row = None
+    try:
+        conn = create_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM " + taskTable + " WHERE TaskId = %s", (taskId,))
+        row = cur.fetchone()
+    except Exception as e:
+        print(e)
+    finally:
+        cur.close()
+        conn.close()
+    return row
 
 def retrieveCompById(compId):
     row = None
@@ -176,6 +200,43 @@ def retrievePICById(picId):
         conn = create_connection()
         cur = conn.cursor()
         cur.execute("SELECT * FROM " + companyPersonnelTable + " WHERE PersonInChargeId = %s", (picId,))
+        row = cur.fetchone()
+    except Exception as e:
+        print(e)
+    finally:
+        cur.close()
+        conn.close()
+    return row
+
+def retrieveInternshipByEmail(email):
+    row = None
+    try:
+        conn = create_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM " + internshipTable + " WHERE StudentEmail = %s", (email,))
+        row = cur.fetchone()
+    except Exception as e:
+        print(e)
+    finally:
+        cur.close()
+        conn.close()
+    return row
+
+def retrieveStudentSubmissionByEmail(email):
+    conn = create_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM " + submissionTable + " WHERE StudentEmail = %s", (email,))
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return rows
+
+def retrieveStudentSubmissionById(submissionId):
+    row = None
+    try:
+        conn = create_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM " + submissionTable + " WHERE SubmissionId = %s", (submissionId,))
         row = cur.fetchone()
     except Exception as e:
         print(e)

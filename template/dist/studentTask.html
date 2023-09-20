@@ -64,63 +64,37 @@
     <script src="assets/js/pages/sweetalert2.js"></script>
 
     <script>
-
-
-        //define task array object, with task id, task title, task description, task due date, task attachment
-        var task = [{
-            taskId: 1,
-            taskTitle: "Internship Documentation",
-            taskDescription: "Some placeholder content for the collapse component. This panel is hidden by default but revealed when the user activates the relevant trigger.",
-            taskDueDate: "24, Sep 11:59 PM",
-            //task attachment with attachment name, attachment url
-            taskAttachment: [{
-                attachmentName: "Company Acceptance Form Template.docx",
-                attachmentUrl: "/template/dist/auth-login.html"
-            }, {
-                attachmentName: "Parent Acknowledgement Form Template.docx",
-                attachmentUrl: "/template/dist/auth-login.html"
-            }, {
-                attachmentName: "Letter of Indemnity Template.docx",
-                attachmentUrl: "/template/dist/auth-login.html"
-            }],
-            submissionStatus: "Submitted"
-        },
-        {
-            taskId: 2,
-            taskTitle: "Progress Report 1",
-            taskDescription: "Some placeholder content for the collapse component. This panel is hidden by default but revealed when the user activates the relevant trigger.",
-            taskDueDate: "24, Sep 11:59 PM",
-            //task attachment with attachment name, attachment url
-            taskAttachment: [{
-                attachmentName: "Progress Report Template.docx",
-                attachmentUrl: "/template/dist/auth-login.html"
-            }],
-            submissionStatus: "Submitted"
-        },
-        {
-            taskId: 3,
-            taskTitle: "Progress Report 5",
-            taskDescription: "Some placeholder content for the collapse component. This panel is hidden by default but revealed when the user activates the relevant trigger.",
-            taskDueDate: "24, Sep 11:59 PM",
-            //task attachment with attachment name, attachment url
-            taskAttachment: [{
-                attachmentName: "Progress Report Template.docx",
-                attachmentUrl: "/template/dist/auth-login.html"
-            }],
-            submissionStatus: "Pending"
-        }];
-
+        //get pendingTask and completedTask from backend
         var completedTask = [];
-        var pendingTask = [];
+        {% for task in cptdTask %}
+        completedTask.push({
+            submissionId: "{{task.taskId}}",
+            taskTitle: "{{task.taskName}}",
+            taskDescription: "{{task.taskDesc}}",
+            taskDueDate: "{{task.dueDate}}",
+            taskAttachment: {
+                attachmentName: "{{task.attachmentName}}",
+                attachmentUrl: "{{task.attachmentUrl}}"
+            },
+            submissionStatus: "{{task.submissionStatus}}"
+        })
+        {% endfor %}
 
-        //loop through task array object, check submission status, if submission status is submitted, add task to completedTaskList, else add task to pendingTaskList
-        for (var i = 0; i < task.length; i++) {
-            if (task[i].submissionStatus == "Submitted") {
-                completedTask.push(task[i]);
-            } else {
-                pendingTask.push(task[i]);
-            }
-        }
+        var pendingTask = [];
+        {% for task in pdngTask %}
+        pendingTask.push({
+            submissionId: "{{task.submissionId}}",
+            taskTitle: "{{task.taskName}}",
+            taskDescription: "{{task.taskDesc}}",
+            taskDueDate: "{{task.dueDate}}",
+            taskAttachment: {
+                attachmentName: "{{task.attachmentName}}",
+                attachmentUrl: "{{task.attachmentURL}}"
+            },
+            submissionStatus: "{{task.submissionStatus}}"
+        })
+        {% endfor %}
+
         console.log(completedTask);
         console.log(pendingTask);
 
@@ -128,16 +102,16 @@
         function createPendingTaskList() {
             var taskList = "";
             for (var i = 0; i < pendingTask.length; i++) {
-                taskList += "<li><div class='card' data-bs-toggle='collapse' href='#task" + pendingTask[i].taskId +
-                    "' role='button' aria-expanded='false' aria-controls='task" + pendingTask[i].taskId +
+                taskList += "<li><div class='card' data-bs-toggle='collapse' href='#task" + pendingTask[i].submissionId +
+                    "' role='button' aria-expanded='false' aria-controls='task" + pendingTask[i].submissionId +
                     "'><div class='card-content'><div class='card-body'><div class='row'><div class='col-12 col-lg-1'><div class='avatar bg-primary me-3'><span class='avatar-content'><i class='bi bi-envelope'></i></span></div></div><div class='col-12 col-lg-8'><h5>" +
                     pendingTask[i].taskTitle + "</h5></div><div class='col-12 col-lg-3'>Due " + pendingTask[i].taskDueDate +
-                    "</div></div><div class='collapse' id='task" + pendingTask[i].taskId + "'><hr><p id='taskDescription'>" +
+                    "</div></div><div class='collapse' id='task" + pendingTask[i].submissionId + "'><hr><p id='taskDescription'>" +
                     pendingTask[i].taskDescription + "</p><p class='list-group' id='attachment'><h6>Attachment</h6>";
-                for (var j = 0; j < pendingTask[i].taskAttachment.length; j++) {
-                    taskList += "<a class='list-group-item' href='" + pendingTask[i].taskAttachment[j].attachmentUrl +
-                        "' download><p>" + pendingTask[i].taskAttachment[j].attachmentName + "</p></a>";
-                }
+
+                taskList += "<a class='list-group-item' href='" + pendingTask[i].taskAttachment.attachmentUrl +
+                    "' download><p>" + pendingTask[i].taskAttachment.attachmentName + "</p></a>";
+
                 taskList += "</p><hr><div class='row'><div class='col-12 d-flex justify-content-end'><button type='viewTask' class='btn btn-primary me-1 mb-1' id='viewTask'>View Instruction</button></div></div></div></div></div></div></li>";
             }
             return taskList;
@@ -147,16 +121,16 @@
         function createCompletedTaskList() {
             var taskList = "";
             for (var i = 0; i < completedTask.length; i++) {
-                taskList += "<li><div class='card' data-bs-toggle='collapse' href='#task" + completedTask[i].taskId +
-                    "' role='button' aria-expanded='false' aria-controls='task" + completedTask[i].taskId +
+                taskList += "<li><div class='card' data-bs-toggle='collapse' href='#task" + completedTask[i].submissionId +
+                    "' role='button' aria-expanded='false' aria-controls='task" + completedTask[i].submissionId +
                     "'><div class='card-content'><div class='card-body'><div class='row'><div class='col-12 col-lg-1'><div class='avatar bg-secondary me-3'><span class='avatar-content'><i class='bi bi-envelope'></i></span></div></div><div class='col-12 col-lg-8'><h5>" +
                     completedTask[i].taskTitle + "</h5></div><div class='col-12 col-lg-3'>Due " + completedTask[i].taskDueDate +
-                    "</div></div><div class='collapse' id='task" + completedTask[i].taskId + "'><hr><p id='taskDescription'>" +
+                    "</div></div><div class='collapse' id='task" + completedTask[i].submissionId + "'><hr><p id='taskDescription'>" +
                     completedTask[i].taskDescription + "</p><p class='list-group' id='attachment'><h6>Attachment</h6>";
-                for (var j = 0; j < completedTask[i].taskAttachment.length; j++) {
-                    taskList += "<a class='list-group-item' href='" + completedTask[i].taskAttachment[j].attachmentUrl +
-                        "' download><p>" + completedTask[i].taskAttachment[j].attachmentName + "</p></a>";
-                }
+
+                taskList += "<a class='list-group-item' href='" + completedTask[i].taskAttachment.attachmentUrl +
+                    "' download><p>" + completedTask[i].taskAttachment.attachmentName + "</p></a>";
+
                 taskList += "</p><hr><div class='row'><div class='col-12 d-flex justify-content-end'><button type='viewTask' class='btn btn-primary me-1 mb-1' id='viewTask'>View Instruction</button></div></div></div></div></div></div></li>";
             }
             return taskList;
@@ -168,14 +142,14 @@
 
         //click view button, get the task id, direct to view task page with task id as parameter
         $('#pendingTaskList').on('click', '#viewTask', function () {
-            var taskId = $(this).closest('li').find('.card').attr('href').replace('#task', '');
-            window.location.href = "/viewTask?taskId=" + taskId;
+            var submissionId = $(this).closest('li').find('.card').attr('href').replace('#task', '');
+            window.location.href = "/viewTask?submissionId=" + submissionId + "&submissionStatus=pending";
         });
 
         //click view button, get the task id, direct to view task page with task id as parameter
         $('#completedTaskList').on('click', '#viewTask', function () {
-            var taskId = $(this).closest('li').find('.card').attr('href').replace('#task', '');
-            window.location.href = "/viewTask?taskId=" + taskId;
+            var submissionId = $(this).closest('li').find('.card').attr('href').replace('#task', '');
+            window.location.href = "/viewTask?submissionId=" + submissionId + "&submissionStatus=submitted";
         });
     </script>
 </body>
