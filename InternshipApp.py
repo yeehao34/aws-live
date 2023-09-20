@@ -6,6 +6,7 @@ from Models import *
 from db_connection import create_connection
 from utils import *
 from db_service import *
+import os
 
 app = Flask(__name__, template_folder='template/dist',
             static_folder="template/dist/assets")
@@ -28,27 +29,34 @@ internshipTable = 'Internship'
 internshipApplicationTable = 'InternshipApplication'
 internshipJobTable = 'InternshipJob'
 companyPersonnelTable = 'CompanyPersonnel'
+attachmentTable = 'Attachment'
+
 
 @app.route("/")
 def home():
     return render_template('login.html')
 
+
 @app.route("/<page_name>")
 def render_page(page_name):
     return render_template('%s.html' % page_name)
+
 
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/")
 
+# --------------------- Student ---------------------------
+
+
 @app.route("/studentRegister")
 def studentRegister():
-    
+
     connection = create_connection()
     cursor = connection.cursor()
     try:
-        
+
         uniSupervisorResults = retrieveAllUniSup()
         uniSupervisorList = []
         for supervisor in uniSupervisorResults:
@@ -65,6 +73,7 @@ def studentRegister():
     if error:
         error = error[0]
     return render_template('studentRegister.html', uniSupervisorList=uniSupervisorList, error=error)
+
 
 @app.route("/AddStud", methods=['POST'])
 def AddStud():
@@ -133,55 +142,156 @@ def AddStud():
 
     return render_template("studentLogin.html", success="You may login now")
 
+
 @app.route("/StudLogin", methods=['POST'])
 def StudLogin():
     studEmail = request.form['studentEmail']
     nric = request.form['nric']
 
     allStudentDetails = retrieveAllStudDetail()
-    
+
     for stud in allStudentDetails:
         if stud[-1] == studEmail and stud[1] == nric:
             session["studEmail"] = studEmail
             return redirect("/studentHome")
-    
+
     return render_template('studentLogin.html', error="Invalid Email or NRIC")
+
 
 @app.route("/studentHome")
 def studentDashboard():
     studEmail = session["studEmail"]
-    
+
     student = retrieveStudByEmail(studEmail)
     studentPersonal = retrieveStudDetailByEmail(studEmail)
     student = {"name": studentPersonal[0], "studId": student[6],
-                "profilePic": get_object_url(studentPersonal[9])}
-   
-    return render_template("studentHome.html", student=student)
+               "profilePic": get_object_url(studentPersonal[9])}
+
+    internship = retrieveInternshipByEmail(studEmail)
+    if internship != None:
+        internship = Internship(internship[0], internship[1], internship[2], internship[3],
+                                internship[4], internship[5], internship[6], internship[7], internship[8])
+
+    return render_template("studentHome.html", student=student, internship=internship)
+
 
 @app.route("/studentTask")
 def studentTask():
     studEmail = session["studEmail"]
-    
+
     student = retrieveStudByEmail(studEmail)
     studentPersonal = retrieveStudDetailByEmail(studEmail)
     student = {"name": studentPersonal[0], "studId": student[6],
-                "profilePic": get_object_url(studentPersonal[9])}
-    
-    return render_template("studentTask.html", student=student)
+               "profilePic": get_object_url(studentPersonal[9])}
+
+    studentTasks = retrieveStudentSubmissionByEmail(studEmail)
+
+    pendingTask = []
+    completedTask = []
+    for studentTask in studentTasks:
+        studentTask = Submission(studentTask[0], studentTask[1], studentTask[2],
+                                 studentTask[3], studentTask[4], studentTask[5], studentTask[6])
+        print(studentTask)
+        task = retrieveTaskById(studentTask.taskId)
+        print(task)
+        task = Task(task[0], task[1], task[2], task[3], task[4], task[5])
+        studentTask.taskName = task.taskName
+        studentTask.taskDesc = task.taskDesc
+        studentTask.dueDate = task.dueDate.strftime("%d, %b %H:%M %p")
+        studentTask.attachmentName = task.attachmentName
+        studentTask.attachmentURL = get_object_url(task.attachmentURL)
+        if studentTask.dateSubmitted == None:
+            studentTask.submissionStatus = "Pending"
+            pendingTask.append(studentTask)
+        else:
+            studentTask.submissionStatus = "Submitted"
+            completedTask.append(studentTask)
+
+    return render_template("studentTask.html", student=student, pdngTask=pendingTask, cptdTask=completedTask)
+
+
+@app.route("/viewTask")
+def viewTask():
+    studEmail = session["studEmail"]
+    submissionId = request.args.get('submissionId')
+    submissionStatus = request.args.get('submissionStatus')
+    student = retrieveStudByEmail(studEmail)
+    studentPersonal = retrieveStudDetailByEmail(studEmail)
+    student = {"name": studentPersonal[0], "studId": student[6],
+               "profilePic": get_object_url(studentPersonal[9])}
+
+    print(submissionId)
+    submission = retrieveStudentSubmissionById(submissionId)
+    print(submission)
+    submission = Submission(submission[0], submission[1], submission[2],
+                            submission[3], submission[4], submission[5], submission[6])
+    task = retrieveTaskById(submission.taskId)
+    task = Task(task[0], task[1], task[2], task[3], task[4], task[5])
+    task.attachmentURL = get_object_url(task.attachmentURL)
+    if submissionStatus == "pending":
+        if (datetime.now() > task.dueDate):
+            submitStatus = "Missing"
+        else:
+            submitStatus = "Pending"
+    elif submissionStatus == "submitted":
+        if (submission.dateSubmitted > task.dueDate):
+            submitStatus = "Turned in Late"
+        else:
+            submitStatus = "Submitted"
+    task.dueDate = task.dueDate.strftime("%d, %b %H:%M %p")
+    if submission.dateSubmitted != None:
+        submission.dateSubmitted = submission.dateSubmitted.strftime(
+            "%d, %b %H:%M %p")
+
+    success = get_flashed_messages(category_filter=['submit-success'])
+    if success:
+        success = success[0]
+
+    return render_template("/viewTask.html", student=student, submission=submission, taskViewing=task, submitStatus=submitStatus, success=success)
+
+
+@app.route("/SubmitTask", methods=['GET', 'POST'])
+def SubmitTask():
+    submissionId = request.form['submissionId']
+    report = request.files['report']
+    taskName = request.form['taskName']
+    dateSubmitted = datetime.now()
+
+    try:
+        connection = create_connection()
+        cursor = connection.cursor()
+        updateSubmission_sql = "UPDATE " + submissionTable + \
+            " SET Report = %s, DateSubmitted = %s WHERE SubmissionId = %s"
+        path = "students/" + session["studEmail"] + \
+            "/" + taskName + "/" + report.filename
+        uploadToS3(report, path)
+        cursor.execute(updateSubmission_sql, (path, dateSubmitted, submissionId))
+        connection.commit()
+        
+        flash("Your report has been submitted successfully", 'submit-success')        
+    except Exception as e:
+        print(e)
+        connection.rollback()
+    finally:
+        cursor.close()
+        connection.close()
+        
+    return redirect("/viewTask?submissionId=" + submissionId + "&submissionStatus=submitted")
+
 
 @app.route("/studentProfile")
 def studentProfile():
     studEmail = session["studEmail"]
-    
-    
+
     student = retrieveStudByEmail(studEmail)
     studentPersonal = retrieveStudDetailByEmail(studEmail)
     studentObj = Student(student[0], student[1], student[2], student[3], student[4], student[5], student[6], student[7],
-                                studentPersonal[0], studentPersonal[1], studentPersonal[2], studentPersonal[3], studentPersonal[4], studentPersonal[5], studentPersonal[6], studentPersonal[7], studentPersonal[8], studentPersonal[9])
+                         studentPersonal[0], studentPersonal[1], studentPersonal[2], studentPersonal[3], studentPersonal[4], studentPersonal[5], studentPersonal[6], studentPersonal[7], studentPersonal[8], studentPersonal[9])
 
     studentObj.profilePic = get_object_url(studentObj.profilePic)
     supervisor = retrieveUniSupervisorById(studentObj.supervisorId)
-    supervisor = UniversitySupervisor(supervisor[0], supervisor[1], supervisor[2], supervisor[3], supervisor[4])
+    supervisor = UniversitySupervisor(
+        supervisor[0], supervisor[1], supervisor[2], supervisor[3], supervisor[4])
     student_dict = vars(studentObj)
     for key, value in student_dict.items():
         print(f"{key}: {value}")
@@ -191,6 +301,7 @@ def studentProfile():
         success = success[0]
 
     return render_template("studentProfile.html", student=studentObj, supervisor=supervisor, success=success)
+
 
 @app.route("/UpdateStudProfile", methods=['POST'])
 def updateStudProfile():
@@ -240,6 +351,10 @@ def updateStudProfile():
 
     return redirect("/studentProfile")
 
+# --------------------- Student ---------------------------
+
+
+# --------------------- Company ---------------------------
 @app.route("/AddCompany", methods=['POST'])
 def AddComp():
 
@@ -320,36 +435,39 @@ def AddComp():
 
     return render_template("companyLogin.html", success=success)
 
+
 @app.route("/CompLogin", methods=['POST'])
 def CompLogin():
     username = request.form['username']
     password = request.form['password']
 
     allCompanies = retrieveAllComp()
-    
+
     for company in allCompanies:
         if company[2] == username and company[3] == password:
             session["companyId"] = company[0]
             return redirect("/companyHome")
-    
+
     return render_template('companyLogin.html', error="Invalid Username or Password")
+
 
 @app.route("/companyHome")
 def companyDashboard():
     compId = session["companyId"]
     companyResult = retrieveCompById(compId)
- 
+
     company = {"companyName": companyResult[1], "username": companyResult[2], "logo": get_object_url(
-            companyResult[8]), "companyStatus": companyResult[10]}
-   
+        companyResult[8]), "companyStatus": companyResult[10]}
+
     return render_template("companyHome.html", company=company)
+
 
 @app.route("/companyProfile")
 def companyProfile():
     compId = session['companyId']
     companyResult = retrieveCompById(compId)
     picResult = retrievePICById(companyResult[12])
-    
+
     company = Company(companyResult[0], companyResult[1], companyResult[2], companyResult[3], companyResult[4], companyResult[5],
                       companyResult[6], companyResult[7], companyResult[8], companyResult[9], companyResult[10], companyResult[11], companyResult[12])
     pic = CompanyPersonnel(picResult[0], picResult[1],
@@ -361,6 +479,7 @@ def companyProfile():
         success = success[0]
 
     return render_template("companyProfile.html", company=company, personInCharge=pic, success=success)
+
 
 @app.route("/UpdateCompProfile", methods=['POST'])
 def updateCompProfile():
@@ -416,6 +535,7 @@ def updateCompProfile():
 
     return redirect("/companyProfile")
 
+
 @app.route("/jobPosting")
 def jobPosting():
     compId = session["companyId"]
@@ -437,6 +557,7 @@ def jobPosting():
 
     return render_template("jobPosting.html", company=company, companyJobs=companyJobs, success=success)
 
+
 @app.route("/jobPostingDetailViewEdit")
 def jobPostingDetails():
     jobId = request.args.get('jobId')
@@ -454,6 +575,7 @@ def jobPostingDetails():
         success = success[0]
 
     return render_template("jobPostingDetailViewEdit.html", company=company, job=job, success=success)
+
 
 @app.route("/UpdateJobDetail", methods=['POST'])
 def updateJobDetail():
@@ -497,6 +619,7 @@ def updateJobDetail():
 
     return redirect("/jobPostingDetailViewEdit?jobId=" + jobId)
 
+
 @app.route("/jobAdding")
 def jobPostingDetail():
     compId = session["companyId"]
@@ -506,6 +629,7 @@ def jobPostingDetail():
         companyResult[8]), "companyStatus": companyResult[10]}
 
     return render_template("jobAdding.html", company=company)
+
 
 @app.route("/AddJob", methods=['POST'])
 def AddJob():
@@ -544,7 +668,7 @@ def AddJob():
         cursor = connection.cursor()
         cursor.execute(insertJob_sql, (jobId, jobTitle, jobDesc, allowance, workingDay,
                        workingHour, diploma, degree, accessory, accommodation, compId))
-        
+
         # Update sequence number in SEQ_MATRIX
         updateJobSeq_sql = "UPDATE " + sequenceTable + \
             " SET SEQ_NO = SEQ_NO + 1 WHERE TBL_NAME = '" + internshipJobTable + "'"
@@ -560,79 +684,95 @@ def AddJob():
 
     return redirect("/jobPosting")
 
+# --------------------- Company ---------------------------
+
+
+# --------------------- Supervisor ---------------------------
 @app.route("/SupervisorLogin", methods=['POST'])
 def SupervisorLogin():
     email = request.form['email']
     password = request.form['password']
-    
+
     allSupervisor = retrieveAllUniSup()
     for sup in allSupervisor:
         if sup[1] == email and sup[2] == password:
             session["supervisorId"] = sup[0]
             return redirect("/supervisorHome")
-        
+
     return render_template('supervisorLogin.html', error="Invalid Email or Password")
+
 
 @app.route("/supervisorHome")
 def supervisorDashboard():
     supervisorId = session['supervisorId']
     supervisor = retrieveUniSupervisorById(supervisorId)
-    supervisor = UniversitySupervisor(supervisor[0], supervisor[1], supervisor[2], supervisor[3], supervisor[4])
-    
+    supervisor = UniversitySupervisor(
+        supervisor[0], supervisor[1], supervisor[2], supervisor[3], supervisor[4])
+
     return render_template("supervisorHome.html", supervisor=supervisor)
+
 
 @app.route("/supervisorProfile")
 def supervisorProfile():
     supervisorId = session['supervisorId']
     supervisor = retrieveUniSupervisorById(supervisorId)
-    
-    supervisor = UniversitySupervisor(supervisor[0], supervisor[1], supervisor[2], supervisor[3], supervisor[4])
-    
+
+    supervisor = UniversitySupervisor(
+        supervisor[0], supervisor[1], supervisor[2], supervisor[3], supervisor[4])
+
     success = get_flashed_messages(category_filter=['update-success'])
     if success:
         success = success[0]
     return render_template("supervisorProfile.html", supervisor=supervisor, success=success)
-    
+
+
 @app.route("/UpdateSupervisorProfile", methods=['POST'])
 def UpdateSupervisorProfile():
     supervisorId = session['supervisorId']
     password = request.form['newPassword']
     name = request.form['name']
     contact = request.form['contact']
-    
+
     if password == "":
         password = request.form['oldPassword']
-    
-    try: 
-        updateSupervisor_sql = "UPDATE " + universitySupervisorTable + " SET Password = %s, Name = %s, ContactNo = %s WHERE StaffId = %s"
+
+    try:
+        updateSupervisor_sql = "UPDATE " + universitySupervisorTable + \
+            " SET Password = %s, Name = %s, ContactNo = %s WHERE StaffId = %s"
         connection = create_connection()
         cursor = connection.cursor()
-        cursor.execute(updateSupervisor_sql, (password, name, contact, supervisorId))
-        connection.commit()        
+        cursor.execute(updateSupervisor_sql,
+                       (password, name, contact, supervisorId))
+        connection.commit()
     except Exception as e:
         print(e)
         connection.rollback()
     finally:
         cursor.close()
         connection.close()
-    
+
     flash("Your profile has been updated!", 'update-success')
-    
+
     return redirect("/supervisorProfile")
 
+# --------------------- Supervisor ---------------------------
+
+
+# --------------------- Admin ---------------------------
 @app.route("/AdminLogin", methods=['POST'])
 def AdminLogin():
     username = request.form['username']
     password = request.form['password']
-    
+
     allAdmin = retrieveAllAdmin()
-    
+
     for admin in allAdmin:
         if admin[1] == username and admin[2] == password:
             session["adminId"] = admin[0]
             return redirect("/adminHome")
-        
+
     return render_template('adminLogin.html', error="Invalid Username or Password")
+
 
 @app.route("/adminHome")
 def adminDashboard():
@@ -642,8 +782,9 @@ def adminDashboard():
         if admin[0] == adminId:
             admin = Admin(admin[0], admin[1], admin[2], admin[3], admin[4])
             break
-    
+
     return render_template("adminHome.html", admin=admin)
+
 
 @app.route("/adminProfile")
 def adminProfile():
@@ -653,11 +794,12 @@ def adminProfile():
         if admin[0] == adminId:
             admin = Admin(admin[0], admin[1], admin[2], admin[3], admin[4])
             break
-    
+
     success = get_flashed_messages(category_filter=['update-success'])
     if success:
         success = success[0]
     return render_template("adminProfile.html", admin=admin, success=success)
+
 
 @app.route("/UpdateAdminProfile", methods=['POST'])
 def UpdateAdminProfile():
@@ -665,36 +807,114 @@ def UpdateAdminProfile():
     password = request.form['newPassword']
     name = request.form['name']
     email = request.form['email']
-    
+
     if password == "":
         password = request.form['oldPassword']
-    
-    try: 
-        updateAdmin_sql = "UPDATE " + adminTable + " SET Password = %s, Name = %s, Email = %s WHERE AdminId = %s"
+
+    try:
+        updateAdmin_sql = "UPDATE " + adminTable + \
+            " SET Password = %s, Name = %s, Email = %s WHERE AdminId = %s"
         connection = create_connection()
         cursor = connection.cursor()
         cursor.execute(updateAdmin_sql, (password, name, email, adminId))
-        connection.commit()        
+        connection.commit()
     except Exception as e:
         print(e)
         connection.rollback()
     finally:
         cursor.close()
         connection.close()
-    
+
     flash("Your profile has been updated!", 'update-success')
-    
+
     return redirect("/adminProfile")
 
+
+@app.route("/AddTask", methods=['POST'])
 def AddTask():
     # Task Table
-    # taskId = request.form['taskId']
-    taskName = request.form['taskName']
-    dueDate = request.form['dueDate']
+    taskTitle = request.form['taskTitle']
+    taskDesc = request.form['taskDesc']
+    taskDeadline = request.form['taskDeadline']
+    print(taskDeadline)
+    # Attachment Table (only 1 file)
+    attachment = request.files['attachment']
 
-    insertTask_sql = "INSERT INTO " + taskTable + " VALUES (%s, %s, %s)"
-    connection = create_connection()
-    cursor = connection.cursor()
+    allStudents = retrieveAllStud()
+
+    # Get this tasks belongs to which level of students (diploma/degree/both)
+    openFor = request.form['openFor']
+    # by default, set these 2 to "N"
+    diploma = "N"
+    degree = "N"
+
+    if openFor == "diploma":
+        diploma = "Y"
+    elif openFor == "degree":
+        degree = "Y"
+    elif openFor == "diplomaAndDegree":
+        diploma = "Y"
+        degree = "Y"
+
+    try:
+        connection = create_connection()
+        cursor = connection.cursor()
+        # Insert Task
+        taskSeqNo = retrieveSeqNoByTblName(taskTable)
+        taskId = "TK" + fillLeftZero(4, taskSeqNo)
+        insertTask_sql = "INSERT INTO " + \
+            taskTable + " VALUES (%s, %s, %s, %s)"
+        cursor.execute(
+            insertTask_sql, (taskId, taskTitle, taskDesc, taskDeadline))
+        # Insert Attachment
+        insertAttachment_sql = "INSERT INTO " + \
+            attachmentTable + " VALUES (%s, %s, %s, %s)"
+        attachSeqNo = retrieveSeqNoByTblName(attachmentTable)
+        attachmentId = "A" + fillLeftZero(5, attachSeqNo)
+        attachmentName = attachment.filename
+        print(attachment.filename)
+        attachmentURL = "Attachment/" + attachmentId + "/" + attachmentName
+        uploadToS3(attachment, attachmentURL)
+        cursor.execute(insertAttachment_sql, (attachmentId,
+                       attachmentName, attachmentURL, taskId))
+        # Update task sequence number and attachment sequence number
+        updateTaskSeq_sql = "UPDATE " + sequenceTable + \
+            " SET SEQ_NO = SEQ_NO + 1 WHERE TBL_NAME = '" + taskTable + "'"
+        updateAttchmentSeq_sql = "UPDATE " + sequenceTable + \
+            " SET SEQ_NO = SEQ_NO + 1 WHERE TBL_NAME = '" + attachmentTable + "'"
+        cursor.execute(updateTaskSeq_sql)
+        cursor.execute(updateAttchmentSeq_sql)
+
+        # Create Submission for every students that involved in the task
+        insertSubmission_sql = "INSERT INTO " + submissionTable + \
+            " (SubmissionId, StudentEmail, TaskId) VALUES (%s, %s, %s)"
+        submissionSeqNo = retrieveSeqNoByTblName(submissionTable)
+        rowCreated = 0
+        for stud in allStudents:
+            if (diploma == "Y" and stud[1] == "Diploma") or (degree == "Y" and stud[1] == "Bachelor"):
+                submissionId = "S" + fillLeftZero(6, submissionSeqNo)
+                cursor.execute(insertSubmission_sql,
+                               (submissionId, stud[0], taskId))
+                submissionSeqNo += 1
+                rowCreated += 1
+        print("row created: " + str(rowCreated))
+        # Update submission sequence number
+        updateSubmissionSeq_sql = "UPDATE " + sequenceTable + " SET SEQ_NO = SEQ_NO + " + \
+            str(rowCreated) + " WHERE TBL_NAME = '" + submissionTable + "'"
+        cursor.execute(updateSubmissionSeq_sql)
+
+        # Commit the transaction
+        connection.commit()
+    except Exception as e:
+        print(e)
+        connection.rollback()
+    finally:
+        cursor.close()
+        connection.close()
+
+    flash("Task has been added successfully and assigned to students", 'task-added')
+    return redirect("/adminTask")
+# --------------------- Admin ---------------------------
 
 
 def AddCompRequest():
@@ -759,4 +979,4 @@ def AddInternship():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=80, debug=True)
+    app.run(host='0.0.0.0', port=80, debug=True, threaded=True)

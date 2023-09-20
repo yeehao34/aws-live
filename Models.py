@@ -85,25 +85,20 @@ class InternshipApplication:
         self.studentEmail = studentEmail
 
 class Task:
-    def __init__(self, taskId, taskName, taskDesc, dueDate):
+    def __init__(self, taskId, taskName, taskDesc, dueDate, attachmentName, attachmentURL,):
         self.taskId = taskId
         self.taskName = taskName
         self.taskDesc = taskDesc
         self.dueDate = dueDate
-        
-class Attachment: 
-    def __init__(self, attachmentId, attachmentName, attachmentURL, taskId):
-        self.attachmentId = attachmentId
         self.attachmentName = attachmentName
         self.attachmentURL = attachmentURL
-        self.taskId = taskId
 
 class Submission:
     # status is the approved/reject by university supervisor
     # same goes to remarks
     # report is the URL
     # Nullable: reportStatus, dateSubmitted, report, remarks
-    def __init__(self, submissionId, reportStatus, dateSubmitted, report, remarks, taskId, studentEmail):
+    def __init__(self, submissionId, reportStatus, dateSubmitted, report, remarks, studentEmail, taskId):
         self.submissionId = submissionId
         self.reportStatus = reportStatus
         self.dateSubmitted = dateSubmitted
@@ -113,6 +108,9 @@ class Submission:
         self.taskId = taskId
 
 class CompanyRequest:
+    # adminId is the admin who approved/reject the request
+    # requestStatus is the approved/reject by admin
+    # Nullable: adminId
     def __init__(self, requestId, companyName, companyAddress, requestStatus, studentEmail, adminId):
         self.requestId = requestId
         self.companyName = companyName
