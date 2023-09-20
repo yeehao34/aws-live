@@ -55,6 +55,12 @@ template.innerHTML = `
           <span>Home</span>
         </a>
       </li>
+      <li class="menu-item">
+        <a href="/portfolio" class="menu-link">
+          <i class="bi bi-people-fill"></i>
+          <span>Developer Team</span>
+        </a>
+      </li>
     </ul>
   </div>
 </nav>
