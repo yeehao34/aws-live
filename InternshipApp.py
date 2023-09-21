@@ -6,7 +6,6 @@ from Models import *
 from db_connection import create_connection
 from utils import *
 from db_service import *
-import json
 
 app = Flask(__name__, template_folder='template/dist',
             static_folder="template/dist/assets")
@@ -1049,6 +1048,55 @@ def adminDashboard():
                            allCompanyReqCount=allCompanyReqCount, allPendingCompCount=allPendingCompCount,
                            allPendingCompReqCount=allPendingCompReqCount, allTasksCount=allTasksCount)
 
+@app.route("/adminCompanyRequest")
+def adminCompanyRequest():
+    adminId = session['adminId']
+    allAdmin = retrieveAllAdmin()
+    for admin in allAdmin:
+        if admin[0] == adminId:
+            admin = Admin(admin[0], admin[1], admin[2], admin[3], admin[4])
+            break
+    compReqList = []
+    for compReq in retrieveAllCompReq():
+        compReq = CompanyRequest(compReq[0], compReq[1], compReq[2], compReq[3], compReq[4], compReq[5])
+        compReqList.append(compReq)
+    
+    success = get_flashed_messages(category_filter=['req-approved'])
+    if success:
+        success = success[0]
+    reject = get_flashed_messages(category_filter=['req-rejected'])
+    if reject:
+        reject = reject[0]    
+    
+    return render_template("adminCompanyRequest.html", admin=admin, compReqs=compReqList, success=success, reject=reject)
+
+@app.route("/UpdateCompReq")
+def UpdateCompReq():
+    adminId = session['adminId']
+    requestId = request.args.get('requestId')
+    status = request.args.get('status')
+    
+    try:
+        connection = create_connection()
+        cursor = connection.cursor()
+        
+        updateCompReq_sql = "UPDATE " + companyRequestTable + " SET RequestStatus = %s, AdminId = %s WHERE RequestId = %s"
+        cursor.execute(updateCompReq_sql, (status, adminId, requestId))
+        connection.commit()
+        if status == "Approved":
+            flash("Company request has been approved", 'req-approved')
+        elif status == "Rejected":
+            flash("Company request has been rejected", 'req-rejected')
+            
+    except Exception as e:
+        print(e)
+        connection.rollback()        
+    finally:
+        cursor.close()
+        connection.close()
+    
+    
+    return redirect("/adminCompanyRequest")
 
 @app.route("/adminProfile")
 def adminProfile():
