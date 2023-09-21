@@ -41,6 +41,9 @@ def home():
 def render_page(page_name):
     return render_template('%s.html' % page_name)
 
+@app.route("/<folder>/<page_name>")
+def render_subFolder_page(folder, page_name):
+    return render_template("%s/%s.html" % (folder, page_name))
 
 @app.route("/logout")
 def logout():
@@ -277,6 +280,37 @@ def SubmitTask():
 
     return redirect("/viewTask?submissionId=" + submissionId + "&submissionStatus=submitted")
 
+@app.route("/jobFinding")
+def jobFinding():
+    studEmail = session["studEmail"]
+
+    student = retrieveStudByEmail(studEmail)
+    studentPersonal = retrieveStudDetailByEmail(studEmail)
+    student = {"name": studentPersonal[0], "studId": student[6],
+               "profilePic": get_object_url(studentPersonal[9])}
+    
+    internshipJobs = []
+    
+    # Retrieve all jobs and companies in one query
+    jobs = retrieveAllJob()
+    companies = {comp[0]: Company(*comp) for comp in retrieveAllComp()}
+
+    internshipJobs = []
+
+    for job in jobs:
+        job = InternshipJob(*job)
+        company = companies.get(job.companyId)
+        if company:
+            job.companyName = company.companyName
+            if company.logo:
+                job.companyLogo = get_object_url(company.logo)
+            else:
+                job.companyLogo = ""
+        internshipJobs.append(job)
+    
+
+    return render_template("jobFinding.html", student=student, internshipJobs=internshipJobs)
+
 @app.route("/updateInternship")
 def updateInternship():
     studEmail = session["studEmail"]
@@ -399,7 +433,6 @@ def RequestInternCompany():
         connection.close()
         
     return redirect("/updateInternship")
-    
 
 @app.route("/studentProfile")
 def studentProfile():
