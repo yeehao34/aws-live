@@ -209,7 +209,6 @@ def studentTask():
 
     return render_template("studentTask.html", student=student, pdngTask=pendingTask, cptdTask=completedTask)
 
-
 @app.route("/viewTask")
 def viewTask():
     studEmail = session["studEmail"]
@@ -249,7 +248,6 @@ def viewTask():
 
     return render_template("/viewTask.html", student=student, submission=submission, taskViewing=task, submitStatus=submitStatus, success=success)
 
-
 @app.route("/SubmitTask", methods=['GET', 'POST'])
 def SubmitTask():
     submissionId = request.form['submissionId']
@@ -279,11 +277,13 @@ def SubmitTask():
 
     return redirect("/viewTask?submissionId=" + submissionId + "&submissionStatus=submitted")
 
-
 @app.route("/updateInternship")
 def updateInternship():
     studEmail = session["studEmail"]
-
+    student = retrieveStudByEmail(studEmail)
+    studentPersonal = retrieveStudDetailByEmail(studEmail)
+    student = {"name": studentPersonal[0], "studId": student[6],
+               "profilePic": get_object_url(studentPersonal[9])}
     # If student has already submitted internship details, redirect the student to updateInternshipView html
     studentInternship = retrieveInternshipByEmail(studEmail)
     if studentInternship != None:
@@ -299,14 +299,9 @@ def updateInternship():
             studentInternship.parentAckForm)
         studentInternship.indemnityLetter = get_object_url(
             studentInternship.indemnityLetter)
-        return render_template("updateInternshipView.html", studentInternship=studentInternship, success=success)
+        return render_template("updateInternshipView.html", student=student, studentInternship=studentInternship, success=success)
 
     # If student has not submitted
-    student = retrieveStudByEmail(studEmail)
-    studentPersonal = retrieveStudDetailByEmail(studEmail)
-    student = {"name": studentPersonal[0], "studId": student[6],
-               "profilePic": get_object_url(studentPersonal[9])}
-
     # Retrieve all approved companies and approved company requests
     companies = [{"compName": comp[1], "compAddr": comp[5]}
                  for comp in retrieveAllComp() if comp[10] == "Approved"]
@@ -314,9 +309,12 @@ def updateInternship():
                             for comp in retrieveAllCompReq() if comp[3] == "Approved"]
     # Append approved company requests to approved companies
     companies.extend(approvedReqCompanies)
+    
+    requestCompMessage = get_flashed_messages(category_filter=['request-comp-success'])
+    if requestCompMessage:
+        requestCompMessage = requestCompMessage[0]
 
-    return render_template("updateInternship.html", student=student, companies=companies)
-
+    return render_template("updateInternship.html", student=student, companies=companies, requestCompMessage=requestCompMessage)
 
 @app.route("/AddInternship", methods=['POST'])
 def AddInternship():
@@ -372,6 +370,36 @@ def requestCompany():
 
     return render_template("requestCompany.html", student=student)
 
+@app.route("/RequestInternCompany", methods=['POST'])
+def RequestInternCompany():
+    companyName = request.form['comName']
+    companyAddr = request.form['comAddr']
+    studEmail = session["studEmail"]
+    requestStatus = "Pending"
+    
+    seqNo = retrieveSeqNoByTblName(companyRequestTable)
+    reqeustId = "CREQ" + fillLeftZero(4, seqNo)
+    
+    try:
+        connection = create_connection()
+        cursor = connection.cursor()
+        
+        insertCompanyRequest_sql = "INSERT INTO " + companyRequestTable + " (RequestId, CompanyName, CompanyAddress, RequestStatus, StudentEmail) VALUES (%s, %s, %s, %s, %s)"
+        cursor.execute(insertCompanyRequest_sql, (reqeustId, companyName, companyAddr, requestStatus, studEmail))
+        
+        updateReqSeqNo_sql = "UPDATE " + sequenceTable + " SET SEQ_NO = SEQ_NO + 1 WHERE TBL_NAME = '" + companyRequestTable + "'"
+        cursor.execute(updateReqSeqNo_sql)
+        connection.commit()
+        flash("Your request has been submitted successfully. Please wait for admin approval. . You will be notified via email once your company request is updated.", 'request-comp-success')
+    except Exception as e:
+        print(e)
+        connection.rollback()    
+    finally:
+        cursor.close()
+        connection.close()
+        
+    return redirect("/updateInternship")
+    
 
 @app.route("/studentProfile")
 def studentProfile():
