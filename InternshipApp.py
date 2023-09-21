@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, session, flash, get_flashed_messages
 from flask_session import Session
-from datetime import datetime
+from datetime import datetime, time
 from s3_service import uploadToS3, get_object_url
 from Models import *
 from db_connection import create_connection
@@ -40,9 +40,11 @@ def home():
 def render_page(page_name):
     return render_template('%s.html' % page_name)
 
+
 @app.route("/<folder>/<page_name>")
 def render_subFolder_page(folder, page_name):
     return render_template("%s/%s.html" % (folder, page_name))
+
 
 @app.route("/logout")
 def logout():
@@ -50,6 +52,8 @@ def logout():
     return redirect("/")
 
 # --------------------- Student ---------------------------
+
+
 @app.route("/studentRegister")
 def studentRegister():
 
@@ -171,7 +175,7 @@ def studentDashboard():
     if internship != None:
         internship = Internship(internship[0], internship[1], internship[2], internship[3],
                                 internship[4], internship[5], internship[6], internship[7], internship[8])
-    
+
     pendingTaskCount = 0
     approvedTaskCount = 0
     rejectTaskCount = 0
@@ -182,7 +186,6 @@ def studentDashboard():
             approvedTaskCount += 1
         elif submission[1] == "Rejected":
             rejectTaskCount += 1
-
 
     return render_template("studentHome.html", student=student, internship=internship, pendingTaskCount=pendingTaskCount, approvedTaskCount=approvedTaskCount, rejectedTaskCount=rejectTaskCount)
 
@@ -206,7 +209,8 @@ def studentTask():
         print(studentTask)
         task = retrieveTaskById(studentTask.taskId)
         print(task)
-        task = Task(task[0], task[1], task[2], task[3], task[4], task[5])
+        task = Task(task[0], task[1], task[2],
+                    task[3], task[4], task[5], task[6])
         studentTask.taskName = task.taskName
         studentTask.taskDesc = task.taskDesc
         studentTask.dueDate = task.dueDate.strftime("%d, %b %H:%M %p")
@@ -220,6 +224,7 @@ def studentTask():
             completedTask.append(studentTask)
 
     return render_template("studentTask.html", student=student, pdngTask=pendingTask, cptdTask=completedTask)
+
 
 @app.route("/viewTask")
 def viewTask():
@@ -260,6 +265,7 @@ def viewTask():
 
     return render_template("/viewTask.html", student=student, submission=submission, taskViewing=task, submitStatus=submitStatus, success=success)
 
+
 @app.route("/SubmitTask", methods=['GET', 'POST'])
 def SubmitTask():
     submissionId = request.form['submissionId']
@@ -289,6 +295,7 @@ def SubmitTask():
 
     return redirect("/viewTask?submissionId=" + submissionId + "&submissionStatus=submitted")
 
+
 @app.route("/jobFinding")
 def jobFinding():
     studEmail = session["studEmail"]
@@ -297,9 +304,9 @@ def jobFinding():
     studentPersonal = retrieveStudDetailByEmail(studEmail)
     student = {"name": studentPersonal[0], "studId": student[6],
                "profilePic": get_object_url(studentPersonal[9])}
-    
+
     internshipJobs = []
-    
+
     # Retrieve all jobs and companies in one query
     jobs = retrieveAllJob()
     companies = {comp[0]: Company(*comp) for comp in retrieveAllComp()}
@@ -316,34 +323,33 @@ def jobFinding():
             else:
                 job.companyLogo = ""
         internshipJobs.append(job)
-    
+
     success = get_flashed_messages(category_filter=['apply-job-success'])
     if success:
         success = success[0]
-        
+
     jobApplied = get_flashed_messages(category_filter=['applied-job'])
     if jobApplied:
         jobApplied = jobApplied[0]
-    
-    
+
     internshipSecured = False
     studentInternship = retrieveInternshipByEmail(studEmail)
     if studentInternship != None:
         internshipSecured = True
 
-
     return render_template("jobFinding.html", student=student, internshipJobs=internshipJobs, success=success, jobApplied=jobApplied, internshipSecured=internshipSecured)
+
 
 @app.route("/ApplyJob")
 def ApplyJob():
     studEmail = session["studEmail"]
     jobId = request.args.get("jobId")
-    
+
     seqNo = retrieveSeqNoByTblName(internshipApplicationTable)
     applicationId = "APP" + fillLeftZero(4, seqNo)
     applicationStatus = "Pending"
-    
-    # Check if student has already applied for this job  
+
+    # Check if student has already applied for this job
     for application in retrieveAllInternshipApplication():
         if application[6] == studEmail and application[5] == jobId:
             flash("You have already applied for this job before.", 'applied-job')
@@ -351,35 +357,40 @@ def ApplyJob():
     try:
         connection = create_connection()
         cursor = connection.cursor()
-        
-        updateInternshipAppSeqNo_sql = "UPDATE " + sequenceTable + " SET SEQ_NO = SEQ_NO + 1 WHERE TBL_NAME = '" + internshipApplicationTable + "'"
+
+        updateInternshipAppSeqNo_sql = "UPDATE " + sequenceTable + \
+            " SET SEQ_NO = SEQ_NO + 1 WHERE TBL_NAME = '" + internshipApplicationTable + "'"
         cursor.execute(updateInternshipAppSeqNo_sql)
-        insertInternshipApp_sql = "INSERT INTO " + internshipApplicationTable + " (ApplicationId, ApplicationStatus, ApplyDate, JobId, StudentEmail) VALUES (%s, %s, %s, %s, %s)"
-        cursor.execute(insertInternshipApp_sql, (applicationId, applicationStatus, datetime.now(), jobId, studEmail))
-        
+        insertInternshipApp_sql = "INSERT INTO " + internshipApplicationTable + \
+            " (ApplicationId, ApplicationStatus, ApplyDate, JobId, StudentEmail) VALUES (%s, %s, %s, %s, %s)"
+        cursor.execute(insertInternshipApp_sql, (applicationId,
+                       applicationStatus, datetime.now(), jobId, studEmail))
+
         connection.commit()
-        
-        flash("Your job application has been submitted successfully.", 'apply-job-success')
+
+        flash("Your job application has been submitted successfully.",
+              'apply-job-success')
     except Exception as e:
         print(e)
         connection.rollback()
     finally:
         cursor.close()
         connection.close()
-    
+
     return redirect("/jobFinding")
+
 
 @app.route("/studentJob")
 def studentJob():
     studEmail = session["studEmail"]
-    
+
     student = retrieveStudByEmail(studEmail)
     studentPersonal = retrieveStudDetailByEmail(studEmail)
     student = {"name": studentPersonal[0], "studId": student[6],
-                "profilePic": get_object_url(studentPersonal[9])}
-    
+               "profilePic": get_object_url(studentPersonal[9])}
+
     jobsApplied = []
-    
+
     for application in retrieveStudApplication(studEmail):
         application = InternshipApplication(*application)
         job = retrieveJobById(application.jobId)
@@ -389,12 +400,15 @@ def studentJob():
         application.jobTitle = job.jobTitle
         application.allowance = job.allowance
         application.companyName = company.companyName
-        application.applyDate = application.applyDate.strftime("%d, %b %H:%M %p")
+        application.applyDate = application.applyDate.strftime(
+            "%d, %b %H:%M %p")
         if application.reviewDate != None:
-            application.reviewDate = application.reviewDate.strftime("%d, %b %H:%M %p")
+            application.reviewDate = application.reviewDate.strftime(
+                "%d, %b %H:%M %p")
         jobsApplied.append(application)
-    
+
     return render_template("studentJob.html", student=student, jobsApplied=jobsApplied)
+
 
 @app.route("/updateInternship")
 def updateInternship():
@@ -428,12 +442,14 @@ def updateInternship():
                             for comp in retrieveAllCompReq() if comp[3] == "Approved"]
     # Append approved company requests to approved companies
     companies.extend(approvedReqCompanies)
-    
-    requestCompMessage = get_flashed_messages(category_filter=['request-comp-success'])
+
+    requestCompMessage = get_flashed_messages(
+        category_filter=['request-comp-success'])
     if requestCompMessage:
         requestCompMessage = requestCompMessage[0]
 
     return render_template("updateInternship.html", student=student, companies=companies, requestCompMessage=requestCompMessage)
+
 
 @app.route("/AddInternship", methods=['POST'])
 def AddInternship():
@@ -489,35 +505,40 @@ def requestCompany():
 
     return render_template("requestCompany.html", student=student)
 
+
 @app.route("/RequestInternCompany", methods=['POST'])
 def RequestInternCompany():
     companyName = request.form['comName']
     companyAddr = request.form['comAddr']
     studEmail = session["studEmail"]
     requestStatus = "Pending"
-    
+
     seqNo = retrieveSeqNoByTblName(companyRequestTable)
     reqeustId = "CREQ" + fillLeftZero(4, seqNo)
-    
+
     try:
         connection = create_connection()
         cursor = connection.cursor()
-        
-        insertCompanyRequest_sql = "INSERT INTO " + companyRequestTable + " (RequestId, CompanyName, CompanyAddress, RequestStatus, StudentEmail) VALUES (%s, %s, %s, %s, %s)"
-        cursor.execute(insertCompanyRequest_sql, (reqeustId, companyName, companyAddr, requestStatus, studEmail))
-        
-        updateReqSeqNo_sql = "UPDATE " + sequenceTable + " SET SEQ_NO = SEQ_NO + 1 WHERE TBL_NAME = '" + companyRequestTable + "'"
+
+        insertCompanyRequest_sql = "INSERT INTO " + companyRequestTable + \
+            " (RequestId, CompanyName, CompanyAddress, RequestStatus, StudentEmail) VALUES (%s, %s, %s, %s, %s)"
+        cursor.execute(insertCompanyRequest_sql, (reqeustId,
+                       companyName, companyAddr, requestStatus, studEmail))
+
+        updateReqSeqNo_sql = "UPDATE " + sequenceTable + \
+            " SET SEQ_NO = SEQ_NO + 1 WHERE TBL_NAME = '" + companyRequestTable + "'"
         cursor.execute(updateReqSeqNo_sql)
         connection.commit()
         flash("Your request has been submitted successfully. Please wait for admin approval. . You will be notified via email once your company request is updated.", 'request-comp-success')
     except Exception as e:
         print(e)
-        connection.rollback()    
+        connection.rollback()
     finally:
         cursor.close()
         connection.close()
-        
+
     return redirect("/updateInternship")
+
 
 @app.route("/studentProfile")
 def studentProfile():
@@ -1048,6 +1069,7 @@ def adminDashboard():
                            allCompanyReqCount=allCompanyReqCount, allPendingCompCount=allPendingCompCount,
                            allPendingCompReqCount=allPendingCompReqCount, allTasksCount=allTasksCount)
 
+
 @app.route("/adminCompanyRequest")
 def adminCompanyRequest():
     adminId = session['adminId']
@@ -1058,45 +1080,253 @@ def adminCompanyRequest():
             break
     compReqList = []
     for compReq in retrieveAllCompReq():
-        compReq = CompanyRequest(compReq[0], compReq[1], compReq[2], compReq[3], compReq[4], compReq[5])
+        compReq = CompanyRequest(
+            compReq[0], compReq[1], compReq[2], compReq[3], compReq[4], compReq[5])
         compReqList.append(compReq)
-    
+
     success = get_flashed_messages(category_filter=['req-approved'])
     if success:
         success = success[0]
     reject = get_flashed_messages(category_filter=['req-rejected'])
     if reject:
-        reject = reject[0]    
-    
+        reject = reject[0]
+
     return render_template("adminCompanyRequest.html", admin=admin, compReqs=compReqList, success=success, reject=reject)
+
 
 @app.route("/UpdateCompReq")
 def UpdateCompReq():
     adminId = session['adminId']
     requestId = request.args.get('requestId')
     status = request.args.get('status')
-    
+
     try:
         connection = create_connection()
         cursor = connection.cursor()
-        
-        updateCompReq_sql = "UPDATE " + companyRequestTable + " SET RequestStatus = %s, AdminId = %s WHERE RequestId = %s"
+
+        updateCompReq_sql = "UPDATE " + companyRequestTable + \
+            " SET RequestStatus = %s, AdminId = %s WHERE RequestId = %s"
         cursor.execute(updateCompReq_sql, (status, adminId, requestId))
         connection.commit()
         if status == "Approved":
             flash("Company request has been approved", 'req-approved')
         elif status == "Rejected":
             flash("Company request has been rejected", 'req-rejected')
-            
+
     except Exception as e:
         print(e)
-        connection.rollback()        
+        connection.rollback()
     finally:
         cursor.close()
         connection.close()
-    
-    
+
     return redirect("/adminCompanyRequest")
+
+
+@app.route("/adminTaskManage")
+def adminTaskManage():
+    adminId = session['adminId']
+    allAdmin = retrieveAllAdmin()
+    for admin in allAdmin:
+        if admin[0] == adminId:
+            admin = Admin(admin[0], admin[1], admin[2], admin[3], admin[4])
+            break
+
+    taskList = []
+    for task in retrieveAllTask():
+        task = Task(task[0], task[1], task[2], datetime.strftime(
+            task[3], '%Y-%m-%d'), task[4], task[5], task[6])
+
+        if task.assignTo == "Diploma and Degree":
+            task.diploma = "Y"
+            task.degree = "Y"
+        else:
+            task.diploma = "Y" if "Diploma" in task.assignTo else "N"
+            task.degree = "Y" if "Degree" in task.assignTo else "N"
+
+        taskList.append(task)
+
+    success = get_flashed_messages(category_filter=['task-added'])
+    if success:
+        success = success[0]
+
+    successDelete = get_flashed_messages(category_filter=['task-deleted'])
+    if successDelete:
+        successDelete = successDelete[0]
+
+    return render_template("adminTaskManage.html", admin=admin, tasks=taskList, successAdd=success, successDelete=successDelete)
+
+
+@app.route("/adminAddTask")
+def adminAddTask():
+    adminId = session['adminId']
+    allAdmin = retrieveAllAdmin()
+    for admin in allAdmin:
+        if admin[0] == adminId:
+            admin = Admin(admin[0], admin[1], admin[2], admin[3], admin[4])
+            break
+
+    return render_template("adminAddTask.html", admin=admin)
+
+
+@app.route("/adminTaskViewEdit")
+def adminTaskViewEdit():
+    adminId = session['adminId']
+    allAdmin = retrieveAllAdmin()
+    for admin in allAdmin:
+        if admin[0] == adminId:
+            admin = Admin(admin[0], admin[1], admin[2], admin[3], admin[4])
+            break
+
+    taskId = request.args.get('taskId')
+
+    task = retrieveTaskById(taskId)
+    task = Task(task[0], task[1], task[2], datetime.strftime(
+        task[3], '%Y-%m-%d'), task[4], task[5], task[6])
+    task.attachmentURL = get_object_url(task.attachmentURL)
+
+    success = get_flashed_messages(category_filter=['task-updated'])
+    if success:
+        success = success[0]
+
+    return render_template("adminTaskViewEdit.html", admin=admin, task=task, success=success)
+
+
+@app.route("/UpdateTask", methods=['POST'])
+def UpdateTask():
+
+    taskName = request.form['taskTitle']
+    taskDueDate = request.form['taskDueDate']
+    attachment = request.files['attachment']
+    taskDesc = request.form['taskDesc']
+    taskId = request.form['taskId']
+
+    dueDate = datetime.strptime(taskDueDate, '%Y-%m-%d')
+    desired_time = time(23, 59, 59)
+    taskDueDate = datetime.combine(dueDate.date(), desired_time)
+
+    try:
+        updateTask_sql = "UPDATE " + taskTable + \
+            " SET TaskName = %s, TaskDescription = %s, DueDate = %s, AttachmentName = %s, AttachmentURL = %s WHERE TaskId = %s"
+        connection = create_connection()
+        cursor = connection.cursor()
+
+        attachmentName = attachment.filename
+        attachmentURL = "Attachment/" + taskId + "/" + attachmentName
+        uploadToS3(attachment, attachmentURL)
+        cursor.execute(updateTask_sql, (taskName, taskDesc,
+                       taskDueDate, attachmentName, attachmentURL, taskId))
+
+        connection.commit()
+        flash("Task has been updated successfully", 'task-updated')
+    except Exception as e:
+        print(e)
+        connection.rollback()
+    finally:
+        cursor.close()
+        connection.close()
+
+    return redirect("/adminTaskViewEdit?taskId=" + taskId)
+
+
+@app.route("/DeleteTask")
+def DeleteTask():
+    taskId = request.args.get('taskId')
+    try:
+        connection = create_connection()
+        cursor = connection.cursor()
+        deleteSubmission_sql = "DELETE FROM " + submissionTable + " WHERE TaskId = %s"
+        cursor.execute(deleteSubmission_sql, (taskId,))
+        deleteTask_sql = "DELETE FROM " + taskTable + " WHERE TaskId = %s"
+        cursor.execute(deleteTask_sql, (taskId,))
+        connection.commit()
+        flash("Task has been deleted successfully", 'task-deleted')
+    except Exception as e:
+        print(e)
+        connection.rollback()
+    finally:
+        cursor.close()
+        connection.close()
+
+    return redirect("/adminTaskManage")
+
+
+@app.route("/adminCompanyManage")
+def adminCompanyManage():
+    adminId = session['adminId']
+    allAdmin = retrieveAllAdmin()
+    for admin in allAdmin:
+        if admin[0] == adminId:
+            admin = Admin(admin[0], admin[1], admin[2], admin[3], admin[4])
+            break
+
+    companies = []
+    for company in retrieveAllComp():
+        company = Company(company[0], company[1], company[2], company[3], company[4], company[5],
+                          company[6], company[7], company[8], company[9], company[10], company[11], company[12])
+        company.logo = get_object_url(company.logo)
+        companies.append(company)
+
+    return render_template("adminCompanyManage.html", admin=admin, companyList=companies)
+
+@app.route("/adminCompanyViewUpdate")
+def adminCompanyViewUpdate():
+    adminId = session['adminId']
+    allAdmin = retrieveAllAdmin()
+    for admin in allAdmin:
+        if admin[0] == adminId:
+            admin = Admin(admin[0], admin[1], admin[2], admin[3], admin[4])
+            break
+
+    compId = request.args.get('compId')
+    company = retrieveCompById(compId)
+    company = Company(company[0], company[1], company[2], company[3], company[4], company[5],
+                        company[6], company[7], company[8], company[9], company[10], company[11], company[12])
+    company.logo = get_object_url(company.logo)
+    print(company.logo)
+    company.ssmCert = get_object_url(company.ssmCert)
+    
+    personInCharge = retrievePICById(company.picId)
+    personInCharge = CompanyPersonnel(personInCharge[0], personInCharge[1], personInCharge[2], personInCharge[3], personInCharge[4])
+    
+    
+    success = get_flashed_messages(category_filter=['comp-approved'])
+    if success:
+        success = success[0]
+        
+    reject = get_flashed_messages(category_filter=['comp-rejected'])
+    if reject:
+        reject = reject[0]
+        
+    return render_template("adminCompanyViewUpdate.html", admin=admin, company=company, pic=personInCharge, approve=success, reject=reject)
+
+
+@app.route("/UpdateCompanyRegistration")
+def UpdateCompanyRegistration():
+    compId = request.args.get('companyId')
+    status = request.args.get('companyStatus')
+
+    try:
+        connection = create_connection()
+        cursor = connection.cursor()
+
+        updateCompany_sql = "UPDATE " + companyTable + \
+            " SET CompanyStatus = %s WHERE CompanyId = %s"
+        cursor.execute(updateCompany_sql, (status, compId))
+        connection.commit()
+        if status == "Approved":
+            flash("Company registration has been approved", 'comp-approved')
+        elif status == "Rejected":
+            flash("Company registration has been rejected", 'comp-rejected')
+
+    except Exception as e:
+        print(e)
+        connection.rollback()
+    finally:
+        cursor.close()
+        connection.close()
+
+    return redirect("/adminCompanyViewUpdate?compId=" + compId)
 
 @app.route("/adminProfile")
 def adminProfile():
@@ -1147,7 +1377,11 @@ def AddTask():
     # Task Table
     taskTitle = request.form['taskTitle']
     taskDesc = request.form['taskDesc']
-    taskDeadline = request.form['taskDeadline']
+    taskDeadline = request.form['taskDueDate']
+    dueDate = datetime.strptime(taskDeadline, '%Y-%m-%d')
+    desired_time = time(23, 59, 59)
+    taskDeadline = datetime.combine(dueDate.date(), desired_time)
+
     print(taskDeadline)
     # Attachment Table (only 1 file)
     attachment = request.files['attachment']
@@ -1155,18 +1389,22 @@ def AddTask():
     allStudents = retrieveAllStud()
 
     # Get this tasks belongs to which level of students (diploma/degree/both)
-    openFor = request.form['openFor']
+    openFor = request.form['assignTo']
     # by default, set these 2 to "N"
     diploma = "N"
     degree = "N"
+    assignTo = ""
 
     if openFor == "diploma":
         diploma = "Y"
+        assignTo = "Diploma"
     elif openFor == "degree":
         degree = "Y"
+        assignTo = "Degree"
     elif openFor == "diplomaAndDegree":
         diploma = "Y"
         degree = "Y"
+        assignTo = "Diploma and Degree"
 
     try:
         connection = create_connection()
@@ -1175,27 +1413,16 @@ def AddTask():
         taskSeqNo = retrieveSeqNoByTblName(taskTable)
         taskId = "TK" + fillLeftZero(4, taskSeqNo)
         insertTask_sql = "INSERT INTO " + \
-            taskTable + " VALUES (%s, %s, %s, %s)"
-        cursor.execute(
-            insertTask_sql, (taskId, taskTitle, taskDesc, taskDeadline))
-        # Insert Attachment
-        insertAttachment_sql = "INSERT INTO " + \
-            attachmentTable + " VALUES (%s, %s, %s, %s)"
-        attachSeqNo = retrieveSeqNoByTblName(attachmentTable)
-        attachmentId = "A" + fillLeftZero(5, attachSeqNo)
+            taskTable + " VALUES (%s, %s, %s, %s, %s, %s, %s)"
         attachmentName = attachment.filename
-        print(attachment.filename)
-        attachmentURL = "Attachment/" + attachmentId + "/" + attachmentName
+        attachmentURL = "Attachment/" + taskId + "/" + attachmentName
         uploadToS3(attachment, attachmentURL)
-        cursor.execute(insertAttachment_sql, (attachmentId,
-                       attachmentName, attachmentURL, taskId))
+        cursor.execute(
+            insertTask_sql, (taskId, taskTitle, taskDesc, taskDeadline, attachmentName, attachmentURL, assignTo))
         # Update task sequence number and attachment sequence number
         updateTaskSeq_sql = "UPDATE " + sequenceTable + \
             " SET SEQ_NO = SEQ_NO + 1 WHERE TBL_NAME = '" + taskTable + "'"
-        updateAttchmentSeq_sql = "UPDATE " + sequenceTable + \
-            " SET SEQ_NO = SEQ_NO + 1 WHERE TBL_NAME = '" + attachmentTable + "'"
         cursor.execute(updateTaskSeq_sql)
-        cursor.execute(updateAttchmentSeq_sql)
 
         # Create Submission for every students that involved in the task
         insertSubmission_sql = "INSERT INTO " + submissionTable + \
@@ -1217,6 +1444,7 @@ def AddTask():
 
         # Commit the transaction
         connection.commit()
+        flash("Task has been added successfully and assigned to students", 'task-added')
     except Exception as e:
         print(e)
         connection.rollback()
@@ -1224,8 +1452,7 @@ def AddTask():
         cursor.close()
         connection.close()
 
-    flash("Task has been added successfully and assigned to students", 'task-added')
-    return redirect("/adminTask")
+    return redirect("/adminTaskManage")
 # --------------------- Admin ---------------------------
 
 

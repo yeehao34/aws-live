@@ -21,9 +21,9 @@
         {% set activePage = 'task' %}
         {% include "adminSidebar.html" %}
         <div id="main" class='layout-navbar'>
-            {# include "adminHeader.html" #}
+            {% include "adminHeader.html" %}
             <div id="main-content">
-                <form class="form" id="newTaskForm" data-parsley-validate action="" method="POST"
+                <form class="form" id="newTaskForm" data-parsley-validate action="/AddTask" method="POST"
                     enctype="multipart/form-data">
 
                     <div class="page-heading">
@@ -112,7 +112,7 @@
                                                 <label for="taskDesc" class="form-label">Task Description</label>
                                                 <textarea class="form-control" id="taskDesc" rows="8"
                                                     placeholder="Enter Task Description here. e.g: This task is to create a progress report for the month of January 2022."
-                                                    name="jobDesc" data-parsley-required="true"></textarea>
+                                                    name="taskDesc" data-parsley-required="true"></textarea>
                                             </div>
                                         </div>
                                     </div>

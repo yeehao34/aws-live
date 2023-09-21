@@ -85,13 +85,14 @@ class InternshipApplication:
         self.studentEmail = studentEmail
 
 class Task:
-    def __init__(self, taskId, taskName, taskDesc, dueDate, attachmentName, attachmentURL,):
+    def __init__(self, taskId, taskName, taskDesc, dueDate, attachmentName, attachmentURL, assignTo):
         self.taskId = taskId
         self.taskName = taskName
         self.taskDesc = taskDesc
         self.dueDate = dueDate
         self.attachmentName = attachmentName
         self.attachmentURL = attachmentURL
+        self.assignTo = assignTo
 
 class Submission:
     # status is the approved/reject by university supervisor
