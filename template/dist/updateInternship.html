@@ -12,6 +12,7 @@
     <link rel="shortcut icon" href="assets/images/logo/favicon.png" type="image/png">
     <link rel="stylesheet" href="assets/extensions/choices.js/public/assets/styles/choices.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/extensions/sweetalert2/sweetalert2.min.css">
 
 
     <style>
@@ -26,6 +27,12 @@
 
         .theme-dark .select2-results .select2-results__options {
             background-color: #435ebe;
+        }
+
+        .theme-dark .swal2-success-circular-line-right,
+        .theme-dark .swal2-success-circular-line-left,
+        .theme-dark .swal2-success-fix {
+            background-color: #1e1e2d !important;
         }
     </style>
 </head>
@@ -78,7 +85,7 @@
                                                         <label for="compAddr" class="form-label">Company Address</label>
                                                         <textarea class="form-control" name="compAddr" rows="3"
                                                             disabled></textarea>
-                                                            <input type="hidden" name="companyAddr" />
+                                                        <input type="hidden" name="companyAddr" />
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6 col-12">
@@ -145,8 +152,9 @@
                                                         </div>
                                                     </div>
 
-                                                    <input type="file" id="comAcceptance" class="form-control" accept="application/pdf"
-                                                        name="comAcceptance" data-parsley-required="true" />
+                                                    <input type="file" id="comAcceptance" class="form-control"
+                                                        accept="application/pdf" name="comAcceptance"
+                                                        data-parsley-required="true" />
                                                 </div>
 
                                             </div>
@@ -163,8 +171,9 @@
                                                                     Template</a></span>
                                                         </div>
                                                     </div>
-                                                    <input type="file" id="parentForm" class="form-control" accept="application/pdf"
-                                                        name="parentForm" data-parsley-required="true" />
+                                                    <input type="file" id="parentForm" class="form-control"
+                                                        accept="application/pdf" name="parentForm"
+                                                        data-parsley-required="true" />
                                                 </div>
                                             </div>
                                             <div class="row mt-3">
@@ -180,8 +189,8 @@
                                                                     Template</a></span>
                                                         </div>
                                                     </div>
-                                                    <input type="file" id="letter" class="form-control" name="letter" accept="application/pdf"
-                                                        data-parsley-required="true" />
+                                                    <input type="file" id="letter" class="form-control" name="letter"
+                                                        accept="application/pdf" data-parsley-required="true" />
                                                 </div>
                                             </div>
                                         </div>
@@ -216,6 +225,8 @@
     <script src="assets/extensions/choices.js/public/assets/scripts/choices.js"></script>
     <script src="assets/js/pages/form-element-select.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="assets/extensions/sweetalert2/sweetalert2.min.js"></script>
+    <script src="assets/js/pages/sweetalert2.js"></script>
 
 
     <script>
@@ -254,8 +265,17 @@
             });
         });
 
-
     </script>
+
+    {% if requestCompMessage %}
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Request Submitted',
+            text: '{{requestCompMessage}}'
+        })
+    </script>
+    {% endif %}
 
 </body>
 

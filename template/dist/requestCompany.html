@@ -30,15 +30,16 @@
                         <div class="row">
                             <div class="order-md-1 order-last">
                                 <h3>Request External Company</h3>
-                                <p class="text-subtitle text-muted">Your company will be visible in the selection once your request is approved by the ITP committee.</p>
+                                <p class="text-subtitle text-muted">Your company will be visible in the selection once
+                                    your request is approved by the ITP committee.</p>
                             </div>
                         </div>
                     </div>
                     <section class="section">
                         <div class="page-content">
                             <div class="row">
-                                <form class="form" id="companyRequestForm" data-parsley-validate action=""
-                                    method="POST" enctype="multipart/form-data">
+                                <form class="form" id="companyRequestForm" data-parsley-validate
+                                    action="/RequestInternCompany" method="POST">
                                     <div class="card">
                                         <div class="card-header">
                                             <h4>External Company Information</h4>
@@ -49,38 +50,19 @@
                                                     <div class="form-group mandatory">
                                                         <label for="comName" class="form-label">Company Name</label>
                                                         <input type="text" name="comName" class="form-control"
-                                                            placeholder="Company Name"
-                                                            data-parsley-required="true" />
+                                                            placeholder="Company Name" data-parsley-required="true" />
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6 col-12">
                                                     <div class="form-group mandatory">
                                                         <label for="comAddr" class="form-label">Company Address</label>
-                                                        <textarea class="form-control" name="comAddr" rows="3" data-parsley-required="true"></textarea>
+                                                        <textarea class="form-control" name="comAddr" rows="3"
+                                                            data-parsley-required="true"></textarea>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <h4>Requester Information</h4>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-md-6 col-12">
-                                                    <div class="form-group mandatory">
-                                                        <label for="email" class="form-label">Student Email</label>
-                                                        <input type="email" name="email" class="form-control"
-                                                            placeholder="eg: xxx-xx@student.tarc.edu.my"
-                                                            data-parsley-required="true" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
                                     <div class="row">
                                         <div class="col-12 d-flex justify-content-end">
                                             <button type="submit" class="btn btn-primary me-1 mb-1">
