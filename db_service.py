@@ -87,6 +87,24 @@ def retrieveAllCompReq():
     conn.close()
     return rows
 
+def retrieveAllInternshipApplication():
+    conn = create_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM " + internshipApplicationTable)
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return rows
+
+def retrieveStudApplication(studEmail):
+    conn = create_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM " + internshipApplicationTable + " WHERE StudentEmail = %s", (studEmail,))
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return rows
+
 def retrieveTaskById(taskId):
     row = None
     try:

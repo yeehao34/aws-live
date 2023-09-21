@@ -12,6 +12,14 @@
     <link rel="shortcut icon" href="assets/images/logo/favicon.png" type="image/png">
     <link rel="stylesheet" href="assets/extensions/sweetalert2/sweetalert2.min.css">
 
+    <style>
+        .theme-dark .swal2-success-circular-line-right,
+        .theme-dark .swal2-success-circular-line-left,
+        .theme-dark .swal2-success-fix {
+            background-color: #1e1e2d !important;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -20,7 +28,7 @@
         {% set activePage = "jobFinding" %}
         {% include "studentSidebar.html" %}
         <div id="main" class='layout-navbar'>
-            {# include "studentHeader.html" #}
+            {% include "studentHeader.html" %}
             <div id="main-content">
 
                 <div class="page-heading">
@@ -125,7 +133,8 @@
                                         <i data-feather="x"></i>
                                     </button>
                                 </div>
-                                <form action="">
+                                <form id="myForm" action="/ApplyJob" method="GET">
+                                    <input type="hidden" name="jobId" id="jobId" />
                                     <div class="modal-body">
                                         <div class="row d-flex justify-content-center my-3">
                                             <div class="col-12 col-lg-4 "><img class="card-img-top" id="logoDisplay" />
@@ -143,7 +152,8 @@
                                         </div>
                                         <div class="row my-3">
                                             <h6 class="card-title">Job Description </h6>
-                                            <p id="jobDescriptionDisplay" class="card-text"></p>
+                                            <p id="jobDescriptionDisplay" class="card-text"
+                                                style="white-space: pre-line;"></p>
                                         </div>
                                         <div class="row my-3">
                                             <div class="col-12 col-lg-4">
@@ -201,8 +211,28 @@
     <script src="assets/extensions/sweetalert2/sweetalert2.min.js"></script>
     <script src="assets/js/pages/sweetalert2.js"></script>
 
+    {% if success %}
     <script>
+        Swal.fire(
+            'Applied!',
+            `{{success}}`,
+            //'You have applied this job.',
+            'success'
+        )
+    </script>
+    {% endif %}
 
+    {% if jobApplied %}
+    <script>
+        Swal.fire(
+            'Job Reapplication',
+            `{{jobApplied}}`,
+            'error'
+        )
+    </script>
+    {% endif %}
+
+    <script>
         const value = document.querySelector("#value");
         const input = document.querySelector("#allowance");
         value.textContent = input.value;
@@ -210,77 +240,24 @@
             value.textContent = event.target.value;
         });
 
-        //define a list of job object with job id, job title, job description, job allowance, working day, working hour, open for
-        var jobList = [{
-            id: 1,
-            title: "Software Engineer",
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl vitae aliquam ultricies, nunc nisl ultricies nunc, vitae aliquam nisl nisl vitae nisl. Donec euismod, nisl vitae aliquam ultricies, nunc nisl ultricies nunc, vitae aliquam nisl nisl vitae nisl.",
-            allowance: 1000,
-            workingDay: "Monday - Friday",
-            workingHour: "9am - 5pm",
-            diploma: "Y",
-            degree: "Y",
-            accessory: "None",
-            accommodation: "Y",
-            company: "TAR UC",
-            companyLogo: "assets/images/logo/tarumt.png"
-        },
-        {
-            id: 2,
-            title: "Software Engineer 2",
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl vitae aliquam ultricies, nunc nisl ultricies nunc, vitae aliquam nisl nisl vitae nisl. Donec euismod, nisl vitae aliquam ultricies, nunc nisl ultricies nunc, vitae aliquam nisl nisl vitae nisl.",
-            allowance: 900,
-            workingDay: "Monday - Friday",
-            workingHour: "9am - 5pm",
-            diploma: "Y",
-            degree: "Y",
-            accessory: "Laptop, Desktop",
-            accommodation: "Y",
-            company: "TAR UC",
-            companyLogo: "assets/images/logo/tarumt.png"
-        },
-        {
-            id: 3,
-            title: "Software Engineer 3",
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl vitae aliquam ultricies, nunc nisl ultricies nunc, vitae aliquam nisl nisl vitae nisl. Donec euismod, nisl vitae aliquam ultricies, nunc nisl ultricies nunc, vitae aliquam nisl nisl vitae nisl.",
-            allowance: 300,
-            workingDay: "Monday - Friday",
-            workingHour: "9am - 5pm",
-            diploma: "Y",
-            degree: "Y",
-            accessory: "None",
-            accommodation: "Y",
-            company: "TAR UC",
-            companyLogo: "assets/images/logo/tarumt.png"
-        },
-        {
-            id: 4,
-            title: "Software Tester",
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl vitae aliquam ultricies, nunc nisl ultricies nunc, vitae aliquam nisl nisl vitae nisl. Donec euismod, nisl vitae aliquam ultricies, nunc nisl ultricies nunc, vitae aliquam nisl nisl vitae nisl.",
-            allowance: 7000,
-            workingDay: "Monday - Friday",
-            workingHour: "9am - 5pm",
-            diploma: "Y",
-            degree: "Y",
-            accessory: "Laptop, Desktop",
-            accommodation: "Y",
-            company: "TAR UC",
-            companyLogo: "assets/images/logo/tarumt.png"
-        },
-        {
-            id: 5,
-            title: "Quality tester",
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl vitae aliquam ultricies, nunc nisl ultricies nunc, vitae aliquam nisl nisl vitae nisl. Donec euismod, nisl vitae aliquam ultricies, nunc nisl ultricies nunc, vitae aliquam nisl nisl vitae nisl.",
-            allowance: 600,
-            workingDay: "Monday - Friday",
-            workingHour: "9am - 5pm",
-            diploma: "Y",
-            degree: "N",
-            accessory: "Laptop, Desktop",
-            accommodation: "Y",
-            company: "TAR UC",
-            companyLogo: "assets/images/logo/tarumt.png"
-        }];
+        var jobList = [];
+        {% for job in internshipJobs %}
+        jobList.push({
+            id: `{{job.jobId}}`,
+            title: `{{job.jobTitle}}`,
+            description: `{{job.jobDesc}}`,
+            allowance: `{{job.allowance}}`,
+            workingDay: `{{job.workingDay}}`,
+            workingHour: `{{job.workingHour}}`,
+            diploma: `{{job.diploma}}`,
+            degree: `{{job.degree}}`,
+            accessory: `{{job.accessoryProvide}}`,
+            accommodation: `{{job.accommodation}}`,
+            company: `{{job.companyName}}`,
+            companyLogo: `{{job.companyLogo}}`,
+        })
+        {% endfor %}
+        console.log(jobList);
 
         //default, call displayJob function to display all job
         for (var i = 0; i < jobList.length; i++) {
@@ -288,14 +265,16 @@
         }
 
         //from job Array, find min and max allowance
-        var minAllowance = jobList[0].allowance;
-        var maxAllowance = jobList[0].allowance;
+        var minAllowance = parseInt(jobList[0].allowance);
+        var maxAllowance = parseInt(jobList[0].allowance);
         for (var i = 0; i < jobList.length; i++) {
-            if (jobList[i].allowance < minAllowance) {
-                minAllowance = jobList[i].allowance;
+            if (parseInt(jobList[i].allowance) < minAllowance) {
+                minAllowance = parseInt(jobList[i].allowance);
+                console.log("min allowance : " + minAllowance)
             }
-            if (jobList[i].allowance > maxAllowance) {
-                maxAllowance = jobList[i].allowance;
+            if (parseInt(jobList[i].allowance) > maxAllowance) {
+                maxAllowance = parseInt(jobList[i].allowance);
+                console.log("max allowance : " + maxAllowance)
             }
         }
         //set min and max allowance to input range
@@ -314,7 +293,10 @@
             //filter job list
             for (var i = 0; i < jobList.length; i++) {
                 var job = jobList[i];
-                if (job.title.toLowerCase().includes(jobTitle.toLowerCase()) && job.allowance >= allowance) {
+                console.log("job title : " + job.title)
+                console.log(jobTitle)
+                console.log(jobTitle + " is in " + job.title.toLowerCase().includes(jobTitle.toLowerCase()))
+                if (job.title.toLowerCase().includes(jobTitle.toLowerCase()) && parseInt(job.allowance) >= allowance) {
                     if (openFor == "diploma" && job.diploma == "Y") {
                         displayJob(job);
                     }
@@ -416,6 +398,7 @@
                 jobId = jobId.split("?")[1];
                 for (var i = 0; i < jobList.length; i++) {
                     if (jobList[i].id == jobId) {
+                        document.getElementById("jobId").setAttribute("value", jobList[i].id);
                         document.getElementById("logoDisplay").setAttribute("src", jobList[i].companyLogo);
                         document.getElementById("companyDisplay").innerHTML = jobList[i].company;
                         document.getElementById("jobTitleDisplay").innerHTML = jobList[i].title;
@@ -442,6 +425,8 @@
 
             //click apply button, pop up confirmation message with job id displayed
             document.getElementById("apply").addEventListener("click", function () {
+                event.preventDefault();
+                {% if not internshipSecured %}
                 Swal.fire({
                     title: 'Are you sure to apply this job?',
                     text: "You are applying job with job id: " + jobId,
@@ -452,23 +437,26 @@
                     confirmButtonText: 'Yes, apply it!'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        Swal.fire(
-                            'Applied!',
-                            'You have applied this job.',
-                            'success'
-                        )
+                        // Submit the form
+                        document.forms.myForm.method = "GET";
+                        document.forms.myForm.action = "ApplyJob";
+                        document.forms.myForm.submit();
+
                         //dismiss modal
-                        $('#inlineForm').modal('hide');
+                        //$('#inlineForm').modal('hide');
                     }
-                })
+                });
+                {% else %}
+                    Swal.fire({
+                        title: "Internship Placement Secured",
+                        icon: 'error',
+                        text: "You have already secured your internship placement. Please do not submit any more application!"
+                    })
+                {% endif %}
             });
 
 
         });
-
-
-
-
     </script>
 
 </body>

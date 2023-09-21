@@ -51,8 +51,6 @@ def logout():
     return redirect("/")
 
 # --------------------- Student ---------------------------
-
-
 @app.route("/studentRegister")
 def studentRegister():
 
@@ -174,8 +172,20 @@ def studentDashboard():
     if internship != None:
         internship = Internship(internship[0], internship[1], internship[2], internship[3],
                                 internship[4], internship[5], internship[6], internship[7], internship[8])
+    
+    pendingTaskCount = 0
+    approvedTaskCount = 0
+    rejectTaskCount = 0
+    for submission in retrieveStudentSubmissionByEmail(studEmail):
+        if submission[2] == None:
+            pendingTaskCount += 1
+        if submission[1] == "Approved":
+            approvedTaskCount += 1
+        elif submission[1] == "Rejected":
+            rejectTaskCount += 1
 
-    return render_template("studentHome.html", student=student, internship=internship)
+
+    return render_template("studentHome.html", student=student, internship=internship, pendingTaskCount=pendingTaskCount, approvedTaskCount=approvedTaskCount, rejectedTaskCount=rejectTaskCount)
 
 
 @app.route("/studentTask")
@@ -308,8 +318,84 @@ def jobFinding():
                 job.companyLogo = ""
         internshipJobs.append(job)
     
+    success = get_flashed_messages(category_filter=['apply-job-success'])
+    if success:
+        success = success[0]
+        
+    jobApplied = get_flashed_messages(category_filter=['applied-job'])
+    if jobApplied:
+        jobApplied = jobApplied[0]
+    
+    
+    internshipSecured = False
+    studentInternship = retrieveInternshipByEmail(studEmail)
+    if studentInternship != None:
+        internshipSecured = True
 
-    return render_template("jobFinding.html", student=student, internshipJobs=internshipJobs)
+
+    return render_template("jobFinding.html", student=student, internshipJobs=internshipJobs, success=success, jobApplied=jobApplied, internshipSecured=internshipSecured)
+
+@app.route("/ApplyJob")
+def ApplyJob():
+    studEmail = session["studEmail"]
+    jobId = request.args.get("jobId")
+    
+    seqNo = retrieveSeqNoByTblName(internshipApplicationTable)
+    applicationId = "APP" + fillLeftZero(4, seqNo)
+    applicationStatus = "Pending"
+    
+    # Check if student has already applied for this job  
+    for application in retrieveAllInternshipApplication():
+        if application[6] == studEmail and application[5] == jobId:
+            flash("You have already applied for this job before.", 'applied-job')
+            return redirect("/jobFinding")
+    try:
+        connection = create_connection()
+        cursor = connection.cursor()
+        
+        updateInternshipAppSeqNo_sql = "UPDATE " + sequenceTable + " SET SEQ_NO = SEQ_NO + 1 WHERE TBL_NAME = '" + internshipApplicationTable + "'"
+        cursor.execute(updateInternshipAppSeqNo_sql)
+        insertInternshipApp_sql = "INSERT INTO " + internshipApplicationTable + " (ApplicationId, ApplicationStatus, ApplyDate, JobId, StudentEmail) VALUES (%s, %s, %s, %s, %s)"
+        cursor.execute(insertInternshipApp_sql, (applicationId, applicationStatus, datetime.now(), jobId, studEmail))
+        
+        connection.commit()
+        
+        flash("Your job application has been submitted successfully.", 'apply-job-success')
+    except Exception as e:
+        print(e)
+        connection.rollback()
+    finally:
+        cursor.close()
+        connection.close()
+    
+    return redirect("/jobFinding")
+
+@app.route("/studentJob")
+def studentJob():
+    studEmail = session["studEmail"]
+    
+    student = retrieveStudByEmail(studEmail)
+    studentPersonal = retrieveStudDetailByEmail(studEmail)
+    student = {"name": studentPersonal[0], "studId": student[6],
+                "profilePic": get_object_url(studentPersonal[9])}
+    
+    jobsApplied = []
+    
+    for application in retrieveStudApplication(studEmail):
+        application = InternshipApplication(*application)
+        job = retrieveJobById(application.jobId)
+        job = InternshipJob(*job)
+        company = retrieveCompById(job.companyId)
+        company = Company(*company)
+        application.jobTitle = job.jobTitle
+        application.allowance = job.allowance
+        application.companyName = company.companyName
+        application.applyDate = application.applyDate.strftime("%d, %b %H:%M %p")
+        if application.reviewDate != None:
+            application.reviewDate = application.reviewDate.strftime("%d, %b %H:%M %p")
+        jobsApplied.append(application)
+    
+    return render_template("studentJob.html", student=student, jobsApplied=jobsApplied)
 
 @app.route("/updateInternship")
 def updateInternship():

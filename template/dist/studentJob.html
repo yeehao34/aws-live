@@ -21,7 +21,7 @@
         {% set subActivePage = "appliedJob" %}
         {% include "studentSidebar.html" %}
         <div id="main" class='layout-navbar'>
-            {# include "studentHeader.html" #}
+            {% include "studentHeader.html" %}
             <div id="main-content">
                 <div class="page-heading">
                     <div class="page-title">
@@ -73,28 +73,20 @@
     <script src="assets/js/pages/simple-datatables.js"></script>
 
     <script>
-        //define a list of application object with id, job title, allowance, company, apply date, status, review remark, review date
 
-        var applications = [{
-            applicationId: "1",
-            jobTitle: "Software Engineer",
-            allowance: 1000,
-            company: "ABC Company",
-            applyDate: "2021-09-01",
-            status: "Approved",
-            reviewRemark: "Please email your resume to us at companyABC@gmail.com.Please email your resume to us at companyABC@gmail.comPlease email your resume to us at companyABC@gmail.com Please email your resume to us at companyABC@gmail.com",
-            reviewDate: "2022-09-23"
-        },
-        {
-            applicationId: "2",
-            jobTitle: "Software Tester",
-            allowance: 700,
-            company: "ABC Company",
-            applyDate: "2021-09-01",
-            status: "Pending",
-            reviewRemark: "",
-            reviewDate: ""
-        }];
+        var applications = [];
+        {% for applied in jobsApplied %}
+        applications.push({
+            applicationId: `{{applied.applicationId}}`,
+            jobTitle: `{{applied.jobTitle}}`,
+            allowance: parseInt(`{{applied.allowance}}`),
+            company: `{{applied.companyName}}`,
+            applyDate: `{{applied.applyDate}}`,
+            status: `{{applied.applicationStatus}}`,
+            reviewRemark: `{{applied.remarks}}`,
+            reviewDate: `{{applied.reviewDate}}`
+        });
+        {% endfor %}
 
         function dataTablesWrap(data, type, row) {
             return '<div class="text-wrap width-200">' + data + '</div>';

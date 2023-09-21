@@ -68,7 +68,7 @@
         var completedTask = [];
         {% for task in cptdTask %}
         completedTask.push({
-            submissionId: "{{task.taskId}}",
+            submissionId: "{{task.submissionId}}",
             taskTitle: "{{task.taskName}}",
             taskDescription: "{{task.taskDesc}}",
             taskDueDate: "{{task.dueDate}}",
