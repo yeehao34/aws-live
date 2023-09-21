@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITP - Student Dashboard</title>
+
+    <link rel="stylesheet" href="assets/css/main/app.css">
+    <link rel="stylesheet" href="assets/css/main/app-dark.css">
+    <link rel="shortcut icon" href="assets/images/logo/favicon.svg" type="image/x-icon">
+    <link rel="shortcut icon" href="assets/images/logo/favicon.png" type="image/png">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+</head>
+
+<body>
+
+    <div id="app">
+        {# activePage is to determine which item to be active#}
+        {% set activePage = "profile" %}
+        {% set subActivePage = "appliedJob" %}
+        {% include "studentSidebar.html" %}
+        <div id="main" class='layout-navbar'>
+            {# include "studentHeader.html" #}
+            <div id="main-content">
+                <div class="page-heading">
+                    <div class="page-title">
+                        <div class="row">
+                            <div class="order-md-1 order-last">
+                                <h3>Internship Application</h3>
+                                <p class="text-subtitle text-muted">Track your internship application status here.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <section class="section">
+                        <div class="page-content">
+
+                            <div class="card">
+                                <div class="card-body">
+                                    <table id="table1" class="display nowrap" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Job Title</th>
+                                                <th>Allowance</th>
+                                                <th>Company</th>
+                                                <th>Apply Date</th>
+                                                <th>Status</th>
+                                                <th>Review Date</th>
+                                                <th>Review Remark</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+
+
+
+                        </div>
+                    </section>
+                </div>
+
+                {% include "footer.html" %}
+
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/bootstrap.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/extensions/jquery/jquery.min.js"></script>
+    <script src="//cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="assets/js/pages/simple-datatables.js"></script>
+
+    <script>
+        //define a list of application object with id, job title, allowance, company, apply date, status, review remark, review date
+
+        var applications = [{
+            applicationId: "1",
+            jobTitle: "Software Engineer",
+            allowance: 1000,
+            company: "ABC Company",
+            applyDate: "2021-09-01",
+            status: "Approved",
+            reviewRemark: "Please email your resume to us at companyABC@gmail.com.Please email your resume to us at companyABC@gmail.comPlease email your resume to us at companyABC@gmail.com Please email your resume to us at companyABC@gmail.com",
+            reviewDate: "2022-09-23"
+        },
+        {
+            applicationId: "2",
+            jobTitle: "Software Tester",
+            allowance: 700,
+            company: "ABC Company",
+            applyDate: "2021-09-01",
+            status: "Pending",
+            reviewRemark: "",
+            reviewDate: ""
+        }];
+
+        function dataTablesWrap(data, type, row) {
+            return '<div class="text-wrap width-200">' + data + '</div>';
+        }
+
+        //check data empty or not, if empty, return "-" 
+        function checkEmpty(data) {
+            if (data == "") {
+                return "-";
+            } else {
+                return data;
+            }
+        }
+
+        new DataTable('#table1', {
+            data: applications,
+            columns: [
+                { data: 'applicationId' },
+                { data: 'jobTitle', render: dataTablesWrap  },
+                { data: 'allowance' },
+                { data: 'company', render: dataTablesWrap  },
+                { data: 'applyDate' },
+                {
+                    data: function (row) {
+                        if (row.status == "Pending") {
+                            return '<span class="badge bg-warning">Pending</span>';
+                        } else if (row.status == "Approved") {
+                            return '<span class="badge bg-success">Approved</span>';
+                        } else {
+                            return '<span class="badge bg-danger">Rejected</span>';
+                        }
+                    }
+                },
+                { data: 'reviewDate', render: checkEmpty },
+                {
+                    data: function (row) {
+                        if (row.reviewRemark == "") {
+                            return "-";
+                        } else {
+                            if (row.reviewRemark.length > 20) {
+                                return '<div class="text-wrap width-300">' + row.reviewRemark + '</div>';
+                            } else {
+                                return row.reviewRemark;
+                            }
+                        }
+                    }
+                }
+            ]
+        });
+
+    </script>
+
+</body>
+
+</html>
