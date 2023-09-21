@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="assets/css/main/app-dark.css">
     <link rel="shortcut icon" href="assets/images/logo/favicon.svg" type="image/x-icon">
     <link rel="shortcut icon" href="assets/images/logo/favicon.png" type="image/png">
+    <link rel="stylesheet" href="assets/css/shared/iconly.css">
 </head>
 
 <body>
@@ -18,7 +19,7 @@
         {% set activePage = "dashboard" %}
         {% include "companySidebar.html" %}
         <div id="main" class='layout-navbar'>
-           {% include "companyHeader.html" %}
+            {% include "companyHeader.html" %}
             <div id="main-content">
 
                 <div class="page-heading">
@@ -31,6 +32,84 @@
                         </div>
                     </div>
                     <div id="main-content">
+
+                        <div class="row">
+                            <div class="col col-lg-5">
+                                <div class="card">
+                                    <div class="card-body px-4 py-4-5">
+                                        <div class="row">
+                                            <div class="col-lg-2 d-flex justify-content-start ">
+                                                <div class="stats-icon purple mb-2">
+                                                    <i class="iconly-boldProfile"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-9">
+                                                <h6 class="text-muted font-semibold">Total Posted Job Count
+                                                </h6>
+                                                <h6 class="font-extrabold mb-0">10</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col col-lg-5">
+                                <div class="card">
+                                    <div class="card-body px-4 py-4-5">
+                                        <div class="row">
+                                            <div class="col-lg-2 d-flex justify-content-start ">
+                                                <div class="stats-icon blue  mb-2">
+                                                    <i class="iconly-boldAdd-User"></i>
+                                                </div>
+                                                
+                                            </div>
+                                            <div class="col-lg-10">
+                                                <h6 class="text-muted font-semibold">Total Application Received</h6>
+                                                <h6 class="font-extrabold mb-0">20</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-xl-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <div class="row">
+                                            <div class="col-lg-2 d-flex justify-content-start ">
+                                                <div class="stats-icon green mb-2">
+                                                    <i class="iconly-boldBookmark"></i>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-10">
+                                                <h4 class="card-title">Last Posted Job</h4>
+                                                <p class="card-subtitle">Showing one record</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover table-lg">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Post Date</th>
+                                                        <th>Job Title</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="col-4">
+                                                            <p class=" mb-0">Sep 19, 2024</p>
+                                                        </td>
+                                                        <td class="col-auto">
+                                                            <p class="font-bold mb-0">Software Engineering Intern</p>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                     </div>
                 </div>

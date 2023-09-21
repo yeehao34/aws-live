@@ -51,6 +51,7 @@
                                             <th>Attachment</th>
                                             <th>Assign To</th>
                                             <th>Action</th>
+                                            <th>Delete</th>
                                         </tr>
                                     </thead>
                                 </table>
@@ -124,7 +125,13 @@
                 {
                     data: null,
                     render: function (data, type, row) {
-                        return "<a href='/adminTaskViewEdit?taskId=" + row.taskID + "' class='btn btn-primary'>View</a>" + "<button type='button' class='btn btn-danger btn-sm'>Delete</button>";
+                        return "<a href='/adminTaskViewEdit?taskId=" + row.taskID + "' class='btn btn-primary'>View</a>";
+                    }
+                },
+                {
+                    data: null,
+                    render: function (data, type, row) {
+                        return "<button id='delete?"+ row.taskID +"' type='button' class='btn btn-danger btn-sm'>Delete</button>";
                     }
                 }
             ]
@@ -134,6 +141,68 @@
         //click add task button, goto add task page
         $("#addTask").click(function () {
             window.location.href = "/adminAddTask";
+        });
+
+        //click delete button, pop up confirmation message, if yes, delete the task
+        $('#table1').on('click', 'button', function () {
+            var taskId = $(this).attr('id').replace('delete?', '');
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButton: 'Yes, delete it!',
+                cancelButton: 'No, keep it'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire(
+                        'Deleted!',
+                        'Your task has been deleted.',
+                        'success'
+                    )
+                    //delete the task
+                    for (var i = 0; i < taskList.length; i++) {
+                        if (taskList[i].taskID == taskId) {
+                            taskList.splice(i, 1);
+                        }
+                    }
+                    //refresh the table
+                    $('#table1').DataTable().clear().destroy();
+                    new DataTable('#table1', {
+                        data: taskList,
+                        columns: [
+                            { data: 'taskID' },
+                            { data: 'taskTitle' },
+                            { data: 'dueDate' },
+                            { data: 'attachment' },
+                            {
+                                data:
+                                    function (row) {
+                                        if (row.Diploma == "Y" && row.Degree == "Y") {
+                                            return "Diploma & Degree";
+                                        } else if (row.Diploma == "Y" && row.Degree == "N") {
+                                            return "Diploma";
+                                        } else if (row.Diploma == "N" && row.Degree == "Y") {
+                                            return "Degree";
+                                        }
+                                    }
+                            },
+                            {
+                                data: null,
+                                render: function (data, type, row) {
+                                    return "<a href='/adminTaskViewEdit?taskId=" + row.taskID + "' class='btn btn-primary'>View</a>";
+                                }
+                            },
+                            {
+                                data: null,
+                                render: function (data, type, row) {
+                                    return "<button id='delete?" + row.taskID + "' type='button' class='btn btn-danger btn-sm'>Delete</button>";
+                                }
+                            }
+                        ]
+                    });
+                }
+            })
         });
     </script>
 
