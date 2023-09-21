@@ -14,6 +14,14 @@
     <link rel="stylesheet" href="https://github.com/downloads/lafeber/world-flags-sprite/flags32.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="assets/extensions/sweetalert2/sweetalert2.min.css">
+
+    <style>
+        .theme-dark .swal2-success-circular-line-right,
+        .theme-dark .swal2-success-circular-line-left,
+        .theme-dark .swal2-success-fix {
+            background-color: #1e1e2d !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -21,7 +29,7 @@
         {% set activePage = 'comRequest' %}
         {% include "adminSidebar.html" %}
         <div id="main" class='layout-navbar'>
-            {# include "adminHeader.html" #}
+            {% include "adminHeader.html" %}
             <div id="main-content">
 
                 <div class="page-heading">
@@ -71,18 +79,25 @@
                                         </div>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">
-                                            <i class="bx bx-x d-block d-sm-none"></i>
-                                            <span class="d-none d-sm-block">Close</span>
-                                        </button>
-                                        <button type="button" id="reject" class="btn btn-danger ml-1" data-bs-dismiss="modal">
-                                            <i class="bx bx-check d-block d-sm-none"></i>
-                                            <span class="d-none d-sm-block">Reject</span>
-                                        </button>
-                                        <button type="button" id="approve" class="btn btn-primary ml-1" data-bs-dismiss="modal">
-                                            <i class="bx bx-check d-block d-sm-none"></i>
-                                            <span class="d-none d-sm-block">Approve</span>
-                                        </button>
+                                        <form id="myForm" action="/UpdateCompReq">
+                                            <input type="hidden" name="requestId" id="requestId" value="" />
+                                            <input type="hidden" name="status" id="status" value="" />
+                                            <button type="button" class="btn btn-light-secondary"
+                                                data-bs-dismiss="modal">
+                                                <i class="bx bx-x d-block d-sm-none"></i>
+                                                <span class="d-none d-sm-block">Close</span>
+                                            </button>
+                                            <button type="submit" id="reject" class="btn btn-danger ml-1"
+                                                data-bs-dismiss="modal">
+                                                <i class="bx bx-check d-block d-sm-none"></i>
+                                                <span class="d-none d-sm-block">Reject</span>
+                                            </button>
+                                            <button type="submit" id="approve" class="btn btn-primary ml-1"
+                                                data-bs-dismiss="modal">
+                                                <i class="bx bx-check d-block d-sm-none"></i>
+                                                <span class="d-none d-sm-block">Approve</span>
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -120,36 +135,40 @@
     <script src="assets/extensions/sweetalert2/sweetalert2.min.js"></script>>
     <script src="assets/js/pages/sweetalert2.js"></script>
 
+    {% if success %}
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Approved',
+            text: '{{success}}',
+        })
+    </script>
+    {% endif %}
+
+    {% if reject %}
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Rejected',
+            text: '{{reject}}',
+        })
+    </script>
+    {% endif %}
+
+
     <script>
         //define an array of object with id, company name, student email, status in dummy data
-        var data = [{
-            "id": "1",
-            "companyName": "Company A",
-            "companyAddress": "Company A Address Kuala Lumpur Malaysia",
-            "studentEmail": "studentEmail@gmail.com",
-            "status": "Pending"
-        },
-        {
-            "id": "2",
-            "companyName": "Company Cacat",
-            "companyAddress": "Company Cacaattt Address Kuala Lumpur Malaysia",
-            "studentEmail": "studentEmail@gmail.com",
-            "status": "Pending"
-        },
-        {
-            "id": "3",
-            "companyName": "Company Very Cacat",
-            "companyAddress": "Company Very Cacat Address Kuala Lumpur Malaysia",
-            "studentEmail": "studentEmail@gmail.com",
-            "status": "Pending"
-        },
-        {
-            "id": "4",
-            "companyName": "Company Tak Cacat",
-            "companyAddress": "Company tak Cacat Kuala Lumpur Malaysia",
-            "studentEmail": "studentEmail@gmail.com",
-            "status": "Pending"
-        }];
+        var data = [];
+
+        {% for compReq in compReqs %}
+        data.push({
+            "id": "{{ compReq.requestId }}",
+            "companyName": "{{ compReq.companyName }}",
+            "companyAddress": "{{ compReq.companyAddress }}",
+            "studentEmail": "{{ compReq.studentEmail }}",
+            "status": "{{ compReq.requestStatus }}"
+        });
+        {% endfor %}
 
         //define datatable
         var table = $('#table1').DataTable({
@@ -186,40 +205,19 @@
             $("textarea[name='comAddr']").val(data.companyAddress);
             $("input[name='email']").val(data.studentEmail);
             //set request id into approve and reject button
-            $("#approve").val(data.id);
-            $("#reject").val(data.id);
+            $("#requestId").val(data.id);
         });
 
         //click approve button, pop up sweet alert, update to the array of object, rerender the table
         $("#approve").click(function () {
-            Swal.fire({
-                icon: 'success',
-                title: 'Approved',
-                text: 'The request has been approved!',
-            })
-            //get the request id from the button, find the object in the array of object, update the status to rejected
-            var id = $(this).val();
-            var index = data.findIndex(x => x.id === id);
-            data[index].status = "Approved";
-            table.clear();
-            table.rows.add(data);
-            table.draw();
+            $("#status").val("Approved");
+
         });
 
         //click reject button, pop up sweet alert, update to the array of object, rerender the table
         $("#reject").click(function () {
-            Swal.fire({
-                icon: 'error',
-                title: 'Rejected',
-                text: 'The request has been rejected!',
-            })
-            //get the request id from the button, find the object in the array of object, update the status to rejected
-            var id = $(this).val();
-            var index = data.findIndex(x => x.id === id);
-            data[index].status = "Rejected";
-            table.clear();
-            table.rows.add(data);
-            table.draw();
+            $("#status").val("Rejected");
+
         });
 
         //disable the button if the status is not pending
