@@ -96,6 +96,20 @@ def retrieveAllInternshipApplication():
     conn.close()
     return rows
 
+def retrieveApplicationByAppId(appId):
+    row = None
+    try:
+        conn = create_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM " + internshipApplicationTable + " WHERE ApplicationId = %s", (appId,))
+        row = cur.fetchone()
+    except Exception as e:
+        print(e)
+    finally:
+        cur.close()
+        conn.close()
+    return row
+
 def retrieveStudApplication(studEmail):
     conn = create_connection()
     cur = conn.cursor()

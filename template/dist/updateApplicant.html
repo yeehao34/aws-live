@@ -11,6 +11,18 @@
     <link rel="shortcut icon" href="assets/images/logo/favicon.svg" type="image/x-icon">
     <link rel="shortcut icon" href="assets/images/logo/favicon.png" type="image/png">
     <link rel="stylesheet" href="assets/extensions/sweetalert2/sweetalert2.min.css" />
+
+    <style>
+        .card-header {
+            padding-bottom: 0 !important;
+        }
+
+        .theme-dark .swal2-success-circular-line-right,
+        .theme-dark .swal2-success-circular-line-left,
+        .theme-dark .swal2-success-fix {
+            background-color: #1e1e2d !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -19,7 +31,7 @@
         {% set activePage = "applicant" %}
         {% include "companySidebar.html" %}
         <div id="main" class='layout-navbar'>
-            {# include "companyHeader.html" #}
+            {% include "companyHeader.html" %}
             <div id="main-content">
 
                 <div class="page-heading">
@@ -158,7 +170,8 @@
                                             </div>
                                             <div class="row my-3">
                                                 <h6 class="card-subtitle">Job Description </h6>
-                                                <p id="jobDescriptionDisplay" class="card-text"></p>
+                                                <p id="jobDescriptionDisplay" class="card-text"
+                                                    style="white-space: pre-line;"></p>
                                             </div>
                                             <div class="row my-3">
                                                 <div class="col-12 col-lg-4">
@@ -193,8 +206,9 @@
                                 </div>
                             </div>
                         </div>
-                        <form class="form" id="updateApplicationForm" data-parsley-validate action="" method="POST"
-                            enctype="multipart/form-data">
+                        <form class="form" id="updateApplicationForm" data-parsley-validate action="/UpdateApplicantStatus"
+                            method="GET">
+                            <input type="hidden" name="applicationId" value="{{application.applicationId}}">
                             <div class="row">
                                 <div class="card">
                                     <div class="card-header">
@@ -260,112 +274,90 @@
     <script src="assets/js/pages/parsley.js"></script>
     <script src="assets/extensions/sweetalert2/sweetalert2.min.js"></script>
 
+    {% if success %}
     <script>
-        var application = {
-            applicationId: 1,
-            studentName: "John Doe",
-            level: "Diploma",
-            cgpa: 3.5,
-            jobId: "J001",
-            jobTitle: "IT Support",
-            allowance: 1000,
-            status: "Pending"
-        };
+        Swal.fire({
+            icon: 'success',
+            title: 'Status Updated',
+            text: '{{success}}',
+        })
+    </script>
+    {% endif %}
 
+    <script>
         //if status is not pending, disable the form
-        if (application.status != "Pending") {
+        if (`{{application.applicationStatus}}` != "Pending") {
             document.getElementById("updateApplicationForm").innerHTML += "<div class='row'><div class='col-12'><div class='alert alert-warning' role='alert'>You have already Approved or Rejected this application.</div></div></div>";
             $("#updateApplicationForm :input").prop("disabled", true);
         }
 
         //populate application details to the card
-        document.getElementById("applicationId").innerHTML = application.applicationId;
-        document.getElementById("applyDate").innerHTML = "1/1/2021";
+        document.getElementById("applicationId").innerHTML = `{{application.applicationId}}`;
+        document.getElementById("applyDate").innerHTML = `{{application.applyDate}}`;
         //display apply status in badge
         document.getElementById("applyStatus").classList.add("badge");
         //if status is pending, display in yellow, if approved, display in green, if rejected, display in red
-        if (application.status == "Pending") {
+        if (`{{application.applicationStatus}}` == "Pending") {
             document.getElementById("applyStatus").classList.add("bg-warning");
-        } else if (application.status == "Approved") {
+        } else if (`{{application.applicationStatus}}` == "Approved") {
             document.getElementById("applyStatus").classList.add("bg-success");
-        } else if (application.status == "Rejected") {
+        } else if (`{{application.applicationStatus}}` == "Rejected") {
             document.getElementById("applyStatus").classList.add("bg-danger");
         }
-        document.getElementById("applyStatus").innerHTML = application.status;
+        document.getElementById("applyStatus").innerHTML = `{{application.applicationStatus}}`;
 
-
-        var student = {
-            studentId: 1,
-            studentName: "John Doe",
-            programme: "Diploma in Computer Science",
-            profile: "assets/images/faces/1.jpg",
-            gender: "F",
-            ownTransport: "Y",
-            level: "Diploma",
-            cgpa: 3.5,
-            schoolEmail: "john@student.tarc.edu.my",
-            personalEmail: "johm@personal.com",
-            phone: "0123456789",
-            address: "No. 1, Jalan 1, Taman 1, 11111, Kuala Lumpur",
-            healthRemark: ""
-        };
 
         //populate student details to the card
-        document.getElementById("studentProfile").src = student.profile;
-        document.getElementById("studentName").innerHTML = student.studentName;
-        document.getElementById("studentId").innerHTML = student.studentId;
-        document.getElementById("level").innerHTML = student.level;
-        document.getElementById("programme").innerHTML = student.programme;
-        document.getElementById("personalEmail").innerHTML = student.personalEmail;
-        document.getElementById("personalEmail").href = "mailto:" + student.personalEmail;
-        document.getElementById("schoolEmail").innerHTML = student.schoolEmail;
-        document.getElementById("schoolEmail").href = "mailto:" + student.schoolEmail;
-        document.getElementById("studentContact").innerHTML = student.phone;
-        if (student.gender == "F") {
+        document.getElementById("studentProfile").src = `{{student.profilePic}}`;
+        document.getElementById("studentName").innerHTML = `{{student.name}}`;
+        document.getElementById("studentId").innerHTML = `{{student.studId}}`;
+        document.getElementById("level").innerHTML = `{{student.eduLvl}}`;
+        document.getElementById("programme").innerHTML = `{{student.programme}}`;
+        document.getElementById("personalEmail").innerHTML = `{{student.personalEmail}}`;
+        document.getElementById("personalEmail").href = "mailto:" + `{{student.personalEmail}}`;
+        document.getElementById("schoolEmail").innerHTML = `{{student.studEmail}}`;
+        document.getElementById("schoolEmail").href = "mailto:" + `{{student.studEmail}}`;
+        document.getElementById("studentContact").innerHTML = `{{student.contactNo}}`;
+        if (`{{student.gender}}` == "F") {
             document.getElementById("studentGender").innerHTML = "Female";
-        } else if (student.gender == "M") {
+        } else if (`{{student.gender}}` == "M") {
             document.getElementById("studentGender").innerHTML = "Male";
         }
-        if (student.ownTransport == "Y") {
+        if (`{{student.ownTransport}}` == "Y") {
             document.getElementById("ownTransport").innerHTML = "Yes";
-        } else if (student.ownTransport == "N") {
+        } else if (`{{student.ownTransport}}` == "N") {
             document.getElementById("ownTransport").innerHTML = "No";
         }
-        document.getElementById("studentCgpa").innerHTML = student.cgpa;
-        document.getElementById("studentAddress").innerHTML = student.address;
-        if (student.healthRemark == "") {
+        document.getElementById("studentCgpa").innerHTML = `{{student.latestCgpa}}`;
+        document.getElementById("studentAddress").innerHTML = `{{student.permAddr}}`;
+        if (`{{student.healthRemark}}` == "") {
             document.getElementById("healthRemark").innerHTML = "None";
         } else {
-            document.getElementById("healthRemark").innerHTML = student.healthRemark;
+            document.getElementById("healthRemark").innerHTML = `{{student.healthRemark}}`;
         }
 
-
-        var job = {
-            id: 1,
-            title: "Software Engineer",
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec euismod, nisl vitae aliquam ultricies, nunc nisl ultricies nunc, vitae aliquam nisl nisl vitae nisl. Donec euismod, nisl vitae aliquam ultricies, nunc nisl ultricies nunc, vitae aliquam nisl nisl vitae nisl.",
-            allowance: 1000,
-            workingDay: "Monday - Friday",
-            workingHour: "9am - 5pm",
-            diploma: "Y",
-            degree: "Y",
-            accessory: "None",
-            accommodation: "Y",
-            company: "TAR UC",
-            companyLogo: "assets/images/logo/tarumt.png"
-        };
-
         //populate job details to the card
-        document.getElementById("logoDisplay").src = job.companyLogo;
-        document.getElementById("companyDisplay").innerHTML = job.company;
-        document.getElementById("jobTitleDisplay").innerHTML = job.title;
-        document.getElementById("jobDescriptionDisplay").innerHTML = job.description;
-        document.getElementById("allowanceDisplay").innerHTML = job.allowance;
-        document.getElementById("workDayDisplay").innerHTML = job.workingDay;
-        document.getElementById("workHourDisplay").innerHTML = job.workingHour;
-        document.getElementById("accessoryDisplay").innerHTML = job.accessory;
-        document.getElementById("accomDisplay").innerHTML = job.accommodation;
-        document.getElementById("openDisplay").innerHTML = job.diploma + " & " + job.degree;
+        document.getElementById("logoDisplay").src = `{{company.logo}}`;
+        document.getElementById("companyDisplay").innerHTML = `{{company.companyName}}`;
+        document.getElementById("jobTitleDisplay").innerHTML = `{{job.jobTitle}}`;
+        document.getElementById("jobDescriptionDisplay").innerHTML = `{{job.jobDesc}}`;
+        document.getElementById("allowanceDisplay").innerHTML = `{{job.allowance}}`;
+        document.getElementById("workDayDisplay").innerHTML = `{{job.workingDay}}`;
+        document.getElementById("workHourDisplay").innerHTML = `{{job.workingHour}}`;
+        document.getElementById("accessoryDisplay").innerHTML = `{{job.accessoryProvide}}`;
+
+        document.getElementById("accomDisplay").innerHTML = `{{job.accommodation}}` == "Y" ? "Yes" : "No";
+        openFor = "";
+        if (`{{job.diploma}}` == "Y") {
+            openFor += "Diploma";
+        }
+        if (`{{job.degree}}` == "Y") {
+            if (openFor != "") {
+                openFor += " & ";
+            }
+            openFor += "Degree";
+        }
+        document.getElementById("openDisplay").innerHTML = openFor;
 
     </script>
 

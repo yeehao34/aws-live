@@ -75,6 +75,11 @@
             </div>
         </div>
     </div>
+
+    <form id="deleteForm" action="/DeleteJobPost" style="display: none;">
+        <input type="hidden" name="jobId" id="jobId">
+    </form>
+
     <script src="assets/js/bootstrap.js"></script>
     <script src="assets/js/app.js"></script>
     <script src="assets/extensions/jquery/jquery.min.js"></script>
@@ -170,32 +175,12 @@
             //if user click yes, delete the job post
                 .then((result) => {
                     if (result.isConfirmed) {
-                        //delete the job post from job list
-                        $.ajax({
-                            url: '/deleteJobPost',
-                            type: 'POST',
-                            data: {
-                                jobId: jobId
-                            },
-                            success: function (response) {
-                                console.log(response);
-                            }
-                        });
-                        //remove from table
-                        $(this).closest('tr').remove();
-                        
-                        //pop up sweet alert to show job post deleted
-                        Swal.fire(
-                            'Deleted!',
-                            'Job Post has been deleted.',
-                            'success'
-                        )
+                        document.forms.deleteForm.jobId.value = jobId;
+                        document.forms.deleteForm.action = "/DeleteJobPost";
+                        document.forms.deleteForm.submit(); 
                     }
                 })
         });
-
-
-
 
     </script>
 
@@ -205,6 +190,17 @@
             icon: 'success',
             title: 'Job Added',
             text: '{{success}}'
+        })
+    </script>
+    {% endif %}
+
+
+    {% if deleted %} 
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Job Deleted',
+            text: '{{deleted}}'
         })
     </script>
     {% endif %}

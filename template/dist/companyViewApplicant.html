@@ -19,7 +19,7 @@
         {% set activePage = "applicant" %}
         {% include "companySidebar.html" %}
         <div id="main" class='layout-navbar'>
-            {# include "companyHeader.html" #}
+            {% include "companyHeader.html" %}
             <div id="main-content">
 
                 <div class="page-heading">
@@ -67,70 +67,28 @@
     <script src="//cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="assets/js/pages/simple-datatables.js"></script>
     <script>
-        //define a list of application objects with the following attributes:
-        //id, studentName, level, cgpa, jobTitle, allowance, status
-        var applicationList = [{
-            applicationId: 1,
-            applyDate: "2021-09-01",
-            studentName: "John Doe",
-            level: "Diploma",
-            cgpa: 3.5,
-            jobId: "J001",
-            jobTitle: "IT Support",
-            allowance: 1000,
-            status: "Pending"
-        },
-        {
-            applicationId:  2,
-            applyDate: "2021-09-01",
-            studentName: "Jane Doe 2",
-            level: "Diploma",
-            cgpa: 3.5,
-            jobId: "J001",
-            jobTitle: "IT Support",
-            allowance: 1000,
-            status: "Pending"
-        },
-        {
-            applicationId:  3,
-            applyDate: "2021-09-01",
-            studentName: "John Doe 3",
-            level: "Degree",
-            cgpa: 3.5,
-            jobId: "J002",
-            jobTitle: "Software Tester",
-            allowance: 700,
-            status: "Pending"
-        },
-        {
-            applicationId:  4,
-            applyDate: "2021-09-01",
-            studentName: "Jane Doe 4",
-            level: "Diploma",
-            cgpa: 3.2570,
-            jobId: "J001",
-            jobTitle: "IT Support",
-            allowance: 1000,
-            status: "Pending"
-        },
-        {
-            applicationId:  5,
-            applyDate: "2021-09-01",
-            studentName: "John Doe 5",
-            level: "Degree",
-            cgpa: 3.97,
-            jobId: "J002",
-            jobTitle: "Software Tester",
-            allowance: 700,
-            status: "Pending"
-        }];
+
+        var applicationList = [];
+        {% for applicant in applicantLists %}
+        applicationList.push({
+            applicationId: `{{applicant.applicationId}}`,
+            applyDate: `{{applicant.applyDate}}`,
+            studentName: `{{applicant.studentName}}`,
+            level: `{{applicant.level}}`,
+            cgpa: `{{applicant.cgpa}}`,
+            jobId: `{{applicant.jobId}}`,
+            jobTitle: `{{applicant.jobTitle}}`,
+            allowance: parseInt(`{{applicant.allowance}}`),
+            status: `{{applicant.applicationStatus}}`
+        });
+        {% endfor %}
 
         //define datatable
         var table = $('#table1').DataTable({
             data: applicationList,
             columns: [
                 { data: 'applicationId' },
-                { data: 'applyDate'},
+                { data: 'applyDate' },
                 { data: 'studentName' },
                 { data: 'level' },
                 { data: 'cgpa' },
@@ -151,7 +109,7 @@
                 {
                     data:
                         function (row) {
-                            return "<a href='/updateApplicant?id=" + row.applicationId + "' class='btn btn-primary'>View</a>";
+                            return "<a href='/updateApplicant?appId=" + row.applicationId + "' class='btn btn-primary'>View</a>";
                         }
                 }
             ]

@@ -719,9 +719,110 @@ def companyDashboard():
 
     company = {"companyName": companyResult[1], "username": companyResult[2], "logo": get_object_url(
         companyResult[8]), "companyStatus": companyResult[10]}
+    
+    jobList = retrieveCompJobById(compId)
+    jobCount = len(jobList)
+    
+    # get the total application received
+    totalApplication = len([appl for appl in retrieveAllInternshipApplication() if any(appl[5] == job[0] for job in jobList)])
 
-    return render_template("companyHome.html", company=company)
 
+    return render_template("companyHome.html", company=company, jobCount=jobCount, totalApplication=totalApplication)
+
+
+@app.route("/companyViewApplicant")
+def companyViewApplicant():
+    compId = session["companyId"]
+    companyResult = retrieveCompById(compId)
+
+    company = {"companyName": companyResult[1], "username": companyResult[2], "logo": get_object_url(
+        companyResult[8]), "companyStatus": companyResult[10]}
+
+    allStudents = retrieveAllStud()
+    allStudentsDetails = retrieveAllStudDetail()
+    jobLists = retrieveCompJobById(compId)
+    allApplicants = retrieveAllInternshipApplication()
+
+    # Create dictionaries to map student and student detail data by ID
+    students_dict = {student[0]: (student[1], student[5])
+                     for student in allStudents}
+    stud_details_dict = {studDetail[10]: studDetail[0]
+                         for studDetail in allStudentsDetails}
+
+    applicantLists = []
+
+    for job in jobLists:
+        for application in allApplicants:
+            if job[0] == application[5]:
+                studentEmail = application[6]
+                if studentEmail in students_dict and studentEmail in stud_details_dict:
+                    application = InternshipApplication(
+                        application[0], application[1], application[2], application[3],
+                        application[4], application[5], studentEmail
+                    )
+                    application.applyDate = application.applyDate.strftime(
+                        '%Y-%m-%d')
+                    application.studentName = stud_details_dict[studentEmail]
+                    application.level = students_dict[studentEmail][0]
+                    application.cgpa = students_dict[studentEmail][1]
+                    application.jobTitle = job[1]
+                    application.allowance = job[3]
+                    applicantLists.append(application)
+
+    return render_template("companyViewApplicant.html", company=company, applicantLists=applicantLists)
+
+
+@app.route("/updateApplicant")
+def updateApplicant():
+    compId = session["companyId"]
+    companyResult = retrieveCompById(compId)
+
+    company = {"companyName": companyResult[1], "username": companyResult[2], "logo": get_object_url(
+        companyResult[8]), "companyStatus": companyResult[10]}
+
+    applicationId = request.args.get('appId')
+    application = retrieveApplicationByAppId(applicationId)
+    application = InternshipApplication(application[0], application[1], application[2], application[3],
+                                        application[4], application[5], application[6])
+    application.applyDate = application.applyDate.strftime('%Y-%m-%d')
+    stud = retrieveStudByEmail(application.studentEmail)
+    studDetail = retrieveStudDetailByEmail(application.studentEmail)
+    stud = Student(stud[0], stud[1], stud[2], stud[3], stud[4], stud[5], stud[6], stud[7],
+                   studDetail[0], studDetail[1], studDetail[2], studDetail[3], studDetail[4], studDetail[5], studDetail[6], studDetail[7], studDetail[8], studDetail[9])
+    stud.profilePic = get_object_url(stud.profilePic)
+    job = retrieveJobById(application.jobId)
+    job = InternshipJob(job[0], job[1], job[2], job[3], job[4],
+                        job[5], job[6], job[7], job[8], job[9], job[10])
+
+    success = get_flashed_messages(category_filter=['update-applicant-success'])
+    if success:
+        success = success[0]
+
+    return render_template("updateApplicant.html", company=company, application=application, student=stud, job=job, success=success)
+
+@app.route("/UpdateApplicantStatus")
+def UpdateApplicantStatus():
+    applicationId = request.args.get('applicationId')
+    applicationStatus = request.args.get('statusUpdate')
+    reviewDate = datetime.now()
+    remark = request.args.get('remark')
+    
+    try:
+        updateApplication_sql = "UPDATE " + internshipApplicationTable + \
+            " SET ApplicationStatus = %s, ReviewDate = %s, Remarks = %s WHERE ApplicationId = %s"
+        connection = create_connection()
+        cursor = connection.cursor()
+        cursor.execute(updateApplication_sql, (applicationStatus, reviewDate, remark, applicationId))
+        connection.commit()
+        flash("Applicant status has been updated successfully.", 'update-applicant-success')
+    except Exception as e:
+        print(e)
+        connection.rollback()
+    finally:
+        cursor.close()
+        connection.close()
+    
+    return redirect("/updateApplicant?appId=" + applicationId)
 
 @app.route("/companyProfile")
 def companyProfile():
@@ -816,7 +917,11 @@ def jobPosting():
     if success:
         success = success[0]
 
-    return render_template("jobPosting.html", company=company, companyJobs=companyJobs, success=success)
+    deleted = get_flashed_messages(category_filter=['job-deleted'])
+    if deleted:
+        deleted = deleted[0]
+
+    return render_template("jobPosting.html", company=company, companyJobs=companyJobs, success=success, deleted=deleted)
 
 
 @app.route("/jobPostingDetailViewEdit")
@@ -944,6 +1049,31 @@ def AddJob():
         connection.close()
 
     return redirect("/jobPosting")
+
+
+@app.route("/DeleteJobPost")
+def DeleteJob():
+    jobId = request.args.get('jobId')
+    try:
+        connection = create_connection()
+        cursor = connection.cursor()
+        deleteApp_sql = "DELETE FROM " + internshipApplicationTable + " WHERE JobId = %s"
+        cursor.execute(deleteApp_sql, (jobId))
+        deleteJob_sql = "DELETE FROM " + internshipJobTable + " WHERE JobId = %s"
+        cursor.execute(deleteJob_sql, (jobId))
+
+        connection.commit()
+        flash(
+            "Job Post has been deleted, relevant applications also removed.", 'job-deleted')
+    except Exception as e:
+        print(e)
+        connection.rollback()
+    finally:
+        cursor.close()
+        connection.close()
+
+    return redirect("/jobPosting")
+
 
 # --------------------- Company ---------------------------
 
@@ -1269,6 +1399,7 @@ def adminCompanyManage():
 
     return render_template("adminCompanyManage.html", admin=admin, companyList=companies)
 
+
 @app.route("/adminCompanyViewUpdate")
 def adminCompanyViewUpdate():
     adminId = session['adminId']
@@ -1281,23 +1412,23 @@ def adminCompanyViewUpdate():
     compId = request.args.get('compId')
     company = retrieveCompById(compId)
     company = Company(company[0], company[1], company[2], company[3], company[4], company[5],
-                        company[6], company[7], company[8], company[9], company[10], company[11], company[12])
+                      company[6], company[7], company[8], company[9], company[10], company[11], company[12])
     company.logo = get_object_url(company.logo)
     print(company.logo)
     company.ssmCert = get_object_url(company.ssmCert)
-    
+
     personInCharge = retrievePICById(company.picId)
-    personInCharge = CompanyPersonnel(personInCharge[0], personInCharge[1], personInCharge[2], personInCharge[3], personInCharge[4])
-    
-    
+    personInCharge = CompanyPersonnel(
+        personInCharge[0], personInCharge[1], personInCharge[2], personInCharge[3], personInCharge[4])
+
     success = get_flashed_messages(category_filter=['comp-approved'])
     if success:
         success = success[0]
-        
+
     reject = get_flashed_messages(category_filter=['comp-rejected'])
     if reject:
         reject = reject[0]
-        
+
     return render_template("adminCompanyViewUpdate.html", admin=admin, company=company, pic=personInCharge, approve=success, reject=reject)
 
 
@@ -1327,6 +1458,7 @@ def UpdateCompanyRegistration():
         connection.close()
 
     return redirect("/adminCompanyViewUpdate?compId=" + compId)
+
 
 @app.route("/adminProfile")
 def adminProfile():
