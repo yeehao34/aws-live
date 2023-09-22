@@ -929,8 +929,8 @@ def jobPosting():
     return render_template("jobPosting.html", company=company, companyJobs=companyJobs, success=success, deleted=deleted)
 
 
-@app.route("/jobPostingDetailViewEdit")
-def jobPostingDetails():
+@app.route("/JobPostingDetailViewEdit")
+def JobPostingDetails():
     jobId = request.args.get('jobId')
     compId = session["companyId"]
 
@@ -945,7 +945,7 @@ def jobPostingDetails():
     if success:
         success = success[0]
 
-    return render_template("jobPostingDetailViewEdit.html", company=company, job=job, success=success)
+    return render_template("JobPostingDetailViewEdit.html", company=company, job=job, success=success)
 
 
 @app.route("/UpdateJobDetail", methods=['POST'])
@@ -988,7 +988,7 @@ def updateJobDetail():
         cursor.close()
         connection.close()
 
-    return redirect("/jobPostingDetailViewEdit?jobId=" + jobId)
+    return redirect("/JobPostingDetailViewEdit?jobId=" + jobId)
 
 
 @app.route("/jobAdding")
