@@ -14,6 +14,13 @@
     <link rel="stylesheet" href="https://github.com/downloads/lafeber/world-flags-sprite/flags32.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="assets/extensions/sweetalert2/sweetalert2.min.css">
+    <style>
+        .theme-dark .swal2-success-circular-line-right,
+        .theme-dark .swal2-success-circular-line-left,
+        .theme-dark .swal2-success-fix {
+            background-color: #1e1e2d !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -21,7 +28,7 @@
         {% set activePage = 'company' %}
         {% include "adminSidebar.html" %}
         <div id="main" class='layout-navbar'>
-            {# include "adminHeader.html" #}
+            {% include "adminHeader.html" %}
             <div id="main-content">
 
                 <div class="page-heading">
@@ -134,6 +141,11 @@
             </div>
         </div>
     </div>
+
+    <form id="updateForm" action="/UpdateCompanyRegistration" method="GET">
+        <input type="hidden" name="companyId" id="companyIdInput" value="{{company.companyId}}">
+        <input type="hidden" name="companyStatus" id="companyStatusInput">
+    </form>
     <script src="assets/js/bootstrap.js"></script>
     <script src="assets/js/app.js"></script>
 
@@ -144,22 +156,42 @@
     <script src="assets/extensions/sweetalert2/sweetalert2.min.js"></script>>
     <script src="assets/js/pages/sweetalert2.js"></script>
 
+    {% if approve %}
+    <script>
+        Swal.fire(
+            'Approved!',
+            'This company registration has been approved.',
+            'success'
+        )
+    </script>
+    {% endif %}
+
+    {% if reject %}
+    <script>
+        Swal.fire(
+            'Rejected!',
+            'This company registration has been rejected.',
+            'success'
+        )
+    </script>
+    {% endif %}
+
     <script>
         var company = {
-            "companyId": "1",
-            "companyName": "Company A",
-            "otClaim": "Yes",
-            "companyAddress": "Company A Address Kuala Lumpur Malaysia",
-            "ssmCertificateUrl": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-            "companyLogoUrl": "assets/images/faces/1.jpg",
-            "industry": ["IT", "Finance"],
-            "totalStaffCount": "100",
-            "companyWebsite": "https://www.w3schools.com/default.asp",
-            "picName": "John",
-            "picEmail": "john@mycompany.com",
-            "picPhone": "0123456789",
-            "picDesignation": "Manager",
-            "companyStatus": "Pending"
+            "companyId": `{{company.companyId}}`,
+            "companyName": `{{company.companyName}}`,
+            "otClaim": `{{company.otClaim}}`,
+            "companyAddress": `{{company.address}}`,
+            "ssmCertificateUrl": `{{company.ssmCert}}`,
+            "companyLogoUrl": `{{company.logo}}`,
+            "industry": `{{company.industry}}`.split("|"),
+            "totalStaffCount": `{{company.totalStf}}`,
+            "companyWebsite": `{{company.website}}`,
+            "picName": `{{pic.name}}`,
+            "picEmail": `{{pic.email}}`,
+            "picPhone": `{{pic.contactNo}}`,
+            "picDesignation": `{{pic.designation}}`,
+            "companyStatus": `{{company.companyStatus}}` 
         };
 
         //document ready run populate function
@@ -191,6 +223,7 @@
             document.getElementById("ssmCert").target = "_blank";
             document.getElementById("ssmCert").innerHTML = company.companyName + " SSM Certificate";
             document.getElementById("companyLogo").src = company.companyLogoUrl;
+            console.log(company.companyLogoUrl)
             //use badge to show company status
             if (company.companyStatus == "Pending") {
                 document.getElementById("companyStatus").innerHTML = "<span class='badge bg-warning'>Pending</span>";
@@ -220,17 +253,8 @@
                 confirmButtonText: 'Yes, approve it!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    Swal.fire(
-                        'Approved!',
-                        'This company registration has been approved.',
-                        'success'
-                    ).then((result) => {
-                        if (result.isConfirmed) {
-                            //update status to approved
-                            company.companyStatus = "Approved";
-                            populateCompanyDetail();
-                        }
-                    })
+                    $("#companyStatusInput").val("Approved");
+                    document.forms.updateForm.submit();
                 }
             })
         });
@@ -247,17 +271,8 @@
                 confirmButtonText: 'Yes, reject it!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    Swal.fire(
-                        'Rejected!',
-                        'This company registration has been rejected.',
-                        'success'
-                    ).then((result) => {
-                        if (result.isConfirmed) {
-                            //update status to rejected
-                            company.companyStatus = "Rejected";
-                            populateCompanyDetail();
-                        }
-                    })
+                    $("#companyStatusInput").val("Rejected");
+                    document.forms.updateForm.submit();
                 }
             })
         });

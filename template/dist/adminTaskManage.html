@@ -14,6 +14,13 @@
     <link rel="stylesheet" href="https://github.com/downloads/lafeber/world-flags-sprite/flags32.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="assets/extensions/sweetalert2/sweetalert2.min.css">
+    <style>
+        .theme-dark .swal2-success-circular-line-right,
+        .theme-dark .swal2-success-circular-line-left,
+        .theme-dark .swal2-success-fix {
+            background-color: #1e1e2d !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -64,6 +71,10 @@
             </div>
         </div>
     </div>
+
+    <form id="deleteForm" action="/DeleteTask" style="display: none;">
+        <input type="hidden" name="taskId" id="taskId">
+    </form>
     <script src="assets/js/bootstrap.js"></script>
     <script src="assets/js/app.js"></script>
 
@@ -74,40 +85,53 @@
     <script src="assets/extensions/sweetalert2/sweetalert2.min.js"></script>>
     <script src="assets/js/pages/sweetalert2.js"></script>
 
+    {% if success %}
+
+    <script>
+        Swal.fire(
+            'Task Created!',
+            '{{success}}',
+            'success'
+        )
+    </script>
+    {% endif %}
+
+
+    {% if successDelete %}
+    <script>
+        Swal.fire(
+            'Task Deleted!',
+            '{{success}}',
+            'success'
+        )
+    </script>
+    {% endif %}
+
     <script>
         //define a list of task objects to be displayed in the table
-        var taskList = [
-            {
-                "taskID": "1",
-                "taskTitle": "Task 1",
-                "dueDate": "2021-09-30",
-                "attachment": "task1.pdf",
-                "Diploma": "Y",
-                "Degree": "Y"
-            },
-            {
-                "taskID": "2",
-                "taskTitle": "Task 2",
-                "dueDate": "2021-09-30",
-                "attachment": "task2.pdf",
-                "Diploma": "Y",
-                "Degree": "Y"
-            },
-            {
-                "taskID": "3",
-                "taskTitle": "Task 3",
-                "dueDate": "2021-09-30",
-                "attachment": "task3.pdf",
-                "Diploma": "N",
-                "Degree": "Y"
-            }];
+        var taskList = [];
+
+        {% for task in tasks %}
+        taskList.push({
+            "taskID": "{{ task.taskId }}",
+            "taskTitle": "{{ task.taskName }}",
+            "dueDate": "{{ task.dueDate }}",
+            "attachment": "{{ task.attachmentName }}",
+            "Diploma": "{{ task.diploma }}",
+            "Degree": "{{ task.degree }}"
+        });
+        {% endfor %}
+
+        function dataTablesWrap(data, type, row) {
+            return "<div class='text-wrap width-200'>" + data + "</div>";
+        }
 
         //define datatable
         new DataTable('#table1', {
             data: taskList,
             columns: [
                 { data: 'taskID' },
-                { data: 'taskTitle' },
+                { data: 'taskTitle', render: dataTablesWrap },
                 { data: 'dueDate' },
                 { data: 'attachment' },
                 {
@@ -131,7 +155,7 @@
                 {
                     data: null,
                     render: function (data, type, row) {
-                        return "<button id='delete?"+ row.taskID +"' type='button' class='btn btn-danger btn-sm'>Delete</button>";
+                        return "<button id='delete?" + row.taskID + "' type='button' class='btn btn-danger btn-sm'>Delete</button>";
                     }
                 }
             ]
@@ -155,52 +179,9 @@
                 cancelButton: 'No, keep it'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    Swal.fire(
-                        'Deleted!',
-                        'Your task has been deleted.',
-                        'success'
-                    )
-                    //delete the task
-                    for (var i = 0; i < taskList.length; i++) {
-                        if (taskList[i].taskID == taskId) {
-                            taskList.splice(i, 1);
-                        }
-                    }
-                    //refresh the table
-                    $('#table1').DataTable().clear().destroy();
-                    new DataTable('#table1', {
-                        data: taskList,
-                        columns: [
-                            { data: 'taskID' },
-                            { data: 'taskTitle' },
-                            { data: 'dueDate' },
-                            { data: 'attachment' },
-                            {
-                                data:
-                                    function (row) {
-                                        if (row.Diploma == "Y" && row.Degree == "Y") {
-                                            return "Diploma & Degree";
-                                        } else if (row.Diploma == "Y" && row.Degree == "N") {
-                                            return "Diploma";
-                                        } else if (row.Diploma == "N" && row.Degree == "Y") {
-                                            return "Degree";
-                                        }
-                                    }
-                            },
-                            {
-                                data: null,
-                                render: function (data, type, row) {
-                                    return "<a href='/adminTaskViewEdit?taskId=" + row.taskID + "' class='btn btn-primary'>View</a>";
-                                }
-                            },
-                            {
-                                data: null,
-                                render: function (data, type, row) {
-                                    return "<button id='delete?" + row.taskID + "' type='button' class='btn btn-danger btn-sm'>Delete</button>";
-                                }
-                            }
-                        ]
-                    });
+                    document.forms.deleteForm.taskId.value = taskId;
+                    document.forms.deleteForm.action = "/DeleteTask";
+                    document.forms.deleteForm.submit();
                 }
             })
         });
