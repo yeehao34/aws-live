@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITP - Lecturer Dashboard</title>
+
+    <link rel="stylesheet" href="assets/css/main/app.css">
+    <link rel="stylesheet" href="assets/css/main/app-dark.css">
+    <link rel="shortcut icon" href="assets/images/logo/favicon.svg" type="image/x-icon">
+    <link rel="shortcut icon" href="assets/images/logo/favicon.png" type="image/png">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="assets/extensions/sweetalert2/sweetalert2.min.css">
+</head>
+
+<body>
+    <div id="app">
+        {% set activePage = "student" %}
+        {% include "supervisorSidebar.html" %}
+        <div id="main" class='layout-navbar'>
+            {# include "supervisorHeader.html" #}
+
+            <div id="main-content">
+                <div class="page-heading">
+                    <div class="page-title">
+                        <div class="page-title">
+                            <div class="row">
+                                <div class="col-12 col-md-6 order-md-1 order-last">
+                                    <h3>Student Assessment</h3>
+                                    <p class="text-subtitle text-muted">Search a student to generate the assessment form</p>
+                                </div>
+                                <div class="col-12 col-md-6 order-md-2 order-first">
+                                    <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                                        <ol class="breadcrumb">
+                                            <li class="breadcrumb-item"><a href="/supervisorHome">Dashboard</a></li>
+                                            <li class="breadcrumb-item active" aria-current="page">Student Evaluation</li>
+                                        </ol>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="main-content">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="col-12 col-lg-8 col-md-8">
+                                    <div class="form-group mb-3">
+                                        <label for="form-check" class="form-label">Select One Category to View</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="viewLevel" value="diploma"
+                                                id="diploma">
+                                            <label class="form-check-label" for="diploma">
+                                                Diploma Student
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="viewLevel" value="degree"
+                                                id="degree">
+                                            <label class="form-check-label" for="degree">
+                                                Bachelor Student
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="row d-flex justify-content-end">
+                                    <div class="col-12 col-lg-7 col-md-7">
+                                        <h4 class="card-title" id="levelViewing"></h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="card-body">
+                                <table id="table1" class="display" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Student Name</th>
+                                            <th>Gender</th>
+                                            <th>Programme</th>
+                                            <th>Contact</th>
+                                            <th>Company Name</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                {% include "footer.html" %}
+            </div>
+        </div>
+    </div>
+    <script src="assets/js/bootstrap.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/extensions/jquery/jquery.min.js"></script>
+    <script src="//code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="//cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="assets/js/pages/simple-datatables.js"></script>
+    <script src="assets/extensions/sweetalert2/sweetalert2.min.js"></script>>
+    <script src="assets/js/pages/sweetalert2.js"></script>
+
+    <script>
+        //define a list of student object with student name, student id, gender, programme, contact number, email, company name
+        var studentList = [{
+            studentId: "19WMR00001",
+            studentName: "John Smith",
+            gender: "M",
+            level:"diploma",
+            programme: "Diploma in Computer Science",
+            contactNumber: "0123456789",
+            email: "john@student.tarc.edu.my",
+            companyName: "ABC Company",
+            submssions: [{
+                submissionId: 1,
+                submissionStatus: "Submitted",
+                taskId: 1,
+                taskName: "Task 1",
+                submissionDate: "2021-09-01",
+                reportUrl: "https://www.google.com"
+            },
+            {
+                submissionId: 2,
+                submissionStatus: "Submitted",
+                taskId: 2,
+                taskName: "Task 2",
+                submissionDate: "2021-09-09",
+                reportUrl: "https://www.google.com"
+            },
+            {
+                submissionId: 3,
+                submissionStatus: "Submitted",
+                taskId: 3,
+                taskName: "Task 3",
+                submissionDate: "2021-09-27",
+                reportUrl: "https://www.google.com"
+            }]
+        },
+        {
+            studentId: "19WMR00002",
+            studentName: "John Danish",
+            level:"degree",
+            gender: "F",
+            programme: "Bachelor in Computer Science",
+            contactNumber: "0123456789",
+            email: "johnDanish@student.tarc.edu.my",
+            companyName: "Adidas Company Sdn Bhd",
+            submssions: [{
+                submissionId: 1,
+                submissionStatus: "Submitted",
+                taskId: 1,
+                taskName: "Task 1",
+                submissionDate: "2021-09-01",
+                reportUrl: "https://www.google.com"
+            },
+            {
+                submissionId: 2,
+                submissionStatus: "Submitted",
+                taskId: 2,
+                taskName: "Task 2",
+                submissionDate: "2021-09-09",
+                reportUrl: "https://www.google.com"
+            },
+            {
+                submissionId: 3,
+                submissionStatus: "Approved",
+                taskId: 3,
+                taskName: "Task 3",
+                submissionDate: "2021-09-27",
+                reportUrl: "https://www.google.com"
+            }, {
+                submissionId: 4,
+                submissionStatus: "Pending",
+                taskId: 1,
+                taskName: "Task 1",
+                submissionDate: "2021-09-01",
+                reportUrl: "https://www.google.com"
+            },
+            {
+                submissionId: 5,
+                submissionStatus: "Rejected",
+                taskId: 2,
+                taskName: "Task 2",
+                submissionDate: "2021-09-09",
+                reportUrl: "https://www.google.com"
+            },
+            {
+                submissionId: 6,
+                submissionStatus: "Pending",
+                taskId: 3,
+                taskName: "Task 3",
+                submissionDate: "2021-09-27",
+                reportUrl: "https://www.google.com"
+            }]
+        }];
+
+        //function get diploma student list
+        function getDiplomaStudentList() {
+            var diplomaStudentList = [];
+            for (var i = 0; i < studentList.length; i++) {
+                if (studentList[i].level == "diploma") {
+                    diplomaStudentList.push(studentList[i]);
+                }
+            }
+            return diplomaStudentList;
+        }
+
+        //function get degree student list
+        function getDegreeStudentList() {
+            var degreeStudentList = [];
+            for (var i = 0; i < studentList.length; i++) {
+                if (studentList[i].level == "degree") {
+                    degreeStudentList.push(studentList[i]);
+                }
+            }
+            return degreeStudentList;
+        }
+
+        //default diploma selected
+        var selectedStudentList = getDiplomaStudentList();
+        $('input[type=radio][name=viewLevel][value=diploma]').prop('checked', true);
+        $('#levelViewing').html('Diploma Student');
+
+        //check radio button value, if diploma selected, get diploma student list, if degree selected, get degree student list
+        $('input[type=radio][name=viewLevel]').change(function () {
+            if (this.value == 'diploma') {
+                selectedStudentList = getDiplomaStudentList();
+                $('#levelViewing').html('Diploma Student');
+            } else if (this.value == 'degree') {
+                selectedStudentList = getDegreeStudentList();
+                $('#levelViewing').html('Bachelor Student');
+            }
+            //clear table
+            $('#table1').DataTable().clear().draw();
+            //add data to table
+            $('#table1').DataTable().rows.add(selectedStudentList).draw();
+        });
+
+        //define datatable
+        new DataTable('#table1', {
+            data: selectedStudentList,
+            columns: [
+                {
+                    data: null, render: function (data, type, row, meta) {
+                        return meta.row + 1;
+                    }
+                },
+                {
+                    data: null,
+                    render: function (data, type, row, meta) {
+                        return row.studentName + '<br>' + '[' + row.studentId + ']';
+
+                    }
+                },
+                { data: 'gender' },
+                { data: 'programme' },
+                {
+                    data: null,
+                    render: function (data, type, row, meta) {
+                        return 'Tel: ' + row.contactNumber + '<br> Email: ' + row.email;
+                    }
+                },
+                { data: 'companyName'},
+                {
+                    data: null,
+                    render: function (data, type, row, meta) {
+                        return '<a href="/supervisorStudentAssessmentForm?studentId=' + row.studentId + ' class="btn btn-primary">Generate Form</a>';
+                    }
+                },
+            ]
+        });
+
+
+
+
+
+    </script>
+
+
+</body>
+
+</html>

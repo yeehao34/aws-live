@@ -54,7 +54,12 @@
                         <span>Student Progress</span>
                     </a>
                 </li>
-
+                <li class="sidebar-item {% if activePage == 'studentAssess' %}active{% endif %}">
+                    <a href="/studentAssessment" class='sidebar-link'>
+                        <i class="bi bi-stack"></i>
+                        <span>Student Evaluation</span>
+                    </a>
+                </li>
                 <li class="sidebar-item {% if activePage == 'profile' %}active{% endif %}">
                     <a href="/supervisorProfile" class='sidebar-link'>
                         <i class="bi bi-person-lines-fill"></i>

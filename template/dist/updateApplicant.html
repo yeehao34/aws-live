@@ -298,6 +298,7 @@
             studentId: 1,
             studentName: "John Doe",
             programme: "Diploma in Computer Science",
+            profile: "assets/images/faces/1.jpg",
             gender: "F",
             ownTransport: "Y",
             level: "Diploma",
@@ -310,7 +311,7 @@
         };
 
         //populate student details to the card
-        document.getElementById("studentProfile").src = "assets/images/faces/1.jpg";
+        document.getElementById("studentProfile").src = student.profile;
         document.getElementById("studentName").innerHTML = student.studentName;
         document.getElementById("studentId").innerHTML = student.studentId;
         document.getElementById("level").innerHTML = student.level;
