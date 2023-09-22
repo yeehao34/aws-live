@@ -590,9 +590,9 @@ def updateStudProfile():
             profilePic = request.files['profile']
             if profilePic.filename != '':
                 # Upload image file in S3
-                uploadToS3(profilePic, "students/" +
-                           studEmail + "/profile.png")
-                profilePath = "students/" + studEmail + "/profile.png"
+
+                profilePath = "students/" + studEmail + "/profile_" + datetime.now() + ".png"
+                uploadToS3(profilePic, profilePath)
                 # Update profile pic path in Student Table
                 cursor.execute(updateStudProfile_sql, (profilePath, studEmail))
 
@@ -881,7 +881,7 @@ def updateCompProfile():
             if logo.filename != '':
                 print("logo not empty")
                 # Upload image file in S3
-                compLogoPath = "companies/" + compId + "/logo.png"
+                compLogoPath = "companies/" + compId + "/logo_"+ datetime.now() + ".png"
                 uploadToS3(logo, compLogoPath)
                 updateCompLogo_sql = "UPDATE " + companyTable + \
                     " SET Logo = %s WHERE CompanyId = %s"
@@ -1523,7 +1523,6 @@ def UpdateTask():
 
     taskName = request.form['taskTitle']
     taskDueDate = request.form['taskDueDate']
-    attachment = request.files['attachment']
     taskDesc = request.form['taskDesc']
     taskId = request.form['taskId']
 
@@ -1532,16 +1531,22 @@ def UpdateTask():
     taskDueDate = datetime.combine(dueDate.date(), desired_time)
 
     try:
+        updateTaskAttachment_sql = "UPDATE " + taskTable + \
+            " SET AttachmentName = %s, AttachmentURL = %s WHERE TaskId = %s"
         updateTask_sql = "UPDATE " + taskTable + \
-            " SET TaskName = %s, TaskDescription = %s, DueDate = %s, AttachmentName = %s, AttachmentURL = %s WHERE TaskId = %s"
+            " SET TaskName = %s, TaskDescription = %s, DueDate = %s WHERE TaskId = %s"
         connection = create_connection()
         cursor = connection.cursor()
 
-        attachmentName = attachment.filename
-        attachmentURL = "Attachment/" + taskId + "/" + attachmentName
-        uploadToS3(attachment, attachmentURL)
+        attachment = request.files['attachment']
+        if attachment.filename != '':
+            attachmentName = attachment.filename
+            attachmentURL = "Attachment/" + taskId + "/" + attachmentName
+            uploadToS3(attachment, attachmentURL)
+            cursor.execute(updateTaskAttachment_sql, (attachmentName,
+                           attachmentURL, taskId))
         cursor.execute(updateTask_sql, (taskName, taskDesc,
-                       taskDueDate, attachmentName, attachmentURL, taskId))
+                       taskDueDate, taskId))
 
         connection.commit()
         flash("Task has been updated successfully", 'task-updated')
