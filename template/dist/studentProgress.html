@@ -19,7 +19,7 @@
         {% set activePage = "student" %}
         {% include "supervisorSidebar.html" %}
         <div id="main" class='layout-navbar'>
-            {# include "supervisorHeader.html" #}
+            {% include "supervisorHeader.html" %}
 
             <div id="main-content">
                 <div class="page-heading">
@@ -48,8 +48,8 @@
                                     <div class="form-group mb-3">
                                         <label for="form-check" class="form-label">Select One Category to View</label>
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="viewLevel" value="diploma"
-                                                id="diploma">
+                                            <input class="form-check-input" type="radio" name="viewLevel"
+                                                value="diploma" id="diploma">
                                             <label class="form-check-label" for="diploma">
                                                 Diploma Student
                                             </label>
@@ -117,104 +117,37 @@
     <script src="assets/js/pages/sweetalert2.js"></script>
 
     <script>
-        //define a list of student object with student name, student id, gender, programme, contact number, email, company name
-        var studentList = [{
-            studentId: "19WMR00001",
-            studentName: "John Smith",
-            gender: "M",
-            level:"diploma",
-            programme: "Diploma in Computer Science",
-            contactNumber: "0123456789",
-            email: "john@student.tarc.edu.my",
-            companyName: "ABC Company",
-            submssions: [{
-                submissionId: 1,
-                submissionStatus: "Submitted",
-                taskId: 1,
-                taskName: "Task 1",
-                submissionDate: "2021-09-01",
-                reportUrl: "https://www.google.com"
+        var studentList = [];
+        {% for stud in supervisedStudents %}
+        studentList.push({
+            studentId: `{{stud.studId}}`,
+            studentName: `{{stud.name}}`,
+            level: `{{stud.eduLvl}}`,
+            gender: `{{stud.gender}}`,
+            programme: `{{stud.programme}}`,
+            contactNumber: `{{stud.contactNo}}`,
+            email: `{{stud.studEmail}}`,
+            companyName: `{{stud.companyName}}`,
+            submissions: [
+                {% for sub in stud.submissions %}
+                {
+                submissionId: `{{sub.submissionId}}`,
+                submissionStatus: `{{sub.reportStatus}}`,
+                taskId: `{{sub.taskId}}`,
+                submissionDate: `{{sub.dateSubmitted}}`,
+                reportUrl: `{{sub.report}}`
             },
-            {
-                submissionId: 2,
-                submissionStatus: "Submitted",
-                taskId: 2,
-                taskName: "Task 2",
-                submissionDate: "2021-09-09",
-                reportUrl: "https://www.google.com"
-            },
-            {
-                submissionId: 3,
-                submissionStatus: "Submitted",
-                taskId: 3,
-                taskName: "Task 3",
-                submissionDate: "2021-09-27",
-                reportUrl: "https://www.google.com"
-            }]
-        },
-        {
-            studentId: "19WMR00002",
-            studentName: "John Danish",
-            level:"degree",
-            gender: "F",
-            programme: "Bachelor in Computer Science",
-            contactNumber: "0123456789",
-            email: "johnDanish@student.tarc.edu.my",
-            companyName: "Adidas Company Sdn Bhd",
-            submssions: [{
-                submissionId: 1,
-                submissionStatus: "Submitted",
-                taskId: 1,
-                taskName: "Task 1",
-                submissionDate: "2021-09-01",
-                reportUrl: "https://www.google.com"
-            },
-            {
-                submissionId: 2,
-                submissionStatus: "Submitted",
-                taskId: 2,
-                taskName: "Task 2",
-                submissionDate: "2021-09-09",
-                reportUrl: "https://www.google.com"
-            },
-            {
-                submissionId: 3,
-                submissionStatus: "Approved",
-                taskId: 3,
-                taskName: "Task 3",
-                submissionDate: "2021-09-27",
-                reportUrl: "https://www.google.com"
-            }, {
-                submissionId: 4,
-                submissionStatus: "Pending",
-                taskId: 1,
-                taskName: "Task 1",
-                submissionDate: "2021-09-01",
-                reportUrl: "https://www.google.com"
-            },
-            {
-                submissionId: 5,
-                submissionStatus: "Rejected",
-                taskId: 2,
-                taskName: "Task 2",
-                submissionDate: "2021-09-09",
-                reportUrl: "https://www.google.com"
-            },
-            {
-                submissionId: 6,
-                submissionStatus: "Pending",
-                taskId: 3,
-                taskName: "Task 3",
-                submissionDate: "2021-09-27",
-                reportUrl: "https://www.google.com"
-            }]
-        }];
+            {% endfor %}
+            ]
+        })
+        {% endfor %}
 
+        console.log(studentList)
         //function get diploma student list
         function getDiplomaStudentList() {
             var diplomaStudentList = [];
             for (var i = 0; i < studentList.length; i++) {
-                if (studentList[i].level == "diploma") {
+                if (studentList[i].level == "Diploma") {
                     diplomaStudentList.push(studentList[i]);
                 }
             }
@@ -225,7 +158,7 @@
         function getDegreeStudentList() {
             var degreeStudentList = [];
             for (var i = 0; i < studentList.length; i++) {
-                if (studentList[i].level == "degree") {
+                if (studentList[i].level == "Bachelor") {
                     degreeStudentList.push(studentList[i]);
                 }
             }
@@ -264,7 +197,7 @@
                 {
                     data: null,
                     render: function (data, type, row, meta) {
-                        return row.studentName + '<br>' + '[' + row.studentId + ']' + '<br><a href="/supervisorStudentView?studentId=' + row.studentId + ' class="btn btn-primary">View Student</a>';
+                        return row.studentName + '<br>' + '[' + row.studentId + ']' + '<br><a href="/supervisorStudentView?studentEmail=' + row.email + '" class="btn btn-primary">View Student</a>';
 
                     }
                 },
@@ -276,25 +209,26 @@
                         return 'Tel: ' + row.contactNumber + '<br> Email: ' + row.email;
                     }
                 },
-                { data: 'companyName'},
+                { data: 'companyName' },
                 {
                     width: "250px",
                     data:
                         function (row) {
-                            var submissionList = row.submssions;
+                            var submissionList = row.submissions;
+                            console.log(submissionList)
                             var submissionButton = "";
                             for (var i = 0; i < submissionList.length; i++) {
-                                if (submissionList[i].submissionStatus == "Submitted") {
-                                    submissionButton += "<span class='badge bg-warning me-1 mb-1'>" + (i + 1) + "</span>";
-                                } else if (submissionList[i].submissionStatus == "Approved") {
+                                if (submissionList[i].submissionStatus == "Approved") {
                                     submissionButton += "<span class='badge bg-success me-1 mb-1'>" + (i + 1) + "</span>";
                                 } else if (submissionList[i].submissionStatus == "Rejected") {
                                     submissionButton += "<span class='badge bg-danger me-1 mb-1'>" + (i + 1) + "</span>";
+                                } else if (submissionList[i].submissionDate != "None") {
+                                    submissionButton += "<span class='badge bg-warning me-1 mb-1'>" + (i + 1) + "</span>";
                                 } else {
                                     submissionButton += "<span class='badge bg-secondary me-1 mb-1'>" + (i + 1) + "</span>";
                                 }
                             }
-                            submissionButton += "<br><a href='/supervisorStudentReportView?studentId=" + row.studentId + "' class='btn btn-primary me-1 mb-1'>View</a>";
+                            submissionButton += "<br><a href='/supervisorStudentReportView?studentEmail=" + row.email + "' class='btn btn-primary me-1 mb-1'>View</a>";
                             return submissionButton;
                         }
                 },

@@ -242,7 +242,7 @@ def viewTask():
     submission = Submission(submission[0], submission[1], submission[2],
                             submission[3], submission[4], submission[5], submission[6])
     task = retrieveTaskById(submission.taskId)
-    task = Task(task[0], task[1], task[2], task[3], task[4], task[5])
+    task = Task(task[0], task[1], task[2], task[3], task[4], task[5], task[6])
     task.attachmentURL = get_object_url(task.attachmentURL)
     if submissionStatus == "pending":
         if (datetime.now() > task.dueDate):
@@ -719,13 +719,13 @@ def companyDashboard():
 
     company = {"companyName": companyResult[1], "username": companyResult[2], "logo": get_object_url(
         companyResult[8]), "companyStatus": companyResult[10]}
-    
+
     jobList = retrieveCompJobById(compId)
     jobCount = len(jobList)
-    
-    # get the total application received
-    totalApplication = len([appl for appl in retrieveAllInternshipApplication() if any(appl[5] == job[0] for job in jobList)])
 
+    # get the total application received
+    totalApplication = len([appl for appl in retrieveAllInternshipApplication(
+    ) if any(appl[5] == job[0] for job in jobList)])
 
     return render_template("companyHome.html", company=company, jobCount=jobCount, totalApplication=totalApplication)
 
@@ -794,11 +794,13 @@ def updateApplicant():
     job = InternshipJob(job[0], job[1], job[2], job[3], job[4],
                         job[5], job[6], job[7], job[8], job[9], job[10])
 
-    success = get_flashed_messages(category_filter=['update-applicant-success'])
+    success = get_flashed_messages(
+        category_filter=['update-applicant-success'])
     if success:
         success = success[0]
 
     return render_template("updateApplicant.html", company=company, application=application, student=stud, job=job, success=success)
+
 
 @app.route("/UpdateApplicantStatus")
 def UpdateApplicantStatus():
@@ -806,23 +808,26 @@ def UpdateApplicantStatus():
     applicationStatus = request.args.get('statusUpdate')
     reviewDate = datetime.now()
     remark = request.args.get('remark')
-    
+
     try:
         updateApplication_sql = "UPDATE " + internshipApplicationTable + \
             " SET ApplicationStatus = %s, ReviewDate = %s, Remarks = %s WHERE ApplicationId = %s"
         connection = create_connection()
         cursor = connection.cursor()
-        cursor.execute(updateApplication_sql, (applicationStatus, reviewDate, remark, applicationId))
+        cursor.execute(updateApplication_sql, (applicationStatus,
+                       reviewDate, remark, applicationId))
         connection.commit()
-        flash("Applicant status has been updated successfully.", 'update-applicant-success')
+        flash("Applicant status has been updated successfully.",
+              'update-applicant-success')
     except Exception as e:
         print(e)
         connection.rollback()
     finally:
         cursor.close()
         connection.close()
-    
+
     return redirect("/updateApplicant?appId=" + applicationId)
+
 
 @app.route("/companyProfile")
 def companyProfile():
@@ -1100,8 +1105,199 @@ def supervisorDashboard():
     supervisor = UniversitySupervisor(
         supervisor[0], supervisor[1], supervisor[2], supervisor[3], supervisor[4])
 
-    return render_template("supervisorHome.html", supervisor=supervisor)
+    allSupervisedStudents = retrieveStudentBySupervisorId(supervisorId)
+    diplomaStudCount = 0
+    degreeStudCount = 0
 
+    for stud in allSupervisedStudents:
+        if stud[2] == "Diploma":
+            diplomaStudCount += 1
+        else:
+            degreeStudCount += 1
+
+    return render_template("supervisorHome.html", supervisor=supervisor, diplomaStudCount=diplomaStudCount, degreeStudCount=degreeStudCount)
+
+
+@app.route("/studentProgress")
+def studentProgress():
+    supervisorId = session['supervisorId']
+    supervisor = retrieveUniSupervisorById(supervisorId)
+    supervisor = UniversitySupervisor(
+        supervisor[0], supervisor[1], supervisor[2], supervisor[3], supervisor[4])
+
+    allSupervisedStudents = retrieveStudentBySupervisorId(supervisorId)
+    allStudentsDet = {stud[10]: stud for stud in retrieveAllStudDetail()}
+    allInternship = {internship[0]: internship[1]
+                     for internship in retrieveAllInternship()}
+
+    allSubmissions = retrieveAllSubmissions()
+    supervisedStudents = []
+
+    # Group submissions by student email
+    submissions_by_student = {}
+    for submission in allSubmissions:
+        student_email = submission[5]
+        if student_email not in submissions_by_student:
+            submissions_by_student[student_email] = []
+        submission = Submission(submission[0], submission[1], submission[2],
+                                submission[3], submission[4], submission[5], submission[6])
+        submissions_by_student[student_email].append(submission)
+
+    for stud in allSupervisedStudents:
+        studDet = allStudentsDet.get(stud[0])
+        print(studDet)
+        companyName = allInternship.get(stud[0], "Not Secured Yet")
+        if studDet:
+            student = Student(stud[0], stud[1], stud[2], stud[3], stud[4], stud[5], stud[6], stud[7], studDet[0],
+                              studDet[1], studDet[2], studDet[3], studDet[4], studDet[5], studDet[6], studDet[7], studDet[8], studDet[9])
+            student.companyName = companyName
+            student.submissions = submissions_by_student.get(stud[0], [])
+            print(student.companyName)
+            print(student.submissions)
+            supervisedStudents.append(student)
+
+    return render_template("studentProgress.html", supervisor=supervisor, supervisedStudents=supervisedStudents)
+
+
+@app.route("/supervisorStudentView")
+def supervisorStudentView():
+    supervisorId = session['supervisorId']
+    supervisor = retrieveUniSupervisorById(supervisorId)
+    supervisor = UniversitySupervisor(
+        supervisor[0], supervisor[1], supervisor[2], supervisor[3], supervisor[4])
+
+    student = retrieveStudByEmail(request.args.get('studentEmail'))
+    studentDet = retrieveStudDetailByEmail(request.args.get('studentEmail'))
+    student = Student(student[0], student[1], student[2], student[3], student[4], student[5], student[6], student[7], studentDet[0],
+                      studentDet[1], studentDet[2], studentDet[3], studentDet[4], studentDet[5], studentDet[6], studentDet[7], studentDet[8], studentDet[9])
+    student.profilePic = get_object_url(student.profilePic)
+    internship = retrieveInternshipByEmail(request.args.get('studentEmail'))
+    if internship != None:
+        internship = Internship(internship[0], internship[1], internship[2], internship[3],
+                                internship[4], internship[5], internship[6], internship[7], internship[8])
+
+    return render_template("supervisorStudentView.html", supervisor=supervisor, student=student, internship=internship)
+
+
+@app.route("/supervisorStudentReportView")
+def supervisorStudentReportView():
+    supervisorId = session['supervisorId']
+    supervisor = retrieveUniSupervisorById(supervisorId)
+    supervisor = UniversitySupervisor(
+        supervisor[0], supervisor[1], supervisor[2], supervisor[3], supervisor[4])
+
+    student = retrieveStudByEmail(request.args.get('studentEmail'))
+    studentDet = retrieveStudDetailByEmail(request.args.get('studentEmail'))
+    student = Student(student[0], student[1], student[2], student[3], student[4], student[5], student[6], student[7], studentDet[0],
+                      studentDet[1], studentDet[2], studentDet[3], studentDet[4], studentDet[5], studentDet[6], studentDet[7], studentDet[8], studentDet[9])
+    student.profilePic = get_object_url(student.profilePic)
+
+    studSubmissions = []
+
+    allTasks = retrieveAllTask()
+
+    for submission in retrieveAllSubmissions():
+        submission = Submission(submission[0], submission[1], submission[2],
+                                submission[3], submission[4], submission[5], submission[6])
+        if submission.studentEmail == student.studEmail:
+            for task in allTasks:
+                if submission.taskId == task[0]:
+                    submission.taskTitle = task[1]
+                    submission.dueDate = datetime.strftime(task[3], '%Y-%m-%d')
+                    break
+            print(submission.dateSubmitted)
+            if submission.dateSubmitted != None:
+                submission.dateSubmitted = datetime.strftime(
+                    submission.dateSubmitted, '%Y-%m-%d %I:%M:%S %p')
+            print(submission.dateSubmitted)
+            submission.report = get_object_url(submission.report)
+            studSubmissions.append(submission)
+
+    print(studSubmissions)
+
+    success = get_flashed_messages(category_filter=['update-report-success'])
+    if success:
+        success = success[0]
+
+    return render_template("supervisorStudentReportView.html", supervisor=supervisor, student=student, studSubmissions=studSubmissions, success=success)
+
+
+@app.route("/UpdateReportStatus", methods=['POST'])
+def UpdateReportStatus():
+    submissionId = request.form['submissionId']
+    updateStatus = request.form['updateStatus']
+    remarks = request.form['reportRemark']
+
+    try:
+        connection = create_connection()
+        cursor = connection.cursor()
+
+        updateSubmission_sql = "UPDATE " + submissionTable + \
+            " SET ReportStatus = %s, Remarks = %s WHERE SubmissionId = %s"
+        cursor.execute(updateSubmission_sql,
+                       (updateStatus, remarks, submissionId))
+
+        flash("Report status has been updated successfully.",
+              'update-report-success')
+
+        connection.commit()
+    except Exception as e:
+        print(e)
+        connection.rollback()
+    finally:
+        cursor.close()
+        connection.close()
+    return redirect("/supervisorStudentReportView?studentEmail=" + request.form['studentEmail'])
+
+
+@app.route("/studentAssessment")
+def studentAssessment():
+    supervisorId = session['supervisorId']
+    supervisor = retrieveUniSupervisorById(supervisorId)
+    supervisor = UniversitySupervisor(
+        supervisor[0], supervisor[1], supervisor[2], supervisor[3], supervisor[4])
+
+    allSupervisedStudents = retrieveStudentBySupervisorId(supervisorId)
+    allStudentsDet = {stud[10]: stud for stud in retrieveAllStudDetail()}
+    allInternship = {internship[0]: internship[1]
+                     for internship in retrieveAllInternship()}
+
+    supervisedStudents = []
+
+    for stud in allSupervisedStudents:
+        studDet = allStudentsDet.get(stud[0])
+        print(studDet)
+        companyName = allInternship.get(stud[0], "Not Secured Yet")
+        if studDet:
+            student = Student(stud[0], stud[1], stud[2], stud[3], stud[4], stud[5], stud[6], stud[7], studDet[0],
+                              studDet[1], studDet[2], studDet[3], studDet[4], studDet[5], studDet[6], studDet[7], studDet[8], studDet[9])
+            student.companyName = companyName
+            print(student.companyName)
+            supervisedStudents.append(student)
+
+    return render_template("studentAssessment.html", supervisor=supervisor, supervisedStudents=supervisedStudents)
+
+
+@app.route("/supervisorStudentAssessmentForm")
+def supervisorStudentAssessmentForm():
+    studEmail = request.args.get('studentEmail')
+    supervisorId = session['supervisorId']
+    supervisor = retrieveUniSupervisorById(supervisorId)
+    supervisor = UniversitySupervisor(
+        supervisor[0], supervisor[1], supervisor[2], supervisor[3], supervisor[4])
+    
+    
+    student = retrieveStudByEmail(studEmail)
+    studentDet = retrieveStudDetailByEmail(studEmail)
+    student = Student(student[0], student[1], student[2], student[3], student[4], student[5], student[6], student[7], studentDet[0],
+                      studentDet[1], studentDet[2], studentDet[3], studentDet[4], studentDet[5], studentDet[6], studentDet[7], studentDet[8], studentDet[9])
+    student.profilePic = get_object_url(student.profilePic)
+    internship = retrieveInternshipByEmail(studEmail)
+    if internship != None:
+        internship = Internship(internship[0], internship[1], internship[2], internship[3],
+                                internship[4], internship[5], internship[6], internship[7], internship[8])
+    
+    return render_template("supervisorStudentAssessmentForm.html", supervisor=supervisor,  stud=student, internship=internship)
 
 @app.route("/supervisorProfile")
 def supervisorProfile():

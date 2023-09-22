@@ -19,7 +19,7 @@
         {% set activePage = "studentAssess" %}
         {% include "supervisorSidebar.html" %}
         <div id="main" class='layout-navbar'>
-            {# include "supervisorHeader.html" #}
+            {% include "supervisorHeader.html" %}
 
             <div id="main-content">
                 <div class="page-heading">
@@ -164,36 +164,21 @@
         <script>
             //define a list of student object with student name, student id, gender, programme, contact number, email, company name
             var student = {
-                studentId: "19WMR00001",
-                companyName: "ABC Company",
-                studentName: "John Doe",
-                profile: "assets/images/faces/1.jpg",
-                programme: "Diploma in Computer Science",
-                gender: "F",
-                ownTransport: "Y",
-                cohort: "2019",
-                tutorialGroup: "1",
-                level: "Diploma",
-                cgpa: 3.5,
-                schoolEmail: "john@student.tarc.edu.my",
-                personalEmail: "johm@personal.com",
-                phone: "0123456789",
-                address: "No. 1, Jalan 1, Taman 1, 11111, Kuala Lumpur",
-                healthRemark: "",
-                companyName: "ABC Company",
-                companyAddress: "No. 1, Jalan 1, Taman 1, 11111, Kuala Lumpur"
+                studentId: `{{stud.studId}}`,
+                studentName: `{{stud.name}}`,
+                programme: `{{stud.programme}}`,
             };
 
-            var supervisor = {
-                id: "1",
-                name: "Tan Chi Wee",
-            }
 
             //populate student details to the card
             document.getElementById("studentName").innerHTML = student.studentName;
             document.getElementById("studentId").innerHTML = student.studentId;
             document.getElementById("programme").innerHTML = student.programme;
-            document.getElementById("companyName").innerHTML = student.companyName;
+            {% if internship %}
+            document.getElementById("companyName").innerHTML = `{{internship.companyName}}`;
+            {% else %}
+            document.getElementById("companyName").innerHTML = "NA";
+            {% endif %}
 
             //get today date
             var today = new Date();
@@ -205,7 +190,7 @@
             document.getElementById("todayDate").innerHTML = dd + "/" + mm + "/" + yyyy;
 
             //set supervisor name in the card
-            document.getElementById("supervisorName").innerHTML = supervisor.name;
+            document.getElementById("supervisorName").innerHTML = `{{supervisor.name}}`;
 
             //function to print the card
             function printCard() {

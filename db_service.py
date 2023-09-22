@@ -96,6 +96,24 @@ def retrieveAllInternshipApplication():
     conn.close()
     return rows
 
+def retrieveAllInternship():
+    conn = create_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM " + internshipTable)
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return rows
+
+def retrieveAllSubmissions():
+    conn = create_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM " + submissionTable)
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return rows
+
 def retrieveApplicationByAppId(appId):
     row = None
     try:
@@ -132,6 +150,15 @@ def retrieveTaskById(taskId):
         cur.close()
         conn.close()
     return row
+
+def retrieveStudentBySupervisorId(supervisorId):
+    conn = create_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM " + studentTable + " WHERE UniversitySupervisorId = %s", (supervisorId,))
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return rows
 
 def retrieveCompById(compId):
     row = None

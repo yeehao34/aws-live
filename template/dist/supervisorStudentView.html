@@ -19,7 +19,7 @@
         {% set activePage = "student" %}
         {% include "supervisorSidebar.html" %}
         <div id="main" class='layout-navbar'>
-            {# include "supervisorHeader.html" #}
+            {% include "supervisorHeader.html" %}
 
             <div id="main-content">
                 <div class="page-heading">
@@ -140,14 +140,20 @@
                                             </div>
                                             <hr>
                                             <div class="row my-3">
+                                                {% if internship %}
                                                 <div class="col-12 col-lg-6">
                                                     <h6 class="card-subtitle">Company Name</h6>
-                                                    <p id="companyName" class="card-text"></p>
+                                                    <p id="companyName" class="card-text">{{internship.companyName}}</p>
                                                 </div>
                                                 <div class="col-12 col-lg-6">
                                                     <h6 class="card-subtitle">Company Address</h6>
-                                                    <p id="companyAddress" class="card-text"></p>
+                                                    <p id="companyAddress" class="card-text">{{internship.companyAddress}}</p>
                                                 </div>
+                                                {% else %}
+                                                <div class="col-lg-12">
+                                                    <h6 class="card-subtitle badge bg-warning" style="font-size: large;">Has Not Secured Internship Placement Yet</h6>
+                                                </div>
+                                                {% endif %}
                                             </div>
 
                                         </div>
@@ -174,48 +180,21 @@
         <script>
             //define a list of student object with student name, student id, gender, programme, contact number, email, company name
             var student = {
-                studentId: "19WMR00001",
-                companyName: "ABC Company",
-                studentName: "John Doe",
-                profile: "assets/images/faces/1.jpg",
-                programme: "Diploma in Computer Science",
-                gender: "F",
-                ownTransport: "Y",
-                cohort: "2019",
-                tutorialGroup: "1",
-                level: "Diploma",
-                cgpa: 3.5,
-                schoolEmail: "john@student.tarc.edu.my",
-                personalEmail: "johm@personal.com",
-                phone: "0123456789",
-                address: "No. 1, Jalan 1, Taman 1, 11111, Kuala Lumpur",
-                healthRemark: "",
-                companyName: "ABC Company",
-                companyAddress: "No. 1, Jalan 1, Taman 1, 11111, Kuala Lumpur",
-                submssions: [{
-                    submissionId: 1,
-                    submissionStatus: "Submitted",
-                    taskId: 1,
-                    taskName: "Task 1",
-                    submissionDate: "2021-09-01",
-                    reportUrl: "https://www.google.com"
-                },
-                {
-                    submissionId: 2,
-                    submissionStatus: "Submitted",
-                    taskId: 2,
-                    taskName: "Task 2",
-                    submissionDate: "2021-09-09",
-                    reportUrl: "https://www.google.com"
-                },
-                {
-                    submissionId: 3,
-                    submissionStatus: "Submitted",
-                    taskId: 3,
-                    taskName: "Task 3",
-                    submissionDate: "2021-09-27",
-                    reportUrl: "https://www.google.com"
-                }]
+                studentId: `{{student.studId}}`,
+                studentName: `{{student.name}}`,
+                profile: `{{student.profilePic}}`,
+                programme: `{{student.programme}}`,
+                gender: `{{student.gender}}`,
+                ownTransport: `{{student.ownTransport}}`,
+                cohort: `{{student.cohort}}`,
+                tutorialGroup: `{{student.tutGrp}}`,
+                level: `{{student.eduLvl}}`,
+                cgpa: parseFloat(`{{student.latestCgpa}}`).toFixed(4),
+                schoolEmail: `{{student.studEmail}}`,
+                personalEmail: `{{student.personalEmail}}`,
+                phone: `{{student.contactNo}}`,
+                address: `{{student.permAddr}}`,
+                healthRemark: `{{student.healthRemark}}`,
             };
 
             //populate student details to the card
@@ -231,8 +210,7 @@
             document.getElementById("studentContact").innerHTML = student.phone;
             document.getElementById("cohort").innerHTML = student.cohort;
             document.getElementById("tutorialGroup").innerHTML = student.tutorialGroup;
-            document.getElementById("companyName").innerHTML = student.companyName;
-            document.getElementById("companyAddress").innerHTML = student.companyAddress;
+
             if (student.gender == "F") {
                 document.getElementById("studentGender").innerHTML = "Female";
             } else if (student.gender == "M") {
