@@ -12,8 +12,10 @@ How to setup in VSCode (Setup a virtual environment)
 5) Then, python InternshipApp.py
 
 # Database 
-Hostname/Endpoint: database-1.c1nlreg7eojl.us-east-1.rds.amazonaws.com
+Hostname/Endpoint: internship-system-db.c1nlreg7eojl.us-east-1.rds.amazonaws.com
+
 Username: aws_user
+
 Password: Bait3273
 
 # For Development only!!
@@ -32,6 +34,7 @@ To get/upload object in/to s3, ensure that:
     aws_session_token=asdlasldjlkajdjadd+14qSgeftiLPASEzI9Ey+hQIFttufVxTFD2XcW8CWnMAtk18sFrn3sz1kjd4btFcrQbpQiEgITF8Y4MbUJjOVRJwf/xreA3q3bCK4RmMy7Z0IKtL9mHGfEjApx0b+is63KQB5+CS68bLX3rhQZP7yrZxBbah2Y4YCylolY11mPyRfDzv3Ec4ucC6MphpsX2vjGVb3qzuhzSVWsvBkKHA7vmFjdRYjt4lxp/UfiSddOFtGaWov08Xr27E7YqvR7vVjriHn8cExhiPykukOthoBnM6DU70BM8NYSiex4qoBjItYICMwZdvAjcjIX/7HN0x9InLdkNX+98cAfMqkG4qblmVKb/FndNaA8B0SMVd
     ```
 _Note : This credential is to illustrate how the access keys looks like_
+
 4. Copy and Paste this into the .env file
 
 Internship OnMyfinger Reference
